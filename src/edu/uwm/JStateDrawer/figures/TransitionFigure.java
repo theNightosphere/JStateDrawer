@@ -22,10 +22,10 @@ import org.jhotdraw.draw.*;
  * @author Werner Randelshofer.
  * @version $Id: DependencyFigure.java 718 2010-11-21 17:49:53Z rawcoder $
  */
-public class DependencyFigure extends LineConnectionFigure {
+public class TransitionFigure extends LineConnectionFigure {
 
     /** Creates a new instance. */
-    public DependencyFigure() {
+    public TransitionFigure() {
         set(STROKE_COLOR, new Color(0x000099));
         set(STROKE_WIDTH, 1d);
         set(END_DECORATION, new ArrowTip());
@@ -43,11 +43,11 @@ public class DependencyFigure extends LineConnectionFigure {
      */
     @Override
     public boolean canConnect(Connector start, Connector end) {
-        if ((start.getOwner() instanceof TaskFigure)
-                && (end.getOwner() instanceof TaskFigure)) {
+        if ((start.getOwner() instanceof StateFigure)
+                && (end.getOwner() instanceof StateFigure)) {
 
-            TaskFigure sf = (TaskFigure) start.getOwner();
-            TaskFigure ef = (TaskFigure) end.getOwner();
+            StateFigure sf = (StateFigure) start.getOwner();
+            StateFigure ef = (StateFigure) end.getOwner();
 
             // Disallow multiple connections to same dependent
             if (ef.getPredecessors().contains(sf)) {
@@ -63,7 +63,7 @@ public class DependencyFigure extends LineConnectionFigure {
 
     @Override
     public boolean canConnect(Connector start) {
-        return (start.getOwner() instanceof TaskFigure);
+        return (start.getOwner() instanceof StateFigure);
     }
 
     /**
@@ -72,8 +72,8 @@ public class DependencyFigure extends LineConnectionFigure {
      */
     @Override
     protected void handleDisconnect(Connector start, Connector end) {
-        TaskFigure sf = (TaskFigure) start.getOwner();
-        TaskFigure ef = (TaskFigure) end.getOwner();
+        StateFigure sf = (StateFigure) start.getOwner();
+        StateFigure ef = (StateFigure) end.getOwner();
 
         sf.removeDependency(this);
         ef.removeDependency(this);
@@ -85,16 +85,16 @@ public class DependencyFigure extends LineConnectionFigure {
      */
     @Override
     protected void handleConnect(Connector start, Connector end) {
-        TaskFigure sf = (TaskFigure) start.getOwner();
-        TaskFigure ef = (TaskFigure) end.getOwner();
+        StateFigure sf = (StateFigure) start.getOwner();
+        StateFigure ef = (StateFigure) end.getOwner();
 
         sf.addDependency(this);
         ef.addDependency(this);
     }
 
     @Override
-    public DependencyFigure clone() {
-        DependencyFigure that = (DependencyFigure) super.clone();
+    public TransitionFigure clone() {
+        TransitionFigure that = (TransitionFigure) super.clone();
 
         return that;
     }
@@ -107,10 +107,10 @@ public class DependencyFigure extends LineConnectionFigure {
     @Override
     public void removeNotify(Drawing d) {
         if (getStartFigure() != null) {
-            ((TaskFigure) getStartFigure()).removeDependency(this);
+            ((StateFigure) getStartFigure()).removeDependency(this);
         }
         if (getEndFigure() != null) {
-            ((TaskFigure) getEndFigure()).removeDependency(this);
+            ((StateFigure) getEndFigure()).removeDependency(this);
         }
         super.removeNotify(d);
     }

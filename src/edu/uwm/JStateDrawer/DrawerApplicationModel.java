@@ -1,13 +1,3 @@
-/*
- * @(#)PertApplicationModel.java
- *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
- * contributors. All rights reserved.
- *
- * You may not use, copy or modify this file, except in compliance with the 
- * license agreement you entered into with the copyright holders. For details
- * see accompanying license terms.
- */
 package edu.uwm.JStateDrawer;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -31,12 +21,11 @@ import org.jhotdraw.gui.URIChooser;
 import org.jhotdraw.gui.filechooser.ExtensionFileFilter;
 import org.jhotdraw.util.*;
 import edu.uwm.JStateDrawer.figures.*;
+import edu.uwm.JStateDrawer.Actions.*;
 
 /**
- * PertApplicationModel.
- * 
- * @author Werner Randelshofer.
- * @version $Id: PertApplicationModel.java 717 2010-11-21 12:30:57Z rawcoder $
+ * DrawerApplicationModel, based originally on the PertApplicationModel class in the
+ * JHotDraw samples package.
  */
 public class DrawerApplicationModel extends DefaultApplicationModel {
 
@@ -77,6 +66,7 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
 
         m.put(ExportFileAction.ID, new ExportFileAction(a, v));
         m.put("view.toggleGrid", aa = new ToggleViewPropertyAction(a, v, DrawerView.GRID_VISIBLE_PROPERTY));
+        m.put(SerializeFileAction.ID, new SerializeFileAction(a, v));
         drawLabels.configureAction(aa, "view.toggleGrid");
         for (double sf : scaleFactors) {
             m.put((int) (sf * 100) + "%",
@@ -115,11 +105,11 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
         attributes.put(AttributeKeys.FILL_COLOR, Color.white);
         attributes.put(AttributeKeys.STROKE_COLOR, Color.black);
         attributes.put(AttributeKeys.TEXT_COLOR, Color.black);
-        ButtonFactory.addToolTo(tb, editor, new CreationTool(new TaskFigure(), attributes), "edit.createTask", labels);
+        ButtonFactory.addToolTo(tb, editor, new CreationTool(new StateFigure(), attributes), "edit.createTask", labels);
 
         attributes = new HashMap<AttributeKey, Object>();
         attributes.put(AttributeKeys.STROKE_COLOR, new Color(0x000099));
-        ButtonFactory.addToolTo(tb, editor, new ConnectionTool(new DependencyFigure(), attributes), "edit.createDependency", labels);
+        ButtonFactory.addToolTo(tb, editor, new ConnectionTool(new TransitionFigure(), attributes), "edit.createDependency", labels);
         tb.addSeparator();
         ButtonFactory.addToolTo(tb, editor, new TextAreaCreationTool(new TextAreaFigure()), "edit.createTextArea", drawLabels);
 
@@ -174,11 +164,23 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
                 JMenu m2 = new JMenu("Zoom");
                 for (double sf : scaleFactors) {
                     String id = (int) (sf * 100) + "%";
-            cbmi = new JCheckBoxMenuItem(am.get(id));
-            ActionUtil.configureJCheckBoxMenuItem(cbmi, am.get(id));
-            m2.add(cbmi);
+                    cbmi = new JCheckBoxMenuItem(am.get(id));
+                    ActionUtil.configureJCheckBoxMenuItem(cbmi, am.get(id));
+                    m2.add(cbmi);
                 }
                 m.add(m2);
+                
+            }
+            
+            @Override
+            public void addOtherFileItems(JMenu m, Application app, @Nullable View v)
+            {
+            	ActionMap am = app.getActionMap(v);
+            	Action serialize;
+                if(null != (serialize = am.get(SerializeFileAction.ID)))
+                {
+                	m.add(serialize);
+                }
             }
         };
     }

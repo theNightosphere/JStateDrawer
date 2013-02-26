@@ -34,9 +34,9 @@ import org.jhotdraw.xml.*;
  * @author Werner Randelshofer.
  * @version $Id: TaskFigure.java 727 2011-01-09 13:23:59Z rawcoder $
  */
-public class TaskFigure extends GraphicalCompositeFigure {
+public class StateFigure extends GraphicalCompositeFigure {
 
-    private HashSet<DependencyFigure> dependencies;
+    private HashSet<TransitionFigure> dependencies;
 
     /**
      * This adapter is used, to connect a TextFigure with the name of
@@ -44,9 +44,9 @@ public class TaskFigure extends GraphicalCompositeFigure {
      */
     private static class NameAdapter extends FigureAdapter {
 
-        private TaskFigure target;
+        private StateFigure target;
 
-        public NameAdapter(TaskFigure target) {
+        public NameAdapter(StateFigure target) {
             this.target = target;
         }
 
@@ -60,9 +60,9 @@ public class TaskFigure extends GraphicalCompositeFigure {
 
     private static class DurationAdapter extends FigureAdapter {
 
-        private TaskFigure target;
+        private StateFigure target;
 
-        public DurationAdapter(TaskFigure target) {
+        public DurationAdapter(StateFigure target) {
             this.target = target;
         }
 
@@ -71,14 +71,14 @@ public class TaskFigure extends GraphicalCompositeFigure {
             // We could fire a property change event here, in case
             // some other object would like to observe us.
             //target.firePropertyChange("duration", e.getOldValue(), e.getNewValue());
-            for (TaskFigure succ : target.getSuccessors()) {
+            for (StateFigure succ : target.getSuccessors()) {
                 succ.updateStartTime();
             }
         }
     }
 
     /** Creates a new instance. */
-    public TaskFigure() {
+    public StateFigure() {
         super(new RectangleFigure());
 
         setLayouter(new VerticalLayouter());
@@ -125,7 +125,7 @@ public class TaskFigure extends GraphicalCompositeFigure {
         setName(labels.getString("pert.task.defaultName"));
         setDuration(0);
 
-        dependencies = new HashSet<DependencyFigure>();
+        dependencies = new HashSet<TransitionFigure>();
         nameFigure.addFigureListener(new NameAdapter(this));
         durationFigure.addFigureListener(new DurationAdapter(this));
     }
@@ -143,7 +143,7 @@ public class TaskFigure extends GraphicalCompositeFigure {
                 handles.add(new MoveHandle(this, RelativeLocator.southWest()));
                 handles.add(new MoveHandle(this, RelativeLocator.southEast()));
                 ConnectorHandle ch;
-                handles.add(ch = new ConnectorHandle(new LocatorConnector(this, RelativeLocator.east()), new DependencyFigure()));
+                handles.add(ch = new ConnectorHandle(new LocatorConnector(this, RelativeLocator.east()), new TransitionFigure()));
                 ch.setToolTipText("Drag the connector to a dependent task.");
                 break;
         }
@@ -162,7 +162,7 @@ public class TaskFigure extends GraphicalCompositeFigure {
         int oldValue = getDuration();
         getDurationFigure().setText(Integer.toString(newValue));
         if (oldValue != newValue) {
-            for (TaskFigure succ : getSuccessors()) {
+            for (StateFigure succ : getSuccessors()) {
                 succ.updateStartTime();
             }
 
@@ -182,14 +182,14 @@ public class TaskFigure extends GraphicalCompositeFigure {
         willChange();
         int oldValue = getStartTime();
         int newValue = 0;
-        for (TaskFigure pre : getPredecessors()) {
+        for (StateFigure pre : getPredecessors()) {
             newValue = Math.max(newValue,
                     pre.getStartTime() + pre.getDuration());
         }
 
         getStartTimeFigure().setText(Integer.toString(newValue));
         if (newValue != oldValue) {
-            for (TaskFigure succ : getSuccessors()) {
+            for (StateFigure succ : getSuccessors()) {
                 // The if-statement here guards against
                 // cyclic task dependencies. 
                 if (!this.isDependentOf(succ)) {
@@ -223,9 +223,9 @@ public class TaskFigure extends GraphicalCompositeFigure {
     }
 
     @Override
-    public TaskFigure clone() {
-        TaskFigure that = (TaskFigure) super.clone();
-        that.dependencies = new HashSet<DependencyFigure>();
+    public StateFigure clone() {
+        StateFigure that = (StateFigure) super.clone();
+        that.dependencies = new HashSet<TransitionFigure>();
         that.getNameFigure().addFigureListener(new NameAdapter(that));
         that.getDurationFigure().addFigureListener(new DurationAdapter(that));
         that.updateStartTime();
@@ -271,17 +271,17 @@ public class TaskFigure extends GraphicalCompositeFigure {
         return 0;
     }
 
-    public Set<DependencyFigure> getDependencies() {
+    public Set<TransitionFigure> getDependencies() {
         return Collections.unmodifiableSet(dependencies);
     }
 
-    public void addDependency(DependencyFigure f) {
+    public void addDependency(TransitionFigure f) {
         dependencies.add(f);
         updateStartTime();
 
     }
 
-    public void removeDependency(DependencyFigure f) {
+    public void removeDependency(TransitionFigure f) {
         dependencies.remove(f);
         updateStartTime();
 
@@ -291,11 +291,11 @@ public class TaskFigure extends GraphicalCompositeFigure {
      * Returns dependent PertTasks which are directly connected via a
      * PertDependency to this TaskFigure.
      */
-    public List<TaskFigure> getSuccessors() {
-        LinkedList<TaskFigure> list = new LinkedList<TaskFigure>();
-        for (DependencyFigure c : getDependencies()) {
+    public List<StateFigure> getSuccessors() {
+        LinkedList<StateFigure> list = new LinkedList<StateFigure>();
+        for (TransitionFigure c : getDependencies()) {
             if (c.getStartFigure() == this) {
-                list.add((TaskFigure) c.getEndFigure());
+                list.add((StateFigure) c.getEndFigure());
             }
 
         }
@@ -306,11 +306,11 @@ public class TaskFigure extends GraphicalCompositeFigure {
      * Returns predecessor PertTasks which are directly connected via a
      * PertDependency to this TaskFigure.
      */
-    public List<TaskFigure> getPredecessors() {
-        LinkedList<TaskFigure> list = new LinkedList<TaskFigure>();
-        for (DependencyFigure c : getDependencies()) {
+    public List<StateFigure> getPredecessors() {
+        LinkedList<StateFigure> list = new LinkedList<StateFigure>();
+        for (TransitionFigure c : getDependencies()) {
             if (c.getEndFigure() == this) {
-                list.add((TaskFigure) c.getStartFigure());
+                list.add((StateFigure) c.getStartFigure());
             }
 
         }
@@ -324,12 +324,12 @@ public class TaskFigure extends GraphicalCompositeFigure {
      * if <code>this</code> is passed as a parameter and for every other
      * task in the cycle.
      */
-    public boolean isDependentOf(TaskFigure t) {
+    public boolean isDependentOf(StateFigure t) {
         if (this == t) {
             return true;
         }
 
-        for (TaskFigure pre : getPredecessors()) {
+        for (StateFigure pre : getPredecessors()) {
             if (pre.isDependentOf(t)) {
                 return true;
             }
@@ -342,5 +342,18 @@ public class TaskFigure extends GraphicalCompositeFigure {
     public String toString() {
         return "TaskFigure#" + hashCode() + " " + getName() + " " + getDuration() + " " + getStartTime();
     }
+
+	public void serialize(DOMOutput out) throws IOException {
+		 Rectangle2D.Double r = getBounds();
+	        out.addAttribute("x", r.x);
+	        out.addAttribute("y", r.y);
+	        writeAttributes(out);
+	        out.openElement("model");
+	        out.openElement("name");
+	        out.writeObject(getName());
+	        out.closeElement();
+	        out.closeElement();
+		
+	}
 }
 
