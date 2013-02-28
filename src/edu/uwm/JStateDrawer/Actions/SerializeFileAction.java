@@ -13,6 +13,8 @@ import javax.swing.UIManager;
 import org.jhotdraw.app.action.file.SaveFileAction;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.app.*;
+import org.jhotdraw.draw.io.InputFormat;
+import org.jhotdraw.draw.io.OutputFormat;
 import org.jhotdraw.gui.JFileURIChooser;
 import org.jhotdraw.gui.JSheet;
 import org.jhotdraw.gui.URIChooser;
@@ -22,6 +24,8 @@ import org.jhotdraw.gui.event.SheetListener;
 import org.jhotdraw.gui.filechooser.ExtensionFileFilter;
 import org.jhotdraw.net.URIUtil;
 import org.jhotdraw.util.ResourceBundleUtil;
+import org.jhotdraw.xml.DOMFactory;
+import edu.uwm.JStateDrawer.*;
 
 /**
  * 
@@ -34,12 +38,14 @@ public class SerializeFileAction extends SaveFileAction {
 
 	public final static String ID = "file.serialize";
     private Component oldFocusOwner;
+    private OutputFormat IOFactory;
 
 
     
 	public SerializeFileAction(Application app, @Nullable View view)
 	{
 		super(app, view);
+		IOFactory = ((DrawerView) view).getDrawing().getOutputFormats().get(0);
         ResourceBundleUtil labels = ResourceBundleUtil.getBundle("edu.uwm.JStateDrawer.Actions.Labels");
         labels.configureAction(this, ID);
 	}
@@ -90,6 +96,7 @@ public class SerializeFileAction extends SaveFileAction {
 
             @Override
             protected Object construct() throws IOException {
+            
                 view.write(file, chooser);
                 return null;
             }

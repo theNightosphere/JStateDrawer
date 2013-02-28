@@ -147,6 +147,11 @@ public class DrawerView extends AbstractView {
         firePropertyChange("scaleFactor", oldValue, newValue);
         preferences.putDouble("view.scaleFactor", newValue);
     }
+    
+    public Drawing getDrawing()
+    {
+    	return view.getDrawing();
+    }
 
     /**
      * Initializes view specific actions.
@@ -155,6 +160,7 @@ public class DrawerView extends AbstractView {
         getActionMap().put(UndoAction.ID, undo.getUndoAction());
         getActionMap().put(RedoAction.ID, undo.getRedoAction());
     }
+    
 
     @Override
     protected void setHasUnsavedChanges(boolean newValue) {

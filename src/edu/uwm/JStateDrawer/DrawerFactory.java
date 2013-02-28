@@ -48,7 +48,9 @@ public class DrawerFactory extends DefaultDOMFactory {
         	{
         		((StateFigure) o).serialize(out);
         	}
-            ((DOMStorable) o).write(out);
+        	else{
+        		((DOMStorable) o).write(out);
+        	}
         } else if (o instanceof String) {
             out.addText((String) o);
         } else if (o instanceof Integer) {
