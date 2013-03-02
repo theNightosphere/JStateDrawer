@@ -1,14 +1,3 @@
-/*
- * @(#)PertView.java
- *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
- * contributors. All rights reserved.
- *
- * You may not use, copy or modify this file, except in compliance with the 
- * license agreement you entered into with the copyright holders. For details
- * see accompanying license terms.
- *
- */
 package edu.uwm.JStateDrawer;
 
 import org.jhotdraw.app.action.edit.RedoAction;
@@ -36,10 +25,8 @@ import org.jhotdraw.draw.action.*;
 import org.jhotdraw.gui.URIChooser;
 
 /**
- * A view for Pert diagrams.
+ * A view for JStateDrawer diagrams based on the JHotDraw PertView class.
  *
- * @author Werner Randelshofer
- * @version $Id: PertView.java 727 2011-01-09 13:23:59Z rawcoder $
  */
 public class DrawerView extends AbstractView {
 
@@ -160,6 +147,11 @@ public class DrawerView extends AbstractView {
         firePropertyChange("scaleFactor", oldValue, newValue);
         preferences.putDouble("view.scaleFactor", newValue);
     }
+    
+    public Drawing getDrawing()
+    {
+    	return view.getDrawing();
+    }
 
     /**
      * Initializes view specific actions.
@@ -168,6 +160,7 @@ public class DrawerView extends AbstractView {
         getActionMap().put(UndoAction.ID, undo.getUndoAction());
         getActionMap().put(RedoAction.ID, undo.getRedoAction());
     }
+    
 
     @Override
     protected void setHasUnsavedChanges(boolean newValue) {
