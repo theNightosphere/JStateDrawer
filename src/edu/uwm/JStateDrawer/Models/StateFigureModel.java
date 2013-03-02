@@ -44,7 +44,7 @@ public class StateFigureModel {
 	 * @param newName A String to be used as the new name for the state.
 	 * @throws Exception Thrown when the length of the newName variable is less than one. In other words, when newName is the empty string.
 	 */
-	public void setName(String newName) throws Exception
+	public void setName(String newName)
 	{
 		if(newName.length() < 1)
 		{
@@ -93,6 +93,16 @@ public class StateFigureModel {
 	}
 	
 	/**
+	 * Removes an incoming transition. If the state does not have the transition being removed,
+	 * nothing happens.
+	 * @param incomingTransition The {@link TransitionModel} to remove. 
+	 */
+	public void removeIncomingTransition(TransitionModel incomingTransition)
+	{
+		myIncomingTransitions.remove(incomingTransition);
+	}
+	
+	/**
 	 * Adds an outgoing {@link TransitionModel} to this StateModel.
 	 * @param outgoingTransition A {@link TransitionModel} that represents an outgoing transition.
 	 * @throws Throws an illegal argument exception if the outgoing transition is null.
@@ -110,6 +120,16 @@ public class StateFigureModel {
 		}
 		
 		myOutgoingTransitions.add(outgoingTransition);
+	}
+	
+	/**
+	 * Removes an outgoing transition. If the state does not have the transition being removed,
+	 * nothing happens.
+	 * @param outgoingTransition The {@link TransitionModel} to remove. 
+	 */
+	public void removeOutgoingTransition(TransitionModel outgoingTransition)
+	{
+		myOutgoingTransitions.remove(outgoingTransition);
 	}
 	
 	/**
@@ -140,12 +160,56 @@ public class StateFigureModel {
 	}
 	
 	/**
+	 * Removes an action. If the state does not have the action being removed,
+	 * nothing happens.
+	 * @param actionToRemove A String representing the action to be removed. 
+	 */
+	public void removeAction(String actionToRemove)
+	{
+		myActions.remove(actionToRemove);
+	}
+	
+	/**
 	 * Accesses a Set of all the events that trigger transitions from the current state.
 	 * @return Returns a Set<String> of all the events that trigger a transition from this State.
 	 */
 	public Set<String> getTransitionTriggers()
 	{
 		return myTransitionTriggers.keySet();
+	}
+	
+	/**
+	 * Takes an event string and returns its associated Transition.
+	 * @param triggerEvent A String that triggers a transition.
+	 * @return A {@link TransitionModel} that is triggered by the triggerEvent.
+	 */
+	public TransitionModel getTransitionByEvent(String triggerEvent)
+	{
+		return myTransitionTriggers.get(triggerEvent);
+	}
+	
+	/**
+	 * Takes an event string and a transition and adds them to the State's HashMap of Transitions.
+	 * Nothing is added if the State already has a transition that is triggered by the string triggerEvent.
+	 * @param triggerEvent A string that triggers a transition.
+	 * @param t The {@link TransitionModel} that is triggered by the triggerEvent String.
+	 */
+	public void addTransition(String triggerEvent, TransitionModel t)
+	{
+		if (!myTransitionTriggers.containsKey(triggerEvent))
+		{
+			myTransitionTriggers.put(triggerEvent, t);
+		}
+	}
+	
+	/**
+	 * Removes a transition. If the state does not have the transition being removed,
+	 * nothing happens.
+	 * @param triggerOfTransitionToRemove The String representing the trigger of the {@link TransitionModel} to be removed.
+	 */
+	public void removeTransitionAndTrigger(String triggerOfTransitionToRemove)
+	{
+		myTransitionTriggers.remove(triggerOfTransitionToRemove);
 	}
 	
 }
