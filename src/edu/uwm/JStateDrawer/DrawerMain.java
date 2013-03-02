@@ -45,7 +45,7 @@ public class DrawerMain {
         }
         
         
-        DefaultApplicationModel model = new PertApplicationModel();
+        DefaultApplicationModel model = new DrawerApplicationModel();
         model.setName("JStateDrawer");
         model.setVersion(DrawerMain.class.getPackage().getImplementationVersion());
         model.setCopyright("Copyright 2006-2010 (c) by the authors of JHotDraw and all its contributors.\n" +
