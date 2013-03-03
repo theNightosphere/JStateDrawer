@@ -9,6 +9,8 @@ import java.util.HashSet;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.uwm.JStateDrawer.Models.EndStateModel;
+import edu.uwm.JStateDrawer.Models.StartStateModel;
 import edu.uwm.JStateDrawer.Models.StateFigureModel;
 import edu.uwm.JStateDrawer.Models.TransitionModel;
 
@@ -319,5 +321,24 @@ public class StateFigureModelTests {
 		sm.removeTransitionAndTrigger("test");
 		assert(sm.getTransitionTriggers().isEmpty());
 	}
+	
+	/**
+	 * Tests the start state to ensure it is not allowing incoming transitions
+	 */
+	@Test
+	public void testStartStateTransition(){
+		StateFigureModel sn = new StartStateModel();
+		sn.addIncomingTransition(new TransitionModel());
+		assert(sn.getIncomingTransitions().isEmpty());
+	}
 
+	/**
+	 * Tests the end state to ensure it is not allowing outgoing transitions
+	 */
+	@Test
+	public void testEndStateTransition(){
+		StateFigureModel em = new EndStateModel();
+		em.addOutgoingTransition(new TransitionModel());
+		assert(em.getOutgoingTransitions().isEmpty());
+	}
 }
