@@ -34,6 +34,7 @@ public class StateFigureModelTests {
 		assert(sm.getOutgoingTransitions().isEmpty());
 		assert(sm.getActions().isEmpty());
 		assert(sm.getTransitionTriggers().isEmpty());
+		assert(sm.getIncomingTransitions().isEmpty());
 	}
 	
 	/**
@@ -50,15 +51,18 @@ public class StateFigureModelTests {
 		actions.add("Banana");
 		HashMap<String, TransitionModel> triggers = new HashMap<String, TransitionModel>();
 		triggers.put("test trigger", new TransitionModel());
+		ArrayList<StateFigureModel> internalStates = new ArrayList<StateFigureModel>();
+		internalStates.add(new StateFigureModel());
 		
 		StateFigureModel sm = new StateFigureModel("Awesome",incoming, outgoing, actions,
-				triggers);
+				triggers, internalStates);
 		
 		assertEquals(sm.getName(), "Awesome");
 		assert(!sm.getIncomingTransitions().isEmpty());
 		assert(!sm.getOutgoingTransitions().isEmpty());
 		assert(!sm.getActions().isEmpty());
 		assert(!sm.getTransitionTriggers().isEmpty());
+		assert(!sm.getInternalStates().isEmpty());
 	}
 	
 	/**
@@ -359,7 +363,77 @@ public class StateFigureModelTests {
 				new StateFigureModel(), new StateFigureModel()));
 		sm.addTransition("transition2", new TransitionModel("transition2",
 				new StateFigureModel(), new StateFigureModel()));
-		assertEquals(sm.exportXML(), "<state name=default><action>action1</action><action>action2</action><action>action3</action><transition trigger=\"transition1\"/><transition trigger=\"transition2\"/></state>");
+		assertEquals(sm.exportXML(), "<state name=default><action>action1</action><action>action2</action><action>action3</action><transition trigger=\"transition1\"/><transition trigger=\"transition2\"/></state>");	
+	}
+	
+	@Test
+	public void testAddInternalStatesWorksProperly()
+	{
+		StateFigureModel test1 = new StateFigureModel();
+		test1.setName("test1");
+		StateFigureModel test2 = new StateFigureModel();
+		test2.setName("test2");
+		assert(sm.getInternalStates().isEmpty());
+		
+		sm.addInternalState(test1);
+		assert(!sm.getInternalStates().isEmpty());
+		assert(sm.getInternalStates().contains(test1));
+		
+		sm.addInternalState(test2);
+		assert(!sm.getInternalStates().isEmpty());
+		assert(sm.getInternalStates().contains(test2));
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void testAddingNullInternalStateThrowsException()
+	{
+		sm.addInternalState(null);
+	}
+	
+	@Test
+	public void testRemoveInternalStatesWorksProperly()
+	{
+		StateFigureModel test1 = new StateFigureModel();
+		test1.setName("test1");
+		StateFigureModel test2 = new StateFigureModel();
+		test2.setName("test2");
+		assert(sm.getInternalStates().isEmpty());
+		
+		sm.addInternalState(test1);
+		assert(!sm.getInternalStates().isEmpty());
+		assert(sm.getInternalStates().contains(test1));
+		
+		sm.addInternalState(test2);
+		assert(!sm.getInternalStates().isEmpty());
+		assert(sm.getInternalStates().contains(test2));
+		
+		sm.removeInternalState(test2);
+		assert(!sm.getInternalStates().isEmpty());
+		assert(!sm.getInternalStates().contains(test2));
+		
+		sm.removeInternalState(test1);
+		assert(sm.getInternalStates().isEmpty());
+		assert(!sm.getInternalStates().contains(test1));
+	}
+	
+	@Test
+	public void testRemoveNonExistentInternalStatesDoesNothing()
+	{
+		StateFigureModel test1 = new StateFigureModel();
+		test1.setName("test1");
+		StateFigureModel test2 = new StateFigureModel();
+		test2.setName("test2");
+		assert(sm.getInternalStates().isEmpty());
+		
+		sm.addInternalState(test1);
+		assert(!sm.getInternalStates().isEmpty());
+		assert(sm.getInternalStates().contains(test1));
+		
+		
+		sm.removeInternalState(test2);
+		// Nothing should have happened.
+		assert(!sm.getInternalStates().isEmpty());
+		assert(sm.getInternalStates().contains(test2));
 		
 	}
 }

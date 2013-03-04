@@ -12,22 +12,27 @@ public class StateFigureModel {
 	protected HashSet<TransitionModel> myIncomingTransitions, myOutgoingTransitions;
 	protected ArrayList<String> myActions;
 	protected HashMap<String, TransitionModel> myTransitionTriggers;
+	private ArrayList<StateFigureModel> myInternalStates;
+	
 	
 	public StateFigureModel()
 	{
 		this("default", new HashSet<TransitionModel>(), new HashSet<TransitionModel>(),
-				new ArrayList<String>(), new HashMap<String, TransitionModel>());
+				new ArrayList<String>(), new HashMap<String, TransitionModel>(),
+				new ArrayList<StateFigureModel>());
 	}
 	
 	public StateFigureModel(String name, HashSet<TransitionModel> incomingTransitions,
 			HashSet<TransitionModel> outgoingTransitions, ArrayList<String> actions,
-			HashMap<String, TransitionModel> transitionTriggers)
+			HashMap<String, TransitionModel> transitionTriggers,
+			ArrayList<StateFigureModel> internalStates)
 	{
 		myName = name;
 		myIncomingTransitions = incomingTransitions;
 		myOutgoingTransitions = outgoingTransitions;
 		myActions = actions;
 		myTransitionTriggers = transitionTriggers;
+		myInternalStates = internalStates;
 	}
 	
 	/**
@@ -233,6 +238,43 @@ public class StateFigureModel {
 		XMLString += "</state>";
 		
 		return XMLString;
+	}
+	
+	/**
+	 * Returns the list of internal StateFigureModels
+	 * @return An ArrayList of {@link StateFigureModel}s.
+	 */
+	public ArrayList<StateFigureModel> getInternalStates()
+	{
+		return myInternalStates;
+	}
+	
+	/**
+	 * Adds a new internal {@link StateFigureModel}. If the {@link StateFigureModel}
+	 * is already an internal state, it is not added again.
+	 * @param newInternalState The {@link StateFigureModel} that is being added to the list of internal states.
+	 * @throws {@link IllegalArgumentException} if newInternalState is null.
+	 */
+	public void addInternalState(StateFigureModel newInternalState)
+	{
+		if (newInternalState == null)
+		{
+			throw new IllegalArgumentException("Cannot add a null internal state.");
+		}
+		else if (!myInternalStates.contains(newInternalState))
+		{
+			myInternalStates.add(newInternalState);
+		}
+	}
+	
+	/**
+	 * Removes an internal {@link StateFigureModel}. If the internalStateToRemove is not in the list of
+	 * internal states, nothing happens.
+	 * @param internalStateToRemove The {@link StateFigureModel}  to remove from the list of internal states.
+	 */
+	public void removeInternalState(StateFigureModel internalStateToRemove)
+	{
+		myInternalStates.remove(internalStateToRemove);
 	}
 	
 }
