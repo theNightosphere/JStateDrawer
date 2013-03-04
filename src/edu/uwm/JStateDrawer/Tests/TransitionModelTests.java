@@ -22,7 +22,7 @@ public class TransitionModelTests {
 	 */
 	@Test
 	public void testDefaultConstructor() {
-		assertEquals(tm.getTrigger(), "default");
+		assertEquals(tm.getTrigger(), "DEFAULT");
 	}
 	
 	/**
@@ -31,11 +31,11 @@ public class TransitionModelTests {
 	@Test
 	public void testNonDefaultConstructor()
 	{
-		String trigger = "test";
+		String trigger = "TEST";
 		StateFigureModel ef = new StateFigureModel();
 		StateFigureModel sf = new StateFigureModel();
 		tm = new TransitionModel(trigger, sf, ef);
-		assertEquals(tm.getTrigger(), "test");
+		assertEquals(tm.getTrigger(), "TEST");
 	}
 	
 	/**
@@ -45,6 +45,78 @@ public class TransitionModelTests {
 	public void testSetTooShortTriggerThrowsException()
 	{
 		tm.setTrigger("");
+	}
+	
+	/**
+	 * Tests that a trigger cannot have a number, underscore, lowercase letter or space
+	 * as the first character in a trigger string.
+	 */
+	@Test
+	public void testTriggerFirstLetterNotCorrectThrowsException()
+	{
+		try
+		{
+			tm.setTrigger("0OTHERWISE_OKAY");
+			fail("Didn't throw exception when starting with number");
+		}
+		catch(Exception e)
+		{
+			// Success!
+		}
+		try
+		{
+			tm.setTrigger("aOTHERWISE_OKAY");
+			fail("Didn't throw exception when starting with lowercase letter.");
+		}
+		catch(Exception e)
+		{
+			// Success!
+		}
+		try
+		{
+			tm.setTrigger(" OTHERWISE_OKAY");
+			fail("Didn't throw exception when starting with whitespace");
+		}
+		catch(Exception e)
+		{
+			// Success!
+		}
+	}
+	
+	/**
+	 * Tests that invalid characters (as defined in the constructor's summary)
+	 * cause setTrigger to throw an exception.
+	 */
+	@Test
+	public void testBadCharactersInLocOtherThanZeroThrowsException()
+	{
+		try
+		{
+			tm.setTrigger("Anot_GOOD");
+			fail("Didn't throw exception when trigger had lowercase letters.");
+		}
+		catch(Exception e)
+		{
+			// Success!
+		}
+		try
+		{
+			tm.setTrigger("OTHERWISE OKAY");
+			fail("Didn't throw exception when trigger had whitespace");
+		}
+		catch(Exception e)
+		{
+			// Success!
+		}
+		try
+		{
+			tm.setTrigger("HEY\\/BAD*;CHARACTERS");
+			fail("Didn't throw exception when trigger had invalid characters.");
+		}
+		catch(Exception e)
+		{
+			// Success!
+		}
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
@@ -64,13 +136,13 @@ public class TransitionModelTests {
 	@Test
 	public void testSetNameProperlyChangesName()
 	{
-		assertEquals(tm.getTrigger(), "default");
-		tm.setTrigger("not default");
-		assertEquals(tm.getTrigger(), "not default");
+		assertEquals(tm.getTrigger(), "DEFAULT");
+		tm.setTrigger("NOT_DEFAULT");
+		assertEquals(tm.getTrigger(), "NOT_DEFAULT");
 	}
 	
 	/**
-	  *2 Tests that start state cannot be null
+	 * 2 Tests that start state cannot be null
 	 */
 	@Test(expected = IllegalArgumentException.class)
 	public void testStartFigureCannotBeNull()

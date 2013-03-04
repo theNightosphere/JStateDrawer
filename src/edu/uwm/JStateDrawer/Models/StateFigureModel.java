@@ -1,44 +1,87 @@
 package edu.uwm.JStateDrawer.Models;
 
-//TODO: Consider whether an exception should be throw when trying to add an action that already exists or it should just not be added.
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class StateFigureModel {
 	
 	protected String myName;
 	protected HashSet<TransitionModel> myIncomingTransitions, myOutgoingTransitions;
-	protected ArrayList<String> myActions;
+	protected HashMap<String, String> myActions;
 	protected HashMap<String, TransitionModel> myTransitionTriggers;
 	private ArrayList<StateFigureModel> myInternalStates;
+	private Pattern p = Pattern.compile("[A-Z][A-Z0-9_]*+");
 	
 	
 	public StateFigureModel()
 	{
 		this("default", new HashSet<TransitionModel>(), new HashSet<TransitionModel>(),
-				new ArrayList<String>(), new HashMap<String, TransitionModel>(),
+				new HashMap<String, String>(), new HashMap<String, TransitionModel>(),
 				new ArrayList<StateFigureModel>());
 	}	
 	
+	/**
+	 * Explicit constructor for StateFigureModel that is initialized with the given name while all other
+	 * parameters are set to default.
+	 * @param name A String name for the StateFigureModel.
+	 * @throws {@link IllegalArgumentException} if name is the empty string. 
+	 */
 	public StateFigureModel(String name)
 	{
 		this(name, new HashSet<TransitionModel>(), new HashSet<TransitionModel>(),
-				new ArrayList<String>(), new HashMap<String, TransitionModel>(),
+				new HashMap<String, String>(), new HashMap<String, TransitionModel>(),
 				new ArrayList<StateFigureModel>());
 	}
 	
+	/**
+	 * Explicit Constructor for StateFigureModel.
+	 * @param name A String of length 1 or greater.
+	 * @param incomingTransitions A HashSet of {@link TransitionModel}s that are the incoming transitions to the StateFigureModel.
+	 * @param outgoingTransitions A HashSet of {@link TransitionModel}s that are the outgoing transitions from the StateFigureModel.
+	 * @param actions A HashMap<String, String> of Action Triggers to Actions.
+	 * @param transitionTriggers A HashMap<String, {@link TransitionModel}> of transition triggers to {@link TransitionModel}s.
+	 * @param internalStates An ArrayList of StateFigureModels that represent the internal states of this StateFigureModel.
+	 * @throws {@link IllegalArgumentException} If incomingTransitions, outgoingTransitions, actions, transitionTriggers, or internalStates is null.
+	 * @throws {@link IllegalArgumentException} If name is the empty string.
+	 */
 	public StateFigureModel(String name, HashSet<TransitionModel> incomingTransitions,
-			HashSet<TransitionModel> outgoingTransitions, ArrayList<String> actions,
+			HashSet<TransitionModel> outgoingTransitions, HashMap<String, String> actions,
 			HashMap<String, TransitionModel> transitionTriggers,
 			ArrayList<StateFigureModel> internalStates)
 	{
+		if(name.length() < 1)
+		{
+			throw new IllegalArgumentException("State name must be at least length 1");
+		}
 		myName = name;
+		if(incomingTransitions == null)
+		{
+			throw new IllegalArgumentException("incomingTransitions must be non null.");
+		}
 		myIncomingTransitions = incomingTransitions;
+		if(outgoingTransitions == null)
+		{
+			throw new IllegalArgumentException("outgoingTransitions must be non null.");
+		}
 		myOutgoingTransitions = outgoingTransitions;
+		if(actions == null)
+		{
+			throw new IllegalArgumentException("actions must be non null.");
+		}
 		myActions = actions;
+		if(transitionTriggers == null)
+		{
+			throw new IllegalArgumentException("transitionTriggers must be non null.");
+		}
 		myTransitionTriggers = transitionTriggers;
+		if(internalStates == null)
+		{
+			throw new IllegalArgumentException("internalStates must be non null.");
+		}
 		myInternalStates = internalStates;
 	}
 	
@@ -88,7 +131,6 @@ public class StateFigureModel {
 	 * Adds an Incoming {@link TransitionModel} to this StateModel.
 	 * @param incomingTransition A {@link TransitionModel} that represents an incoming transition.
 	 * @throws Throws an illegal argument exception if the incoming transition is null.
-	 * @throws Throws an illegal argument exception if the incoming transition is already an outgoing transition.
 	 */
 	public void addIncomingTransition(TransitionModel incomingTransition)
 	{
@@ -96,11 +138,7 @@ public class StateFigureModel {
 		{
 			throw new IllegalArgumentException("Cannot add a null incoming transition");
 		}
-		else if(myOutgoingTransitions.contains(incomingTransition))
-		{
-			throw new IllegalArgumentException("Cannot add an incoming transition that is already an outgoing transition to this State.");
-		}
-		
+
 		myIncomingTransitions.add(incomingTransition);
 	}
 	
@@ -118,17 +156,12 @@ public class StateFigureModel {
 	 * Adds an outgoing {@link TransitionModel} to this StateModel.
 	 * @param outgoingTransition A {@link TransitionModel} that represents an outgoing transition.
 	 * @throws Throws an illegal argument exception if the outgoing transition is null.
-	 * @throws Throws an illegal argument exception if the outgoing transition is already an incoming transition. 
 	 */
 	public void addOutgoingTransition(TransitionModel outgoingTransition)
 	{
 		if (outgoingTransition == null)
 		{
 			throw new IllegalArgumentException("Cannot add a null outgoing transition");
-		}
-		else if (myIncomingTransitions.contains(outgoingTransition))
-		{
-			throw new IllegalArgumentException("Cannot add an outgoing transition that is already an incoming transition to this state.");
 		}
 		
 		myOutgoingTransitions.add(outgoingTransition);
@@ -148,27 +181,39 @@ public class StateFigureModel {
 	 * Accesses a list of the state's actions.
 	 * @return An ArrayList<String> of the actions this state performs upon entry.
 	 */
-	public ArrayList<String> getActions()
+	public HashMap<String, String> getActions()
 	{
 		return myActions;
 	}
 	
 	/**
 	 * Adds a new Action to the State's list of actions.
+	 * @param actionTriggerEvent A string representing the action trigger. This must be all uppercase letters, start with an uppercase letter, numbers and underscores.
 	 * @param newAction A String representing an action.
-	 * @throws Throws an illegal argument exception if the newAction string is not at least length 1.
+	 * @throws {@link IllegalArgumentException} if the newAction string is not at least length 1.
+	 * @throws {@link IllegalArgumentException} if the actionTriggerEvent string is not at least length 1.
+	 * @throws {@link IllegalArgumentException} if the actionTriggerEvent contains any characters that are not uppercase letters, numbers, or underscores and does not start with an uppercase letter.
 	 */
-	public void addAction(String newAction)
+	public void addAction(String actionTriggerEvent, String newAction)
 	{
+		Matcher m = p.matcher(actionTriggerEvent);
+		
 		if (newAction.length() < 1)
 		{
 			throw new IllegalArgumentException("Actions must be a string of at least length 1");
 		}
-		
-		if(!myActions.contains(newAction))
+		else if(actionTriggerEvent.length() < 1)
 		{
-			myActions.add(newAction);
+			throw new IllegalArgumentException("Action triggers must be a string of at least length 1");
 		}
+		else if(!m.matches())
+		{
+			String error = String.format("%s is not a valid event trigger. Event triggers must be composed of all capital letters with underscores.",
+					actionTriggerEvent);
+			throw new IllegalArgumentException(error);
+		}
+		
+		myActions.put(actionTriggerEvent, newAction);
 	}
 	
 	/**
@@ -223,7 +268,7 @@ public class StateFigureModel {
 	{
 		myTransitionTriggers.remove(triggerOfTransitionToRemove);
 	}
-	
+	 
 	/**
 	 * Creates a String representation of the StateFigureModel that can be used to
 	 * generate the StateFigureModel again.
@@ -231,10 +276,15 @@ public class StateFigureModel {
 	 */
 	public String exportXML()
 	{
-		String XMLString = String.format("<state name=%s>", myName);
-		for(String action : myActions)
+		String XMLString = String.format("<state name='%s'>", myName);
+		for(String action : myActions.keySet())
 		{
-			XMLString += String.format("<action>%s</action>", action);
+			XMLString += String.format("<action trigger='%s'>%s</action>",  action, myActions.get(action));
+		}
+		
+		for(StateFigureModel sfm : myInternalStates)
+		{
+			XMLString += sfm.exportXML();
 		}
 		
 		for(String trigger : myTransitionTriggers.keySet())

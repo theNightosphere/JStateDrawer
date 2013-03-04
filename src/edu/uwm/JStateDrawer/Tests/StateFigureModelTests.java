@@ -47,8 +47,8 @@ public class StateFigureModelTests {
 		HashSet<TransitionModel> outgoing = new HashSet<TransitionModel>();
 		incoming.add(new TransitionModel());
 		outgoing.add(new TransitionModel());
-		ArrayList<String> actions = new ArrayList<String>();
-		actions.add("Banana");
+		HashMap<String, String> actions = new HashMap<String, String>();
+		actions.put("TRIGGER_BANANA","Banana");
 		HashMap<String, TransitionModel> triggers = new HashMap<String, TransitionModel>();
 		triggers.put("test trigger", new TransitionModel());
 		ArrayList<StateFigureModel> internalStates = new ArrayList<StateFigureModel>();
@@ -63,6 +63,85 @@ public class StateFigureModelTests {
 		assert(!sm.getActions().isEmpty());
 		assert(!sm.getTransitionTriggers().isEmpty());
 		assert(!sm.getInternalStates().isEmpty());
+	}
+	
+	/**
+	 * Tests that the explicit constructor throws an error when passed null as any
+	 * collection parameter or if the name is the empty string.
+	 */
+	@Test
+	public void testConstructorThrowsExceptionOnAllErrors()
+	{
+		HashSet<TransitionModel> incoming = new HashSet<TransitionModel>();
+		HashSet<TransitionModel> outgoing = new HashSet<TransitionModel>();
+		incoming.add(new TransitionModel());
+		outgoing.add(new TransitionModel());
+		HashMap<String, String> actions = new HashMap<String, String>();
+		actions.put("TRIGGER_BANANA","Banana");
+		HashMap<String, TransitionModel> triggers = new HashMap<String, TransitionModel>();
+		triggers.put("test trigger", new TransitionModel());
+		ArrayList<StateFigureModel> internalStates = new ArrayList<StateFigureModel>();
+		internalStates.add(new StateFigureModel());
+		
+		try
+		{
+			StateFigureModel badName = new StateFigureModel("", incoming, outgoing, actions,
+					triggers, internalStates);
+			fail("Constructor did not throw exception when passed empty string for name value in constructor");
+		}
+		catch(Exception e)
+		{
+			// Success!
+		}
+		try
+		{
+			StateFigureModel nullIncomingTransitions = new StateFigureModel("Good", null,
+					outgoing, actions, triggers, internalStates);
+			fail("Constructor did not throw exception when passed a null HashSet for incoming transitions");
+		}
+		catch(Exception e)
+		{
+			// Success!
+		}
+		try
+		{
+			StateFigureModel nullOutgoingTransitions = new StateFigureModel("Good", incoming,
+					null, actions, triggers, internalStates);
+			fail("Constructor did not throw exception when passed a null HashSet for outgoing transitions");
+		}
+		catch(Exception e)
+		{
+			// Success!
+		}
+		try
+		{
+			StateFigureModel nullActions = new StateFigureModel("Good", incoming, outgoing,
+					null, triggers, internalStates);
+			fail("Constructor did not throw exception when passed a null HashMap for actions");
+		}
+		catch(Exception e)
+		{
+			// Success!
+		}
+		try
+		{
+			StateFigureModel nullTriggers = new StateFigureModel("Good", incoming, outgoing,
+					actions, null, internalStates);
+		}
+		catch(Exception e)
+		{
+			// Success!
+		}
+		try
+		{
+			StateFigureModel nullInternalStates = new StateFigureModel("Good", incoming, outgoing,
+					actions, triggers, null);
+		}
+		catch(Exception e)
+		{
+			// Success!
+		}
+		// All succeeded!
 	}
 	
 	/**
@@ -96,18 +175,6 @@ public class StateFigureModelTests {
 	}
 	
 	/**
-	 * Test that trying to add an incoming transition which is also an outgoing transition
-	 * in the current state is not allowed. Essentially attempting to self-loop is not allowed currently.
-	 */
-	@Test(expected = IllegalArgumentException.class)
-	public void testIncomingTransitionCannotAlreadyBeOutgoingFromSameState()
-	{
-		TransitionModel t = new TransitionModel();
-		sm.addOutgoingTransition(t);
-		sm.addIncomingTransition(t);
-	}
-	
-	/**
 	 * Tests whether or not {@code addIncomingTransition} is properly updating a 
 	 * state's list of incoming transitions.
 	 */
@@ -128,7 +195,7 @@ public class StateFigureModelTests {
 	{
 		sm.addIncomingTransition(new TransitionModel());
 		assertEquals(sm.getIncomingTransitions().size(), 1);
-		sm.removeIncomingTransition(new TransitionModel("test", new StateFigureModel(),
+		sm.removeIncomingTransition(new TransitionModel("TEST", new StateFigureModel(),
 				new StateFigureModel()));
 		assertEquals(sm.getIncomingTransitions().size(), 1);
 	}
@@ -158,17 +225,6 @@ public class StateFigureModelTests {
 	}
 	
 	/**
-	 * Tests that an outgoing transition is not already an incoming transition to the same state.
-	 */
-	@Test(expected = IllegalArgumentException.class)
-	public void testOutgoingTransitionCannotAlreadyBeIncomingToState()
-	{
-		TransitionModel t = new TransitionModel();
-		sm.addIncomingTransition(t);
-		sm.addOutgoingTransition(t);
-	}
-	
-	/**
 	 * Tests that {@code testOutgoingTransition} properly updates a state's list of
 	 * outgoing transitions.
 	 */
@@ -188,7 +244,7 @@ public class StateFigureModelTests {
 	{
 		sm.addOutgoingTransition(new TransitionModel());
 		assertEquals(sm.getOutgoingTransitions().size(), 1);
-		sm.removeOutgoingTransition(new TransitionModel("test", new StateFigureModel(),
+		sm.removeOutgoingTransition(new TransitionModel("TEST", new StateFigureModel(),
 				new StateFigureModel()));
 		assertEquals(sm.getOutgoingTransitions().size(), 1);
 	}
@@ -213,19 +269,85 @@ public class StateFigureModelTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void testCannotAddEmptyStringAsAction()
 	{
-		sm.addAction("");
+		sm.addAction("BAD_ACTION","");
 	}
 	
 	/**
-	 * Tests that an action which a state already has cannot be added twice.
+	 * Tests that an exception is thrown when an trigger action has whitespace.
+	 */
+	@Test(expected = IllegalArgumentException.class)
+	public void testActionTriggerCannotHaveWhitespace()
+	{
+		sm.addAction("BAD ACTION", "Not good");
+	}
+	
+	/**
+	 * Tests that an exception is thrown when a trigger action has a non-alphanumeric 
+	 * character or non-underscore character.
+	 */
+	@Test(expected = IllegalArgumentException.class)
+	public void testActionTriggerCannotHaveNonAlphanumericOrUnderscore()
+	{
+		sm.addAction("BAD\\/A#CTION", "Not good");
+	}
+	
+	/**
+	 * Tests that an exception is thrown when lowercase letters are used in the action trigger.
+	 */
+	@Test(expected = IllegalArgumentException.class)
+	public void testActionTriggerCannotBeLowercase()
+	{
+		sm.addAction("Bad_action", "Not good");
+	}
+	
+	/**
+	 * Tests that an action trigger cannot have a number, underscore, lowercase letter or space
+	 * as the first character in a trigger string.
 	 */
 	@Test
-	public void testCannotAddActionThatAlreadyExists()
+	public void testActionTriggerFirstLetterNotCorrectThrowsException()
+	{
+		try
+		{
+			sm.addAction("0OTHERWISE_OKAY", "not great");
+			fail("Didn't throw exception when starting with number");
+		}
+		catch(Exception e)
+		{
+			// Success!
+		}
+		try
+		{
+			sm.addAction("aOTHERWISE_OKAY", "not great");
+			fail("Didn't throw exception when starting with lowercase letter.");
+		}
+		catch(Exception e)
+		{
+			// Success!
+		}
+		try
+		{
+			sm.addAction(" OTHERWISE_OKAY", "not great");
+			fail("Didn't throw exception when starting with whitespace");
+		}
+		catch(Exception e)
+		{
+			// Success!
+		}
+	}
+	
+	
+	/**
+	 * Tests that an action trigger which a state already has cannot be added twice.
+	 * The action trigger is the key part of the myActions HashMap.
+	 */
+	@Test
+	public void testCannotAddActionTriggerThatAlreadyExists()
 	{
 		assertEquals(sm.getActions().size(), 0);
-		sm.addAction("test");
+		sm.addAction("TEST","test");
 		assertEquals(sm.getActions().size(), 1);
-		sm.addAction("test");
+		sm.addAction("TEST","test");
 		// Assert that the test action was not added twice.
 		assertEquals(sm.getActions().size(), 1);
 	}
@@ -237,21 +359,24 @@ public class StateFigureModelTests {
 	public void testActionsAreAddedProperly()
 	{
 		assert(sm.getActions().isEmpty());
-		sm.addAction("test");
+		sm.addAction("TEST_CASE","test");
 		assertEquals(sm.getActions().size(), 1);
-		assert(sm.getActions().contains("test"));
+		assert(sm.getActions().containsKey("TEST_CASE"));
+		// Next assertion ensures that the key and value are not being switched in 
+		// addAction(String, String).
+		assert(sm.getActions().containsKey("test"));
 	}
 	
 	/**
-	 * Tests that {@code removeAction}, does nothing when attempting to remove an action
+	 * Tests that {@code removeAction}, does nothing when attempting to remove an action trigger
 	 * that does not exist.
 	 */
 	@Test
-	public void testRemovingNonExistantActionsHasNoEffect()
+	public void testRemovingNonExistantActionTriggerHasNoEffect()
 	{
-		sm.addAction("test");
+		sm.addAction("TEST_CASE","test");
 		assertEquals(sm.getActions().size(), 1);
-		sm.removeAction("not test");
+		sm.removeAction("NOT_TEST_CASE");
 		assertEquals(sm.getActions().size(), 1);
 	}
 	
@@ -263,9 +388,9 @@ public class StateFigureModelTests {
 	public void testRemoveActionsWorksProperly()
 	{
 		assert(sm.getActions().isEmpty());
-		sm.addAction("test");
+		sm.addAction("TEST_CASE","test");
 		assertEquals(sm.getActions().size(), 1);
-		sm.removeAction("test");
+		sm.removeAction("TEST_CASE");
 		assert(sm.getActions().isEmpty());
 	}
 	
@@ -276,9 +401,9 @@ public class StateFigureModelTests {
 	public void testCannotAddTwoTransitionsWithSameTrigger()
 	{
 		assert(sm.getTransitionTriggers().isEmpty());
-		sm.addTransition("test", new TransitionModel());
+		sm.addTransition("TEST", new TransitionModel());
 		assertEquals(sm.getTransitionTriggers().size(), 1);
-		sm.addTransition("test", new TransitionModel("not default", new StateFigureModel(),
+		sm.addTransition("TEST", new TransitionModel("NOT_DEFAULT", new StateFigureModel(),
 				new StateFigureModel()));
 		assertEquals(sm.getTransitionTriggers().size(), 1);
 	}
@@ -304,10 +429,10 @@ public class StateFigureModelTests {
 	@Test
 	public void testRemovingNonExistantTriggerHasNoEffect()
 	{
-		TransitionModel t = new TransitionModel("test", new StateFigureModel(), new StateFigureModel());
-		sm.addTransition("test", t);
+		TransitionModel t = new TransitionModel("TEST", new StateFigureModel(), new StateFigureModel());
+		sm.addTransition("TEST", t);
 		assertEquals(sm.getTransitionTriggers().size(), 1);
-		sm.removeTransitionAndTrigger("not test");
+		sm.removeTransitionAndTrigger("NOT_TEST");
 		assertEquals(sm.getTransitionTriggers().size(), 1);
 	}
 	
@@ -318,11 +443,11 @@ public class StateFigureModelTests {
 	@Test
 	public void testRemoveTriggerAndTransitionWorksProperly()
 	{
-		TransitionModel t = new TransitionModel("test", new StateFigureModel(), new StateFigureModel());
+		TransitionModel t = new TransitionModel("TEST", new StateFigureModel(), new StateFigureModel());
 		assert(sm.getTransitionTriggers().isEmpty());
-		sm.addTransition("test", t);
+		sm.addTransition("TEST", t);
 		assertEquals(sm.getTransitionTriggers().size(), 1);
-		sm.removeTransitionAndTrigger("test");
+		sm.removeTransitionAndTrigger("TEST");
 		assert(sm.getTransitionTriggers().isEmpty());
 	}
 	
@@ -354,16 +479,25 @@ public class StateFigureModelTests {
 	@Test
 	public void testExportXML()
 	{
-		sm.addAction("action1");
-		sm.addAction("action2");
-		sm.addAction("action3");
-		assertEquals(sm.exportXML(), "<state name=default><action>action1</action><action>action2</action><action>action3</action></state>");
+		sm.addAction("ACTION_TRIGGER1","action1");
+		sm.addAction("ACTION_TRIGGER2","action2");
+		sm.addAction("ACTION_TRIGGER3","action3");
+	
+		assertEquals(sm.exportXML(),
+				"<state name='default'><action trigger='ACTION_TRIGGER3'>action3</action><action trigger='ACTION_TRIGGER2'>action2</action><action trigger='ACTION_TRIGGER1'>action1</action></state>");
 		
-		sm.addTransition("transition1", new TransitionModel("transition1", 
+		sm.addTransition("TRANSITION1", new TransitionModel("TRANSITION1", 
 				new StateFigureModel(), new StateFigureModel()));
-		sm.addTransition("transition2", new TransitionModel("transition2",
+		sm.addTransition("TRANSITION2", new TransitionModel("TRANSITION2",
 				new StateFigureModel(), new StateFigureModel()));
-		assertEquals(sm.exportXML(), "<state name=default><action>action1</action><action>action2</action><action>action3</action><transition trigger=\"transition1\"/><transition trigger=\"transition2\"/></state>");	
+		
+		assertEquals(sm.exportXML(),
+				"<state name='default'><action trigger='ACTION_TRIGGER3'>action3</action><action trigger='ACTION_TRIGGER2'>action2</action><action trigger='ACTION_TRIGGER1'>action1</action><transition trigger='TRANSITION1' target='default'/><transition trigger='TRANSITION2' target='default'/></state>");
+		
+		sm.addInternalState(new StateFigureModel("innerState1"));
+		sm.addInternalState(new StateFigureModel("innerState2"));
+		assertEquals(sm.exportXML(),
+				"<state name='default'><action trigger='ACTION_TRIGGER3'>action3</action><action trigger='ACTION_TRIGGER2'>action2</action><action trigger='ACTION_TRIGGER1'>action1</action><state name='innerState1'></state><state name='innerState2'></state><transition trigger='TRANSITION1' target='default'/><transition trigger='TRANSITION2' target='default'/></state>");
 	}
 	
 	@Test
