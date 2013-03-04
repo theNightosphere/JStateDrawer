@@ -436,4 +436,16 @@ public class StateFigureModelTests {
 		assert(sm.getInternalStates().contains(test2));
 		
 	}
+	
+	@Test
+	public void testNameConstructors(){
+		sm = new StateFigureModel("yay");
+		assertEquals(sm.getName(), "yay");
+		sm = new StartStateModel();
+		assertEquals(sm.getName(), "Start");
+		sm = new EndStateModel();
+		assertEquals(sm.getName(), "End");
+		
+		
+	}
 }

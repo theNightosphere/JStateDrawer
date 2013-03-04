@@ -20,6 +20,13 @@ public class StateFigureModel {
 		this("default", new HashSet<TransitionModel>(), new HashSet<TransitionModel>(),
 				new ArrayList<String>(), new HashMap<String, TransitionModel>(),
 				new ArrayList<StateFigureModel>());
+	}	
+	
+	public StateFigureModel(String name)
+	{
+		this(name, new HashSet<TransitionModel>(), new HashSet<TransitionModel>(),
+				new ArrayList<String>(), new HashMap<String, TransitionModel>(),
+				new ArrayList<StateFigureModel>());
 	}
 	
 	public StateFigureModel(String name, HashSet<TransitionModel> incomingTransitions,
