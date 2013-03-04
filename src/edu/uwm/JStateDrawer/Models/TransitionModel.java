@@ -1,5 +1,7 @@
 package edu.uwm.JStateDrawer.Models;
 
+import edu.uwm.JStateDrawer.figures.StateFigure;
+
 public class TransitionModel {
 
 	private StateFigureModel myStartState, myEndState;
@@ -12,10 +14,22 @@ public class TransitionModel {
 		myEventTrigger = "default";
 	}
 	
-	public TransitionModel(String eventTrigger, StateFigureModel startState,
+	public TransitionModel(String trigger, StateFigureModel startState,
 			StateFigureModel endState)
 	{
-		myEventTrigger = eventTrigger;
+		if (startState == null)
+		{
+			throw new IllegalArgumentException("Cannot create with a null startState");
+		}
+		else if (endState == null)
+		{
+			throw new IllegalArgumentException("Cannot create with a null endstate.");
+		}
+		if(trigger.length() < 1)
+		{
+			throw new IllegalArgumentException("The new trigger is not long enough");
+		}
+		myEventTrigger = trigger;
 		myStartState = startState;
 		myEndState = endState;
 	}
@@ -34,6 +48,39 @@ public class TransitionModel {
 		
 	}
 	
+	public void setStartState(StateFigureModel ss){
+		if (ss == null)
+		{
+			throw new IllegalArgumentException("Cannot set a null startState");
+		}
+		myStartState = ss;
+	}
 	
+	public void setEndState(StateFigureModel es){
+		if (es == null)
+		{
+			throw new IllegalArgumentException("Cannot set a null endState");
+		}
+		myEndState = es;
+	}
 	
+	public void setTrigger(String trigger){
+		if(trigger.length() < 1)
+		{
+			throw new IllegalArgumentException("The new trigger is not long enough");
+		}
+		myEventTrigger = trigger;
+	}
+	
+	public StateFigureModel getStartState(){
+		return myStartState;
+	}
+	
+	public StateFigureModel getEndState(){
+		return myEndState;
+	}
+	
+	public String getTrigger(){
+		return myEventTrigger;
+	}
 }
