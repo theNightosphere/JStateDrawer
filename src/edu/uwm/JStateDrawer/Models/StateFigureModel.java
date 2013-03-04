@@ -212,4 +212,27 @@ public class StateFigureModel {
 		myTransitionTriggers.remove(triggerOfTransitionToRemove);
 	}
 	
+	/**
+	 * Creates a String representation of the StateFigureModel that can be used to
+	 * generate the StateFigureModel again.
+	 * @return A String representation of the StateFigureModel.
+	 */
+	public String exportXML()
+	{
+		String XMLString = String.format("<state name=%s>", myName);
+		for(String action : myActions)
+		{
+			XMLString += String.format("<action>%s</action>", action);
+		}
+		
+		for(String trigger : myTransitionTriggers.keySet())
+		{
+			XMLString += myTransitionTriggers.get(trigger).exportXML();
+		}
+		
+		XMLString += "</state>";
+		
+		return XMLString;
+	}
+	
 }

@@ -328,6 +328,7 @@ public class StateFigureModelTests {
 	@Test
 	public void testStartStateTransition(){
 		StateFigureModel sn = new StartStateModel();
+		assert(sn.getIncomingTransitions().isEmpty());
 		sn.addIncomingTransition(new TransitionModel());
 		assert(sn.getIncomingTransitions().isEmpty());
 	}
@@ -338,7 +339,27 @@ public class StateFigureModelTests {
 	@Test
 	public void testEndStateTransition(){
 		StateFigureModel em = new EndStateModel();
+		assert(em.getOutgoingTransitions().isEmpty());
 		em.addOutgoingTransition(new TransitionModel());
 		assert(em.getOutgoingTransitions().isEmpty());
+	}
+	
+	/**
+	 * Tests the exporting of XML.
+	 */
+	@Test
+	public void testExportXML()
+	{
+		sm.addAction("action1");
+		sm.addAction("action2");
+		sm.addAction("action3");
+		assertEquals(sm.exportXML(), "<state name=default><action>action1</action><action>action2</action><action>action3</action></state>");
+		
+		sm.addTransition("transition1", new TransitionModel("transition1", 
+				new StateFigureModel(), new StateFigureModel()));
+		sm.addTransition("transition2", new TransitionModel("transition2",
+				new StateFigureModel(), new StateFigureModel()));
+		assertEquals(sm.exportXML(), "<state name=default><action>action1</action><action>action2</action><action>action3</action><transition trigger=\"transition1\"/><transition trigger=\"transition2\"/></state>");
+		
 	}
 }

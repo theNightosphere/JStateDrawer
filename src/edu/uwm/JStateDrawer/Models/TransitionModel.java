@@ -21,6 +21,19 @@ public class TransitionModel {
 	}
 	
 	
+	public String exportXML()
+	{
+		String XMLString = "";
+		
+		//XMLString += String.format("<transition trigger=%s><start>%s</start><end>%s</end></transition>", 
+				//myEventTrigger, myStartState, myEndState);
+		
+		XMLString += String.format("<transition trigger=\"%s\"/>", myEventTrigger);
+		
+		return XMLString;
+		
+	}
+	
 	
 	
 }
