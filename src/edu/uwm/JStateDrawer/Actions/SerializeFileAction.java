@@ -10,6 +10,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import org.jhotdraw.app.action.AbstractViewAction;
 import org.jhotdraw.app.action.file.SaveFileAction;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.app.*;
@@ -34,21 +35,27 @@ import edu.uwm.JStateDrawer.*;
  * Exit Conditions: -Serialized File is a valid state diagram.
  *                  -DrawerFactory's serializeFile boolean is set to false
  */
-public class SerializeFileAction extends SaveFileAction {
+public class SerializeFileAction extends AbstractViewAction{
 
 	public final static String ID = "file.serialize";
     private Component oldFocusOwner;
-    private OutputFormat IOFactory;
-
 
     
 	public SerializeFileAction(Application app, @Nullable View view)
 	{
 		super(app, view);
-		IOFactory = ((DrawerView) view).getDrawing().getOutputFormats().get(0);
         ResourceBundleUtil labels = ResourceBundleUtil.getBundle("edu.uwm.JStateDrawer.Actions.Labels");
         labels.configureAction(this, ID);
 	}
+	
+	protected URIChooser getChooser(View view) {
+        URIChooser chsr = (URIChooser) (view.getComponent()).getClientProperty("saveChooser");
+        if (chsr == null) {
+            chsr = getApplication().getModel().createSaveChooser(getApplication(), view);
+            view.getComponent().putClientProperty("saveChooser", chsr);
+        }
+        return chsr;
+    }
 	
 	@Override
     public void actionPerformed(ActionEvent evt) {
@@ -61,7 +68,7 @@ public class SerializeFileAction extends SaveFileAction {
             view.setEnabled(false);
 
             if (view.getURI() != null && view.canSaveTo(view.getURI())) {
-                saveViewToURI(view, view.getURI(), null);
+                serializeViewToURI(view, view.getURI(), null);
             } else {
                 URIChooser fileChooser = getChooser(view);
 
@@ -76,7 +83,7 @@ public class SerializeFileAction extends SaveFileAction {
                             } else {
                                 uri = evt.getChooser().getSelectedURI();
                             }
-                            saveViewToURI(view, uri, evt.getChooser());
+                            serializeViewToURI(view, uri, evt.getChooser());
                         } else {
                             view.setEnabled(true);
                             if (oldFocusOwner != null) {
@@ -89,15 +96,14 @@ public class SerializeFileAction extends SaveFileAction {
         }
     }
 	
-	@Override
-	protected void saveViewToURI(final View view, final URI file,
+	protected void serializeViewToURI(final View view, final URI file,
             @Nullable final URIChooser chooser) {
         view.execute(new Worker() {
 
             @Override
             protected Object construct() throws IOException {
             
-                view.write(file, chooser);
+                ((DrawerView) view).serialize(file, chooser);
                 return null;
             }
 

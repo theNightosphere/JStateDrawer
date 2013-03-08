@@ -163,4 +163,10 @@ public class EllipseFigure extends AbstractAttributedFigure {
     public Object getTransformRestoreData() {
         return ellipse.clone();
     }
+    
+    @Override
+    public String toString()
+    {
+    	return String.format("x:%d y:%d width:%d height:%d", ellipse.x, ellipse.y, ellipse.width, ellipse.height);
+    }
 }

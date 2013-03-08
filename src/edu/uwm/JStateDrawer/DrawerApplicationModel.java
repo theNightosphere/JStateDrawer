@@ -91,12 +91,16 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
         }
     }
 
+    /**
+     * Creates top tool bar.
+     */
     private void addCreationButtonsTo(JToolBar tb, final DrawingEditor editor) {
         // AttributeKeys for the entitie sets
         HashMap<AttributeKey, Object> attributes;
 
         ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.samples.pert.Labels");
         ResourceBundleUtil drawLabels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
+        ResourceBundleUtil StateLabels = ResourceBundleUtil.getBundle("edu.uwm.JStateDrawer.Actions.Labels");
 
         ButtonFactory.addSelectionToolTo(tb, editor);
         tb.addSeparator();
@@ -107,6 +111,13 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
         attributes.put(AttributeKeys.TEXT_COLOR, Color.black);
         ButtonFactory.addToolTo(tb, editor, new CreationTool(new StateFigure(), attributes), "edit.createTask", labels);
 
+        //TODO: Figure out how to add new buttons here.
+        attributes = new HashMap<AttributeKey, Object>();
+        attributes.put(AttributeKeys.TEXT_COLOR, Color.black);
+        attributes.put(AttributeKeys.STROKE_COLOR, Color.black);
+        attributes.put(AttributeKeys.FILL_COLOR, Color.black);
+        ButtonFactory.addToolTo(tb, editor, new CreationTool(new StartStateFigure(), attributes), "edit.StartState", StateLabels);
+        
         attributes = new HashMap<AttributeKey, Object>();
         attributes.put(AttributeKeys.STROKE_COLOR, new Color(0x000099));
         ButtonFactory.addToolTo(tb, editor, new ConnectionTool(new TransitionFigure(), attributes), "edit.createDependency", labels);
@@ -138,14 +149,16 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
         addCreationButtonsTo(tb, editor);
         tb.setName(drawLabels.getString("window.drawToolBar.title"));
         list.add(tb);
-        tb = new JToolBar();
+        // Middle toolbar
+        /*tb = new JToolBar();
         ButtonFactory.addAttributesButtonsTo(tb, editor);
         tb.setName(drawLabels.getString("window.attributesToolBar.title"));
         list.add(tb);
+        //Bottom toolbar
         tb = new JToolBar();
         ButtonFactory.addAlignmentButtonsTo(tb, editor);
         tb.setName(drawLabels.getString("window.alignmentToolBar.title"));
-        list.add(tb);
+        list.add(tb);*/
         return list;
     }
 

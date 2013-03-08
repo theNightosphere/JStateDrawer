@@ -167,6 +167,11 @@ public class DrawerView extends AbstractView {
         super.setHasUnsavedChanges(newValue);
         undo.setHasSignificantEdits(newValue);
     }
+    
+    public void serialize(URI f, URIChooser chooser)
+    {
+    	System.out.println("Testing");
+    }
 
     /**
      * Writes the view to the specified uri.

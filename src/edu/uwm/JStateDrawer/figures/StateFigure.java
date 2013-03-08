@@ -36,7 +36,7 @@ import org.jhotdraw.xml.*;
  */
 public class StateFigure extends GraphicalCompositeFigure {
 
-    private HashSet<TransitionFigure> dependencies;
+    protected HashSet<TransitionFigure> dependencies;
 
     /**
      * This adapter is used, to connect a TextFigure with the name of
@@ -77,9 +77,19 @@ public class StateFigure extends GraphicalCompositeFigure {
         }
     }
 
-    /** Creates a new instance. */
-    public StateFigure() {
-        super(new RectangleFigure());
+    /**
+     * Initializes a state figure with a rectangular shape.
+     */
+    public StateFigure()
+    {
+    	this(new RectangleFigure());
+    }
+    
+    /**
+     * Initializes a state figure with the shape given by the AbstractAttributedFigure. 
+     */
+    public StateFigure(AbstractAttributedFigure layoutFigure) {
+        super(layoutFigure);
 
         setLayouter(new VerticalLayouter());
 
@@ -120,7 +130,7 @@ public class StateFigure extends GraphicalCompositeFigure {
         setAttributeEnabled(STROKE_DASHES, false);
 
         ResourceBundleUtil labels =
-                ResourceBundleUtil.getBundle("org.jhotdraw.samples.pert.Labels");
+        		ResourceBundleUtil.getBundle("org.jhotdraw.samples.pert.Labels");
 
         setName(labels.getString("pert.task.defaultName"));
         setDuration(0);
@@ -128,6 +138,7 @@ public class StateFigure extends GraphicalCompositeFigure {
         dependencies = new HashSet<TransitionFigure>();
         nameFigure.addFigureListener(new NameAdapter(this));
         durationFigure.addFigureListener(new DurationAdapter(this));
+        
     }
 
     @Override
@@ -222,13 +233,30 @@ public class StateFigure extends GraphicalCompositeFigure {
         return (TextFigure) ((ListFigure) getChild(2)).getChild(1);
     }
 
+    /**
+     * This provides a method for {@link StartStateFigure} and {@link EndStateFigure}
+     * to call the clone method of {@link GraphicalCompositeFigure} without cloning
+     * the attributes found in StateFigure.
+     * @param cloneSuperSkipStateFigure
+     * @return
+     */
+    public StateFigure clone(boolean cloneSuperSkipStateFigure)
+    {
+    	if(cloneSuperSkipStateFigure)
+    	{
+    		return (StateFigure) super.clone();
+    	}
+    	else
+    	{
+    		return this.clone();
+    	}
+    }
+    
     @Override
     public StateFigure clone() {
         StateFigure that = (StateFigure) super.clone();
         that.dependencies = new HashSet<TransitionFigure>();
         that.getNameFigure().addFigureListener(new NameAdapter(that));
-        that.getDurationFigure().addFigureListener(new DurationAdapter(that));
-        that.updateStartTime();
         return that;
     }
 
@@ -340,7 +368,7 @@ public class StateFigure extends GraphicalCompositeFigure {
 
     @Override
     public String toString() {
-        return "TaskFigure#" + hashCode() + " " + getName() + " " + getDuration() + " " + getStartTime();
+        return "StateFigure#" + hashCode() + " " + getName();
     }
 
 	public void serialize(DOMOutput out) throws IOException {

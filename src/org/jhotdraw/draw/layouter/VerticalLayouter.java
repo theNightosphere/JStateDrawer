@@ -11,9 +11,9 @@
 package org.jhotdraw.draw.layouter;
 
 import org.jhotdraw.draw.*;
-import org.jhotdraw.draw.CompositeFigure;
 import java.awt.geom.*;
 import org.jhotdraw.geom.*;
+
 import static org.jhotdraw.draw.AttributeKeys.*;
 
 /**

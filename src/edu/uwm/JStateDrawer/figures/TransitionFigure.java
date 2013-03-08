@@ -40,13 +40,23 @@ public class TransitionFigure extends LineConnectionFigure {
     /**
      * Checks if two figures can be connected. Implement this method
      * to constrain the allowed connections between figures.
+     * Updated 3/6 to ensure no connections can come from end state or go to start state.
      */
     @Override
     public boolean canConnect(Connector start, Connector end) {
         if ((start.getOwner() instanceof StateFigure)
                 && (end.getOwner() instanceof StateFigure)) {
 
-            StateFigure sf = (StateFigure) start.getOwner();
+        	if((start.getOwner() instanceof EndStateFigure) ||
+        			(end.getOwner() instanceof StartStateFigure))
+        	{
+        		return false;
+        	}
+        	else
+        	{
+        		return true;
+        	}
+            /*StateFigure sf = (StateFigure) start.getOwner();
             StateFigure ef = (StateFigure) end.getOwner();
 
             // Disallow multiple connections to same dependent
@@ -55,15 +65,26 @@ public class TransitionFigure extends LineConnectionFigure {
             }
 
             // Disallow cyclic connections
-            return !sf.isDependentOf(ef);
+            return !sf.isDependentOf(ef);*/
         }
 
         return false;
     }
 
+    /**
+     * Determines if a state can connect. If the start state is an {@link EndStateFigure}
+     * this returns false. If the start state is an instance of a StateFigure, this returns true.
+     */
     @Override
     public boolean canConnect(Connector start) {
-        return (start.getOwner() instanceof StateFigure);
+    	if(start.getOwner() instanceof EndStateFigure)
+    	{
+    		return false;
+    	}
+    	else{
+    		return (start.getOwner() instanceof StateFigure);
+    	}
+        
     }
 
     /**
