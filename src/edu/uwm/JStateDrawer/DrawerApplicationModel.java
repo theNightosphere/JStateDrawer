@@ -105,18 +105,25 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
         ButtonFactory.addSelectionToolTo(tb, editor);
         tb.addSeparator();
 
+        //StateFigure button
         attributes = new HashMap<AttributeKey, Object>();
         attributes.put(AttributeKeys.FILL_COLOR, Color.white);
         attributes.put(AttributeKeys.STROKE_COLOR, Color.black);
         attributes.put(AttributeKeys.TEXT_COLOR, Color.black);
         ButtonFactory.addToolTo(tb, editor, new CreationTool(new StateFigure(), attributes), "edit.createTask", labels);
 
-        //TODO: Figure out how to add new buttons here.
+        //StartStateFigure button
         attributes = new HashMap<AttributeKey, Object>();
-        attributes.put(AttributeKeys.TEXT_COLOR, Color.black);
         attributes.put(AttributeKeys.STROKE_COLOR, Color.black);
         attributes.put(AttributeKeys.FILL_COLOR, Color.black);
         ButtonFactory.addToolTo(tb, editor, new CreationTool(new StartStateFigure(), attributes), "edit.StartState", StateLabels);
+        
+        //EndStateFigure button
+        attributes = new HashMap<AttributeKey, Object>();
+        attributes.put(AttributeKeys.STROKE_COLOR,  Color.black);
+        attributes.put(AttributeKeys.FILL_COLOR, Color.white);
+        attributes.put(AttributeKeys.STROKE_WIDTH, 3d);
+        ButtonFactory.addToolTo(tb, editor, new CreationTool(new EndStateFigure(), attributes), "edit.EndState", StateLabels);
         
         attributes = new HashMap<AttributeKey, Object>();
         attributes.put(AttributeKeys.STROKE_COLOR, new Color(0x000099));

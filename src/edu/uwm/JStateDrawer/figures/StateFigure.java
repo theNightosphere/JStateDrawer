@@ -28,6 +28,8 @@ import org.jhotdraw.geom.*;
 import org.jhotdraw.util.*;
 import org.jhotdraw.xml.*;
 
+import edu.uwm.JStateDrawer.Models.StateFigureModel;
+
 /**
  * TaskFigure.
  *
@@ -37,6 +39,7 @@ import org.jhotdraw.xml.*;
 public class StateFigure extends GraphicalCompositeFigure {
 
     protected HashSet<TransitionFigure> dependencies;
+    protected StateFigureModel myModel;
 
     /**
      * This adapter is used, to connect a TextFigure with the name of
@@ -58,7 +61,7 @@ public class StateFigure extends GraphicalCompositeFigure {
         }
     }
 
-    private static class DurationAdapter extends FigureAdapter {
+    /*private static class DurationAdapter extends FigureAdapter {
 
         private StateFigure target;
 
@@ -75,21 +78,14 @@ public class StateFigure extends GraphicalCompositeFigure {
                 succ.updateStartTime();
             }
         }
-    }
+    }*/
 
-    /**
-     * Initializes a state figure with a rectangular shape.
-     */
-    public StateFigure()
-    {
-    	this(new RectangleFigure());
-    }
     
     /**
      * Initializes a state figure with the shape given by the AbstractAttributedFigure. 
      */
-    public StateFigure(AbstractAttributedFigure layoutFigure) {
-        super(layoutFigure);
+    public StateFigure() {
+        super(new RectangleFigure());
 
         setLayouter(new VerticalLayouter());
 
@@ -115,29 +111,24 @@ public class StateFigure extends GraphicalCompositeFigure {
         nameFigure.set(FONT_BOLD, true);
         nameFigure.setAttributeEnabled(FONT_BOLD, false);
 
-        TextFigure durationFigure;
+        /*TextFigure durationFigure;
         attributeCompartment.add(durationFigure = new TextFigure());
         durationFigure.set(FONT_BOLD, true);
         durationFigure.setText("0");
-        durationFigure.setAttributeEnabled(FONT_BOLD, false);
-
-        TextFigure startTimeFigure;
-        attributeCompartment.add(startTimeFigure = new TextFigure());
-        startTimeFigure.setEditable(false);
-        startTimeFigure.setText("0");
-        startTimeFigure.setAttributeEnabled(FONT_BOLD, false);
+        durationFigure.setAttributeEnabled(FONT_BOLD, false);*/
 
         setAttributeEnabled(STROKE_DASHES, false);
 
+        myModel = new StateFigureModel();
+        
         ResourceBundleUtil labels =
         		ResourceBundleUtil.getBundle("org.jhotdraw.samples.pert.Labels");
 
-        setName(labels.getString("pert.task.defaultName"));
-        setDuration(0);
+        setName(myModel.getName());
+
 
         dependencies = new HashSet<TransitionFigure>();
         nameFigure.addFigureListener(new NameAdapter(this));
-        durationFigure.addFigureListener(new DurationAdapter(this));
         
     }
 
@@ -169,7 +160,7 @@ public class StateFigure extends GraphicalCompositeFigure {
         return getNameFigure().getText();
     }
 
-    public void setDuration(int newValue) {
+    /*public void setDuration(int newValue) {
         int oldValue = getDuration();
         getDurationFigure().setText(Integer.toString(newValue));
         if (oldValue != newValue) {
@@ -187,9 +178,10 @@ public class StateFigure extends GraphicalCompositeFigure {
             return 0;
         }
 
-    }
+    }*/
 
-    public void updateStartTime() {
+    // Good example for how to make changes to internal figures.
+    /*public void updateStartTime() {
         willChange();
         int oldValue = getStartTime();
         int newValue = 0;
@@ -210,27 +202,10 @@ public class StateFigure extends GraphicalCompositeFigure {
             }
         }
         changed();
-    }
-
-    public int getStartTime() {
-        try {
-            return Integer.valueOf(getStartTimeFigure().getText());
-        } catch (NumberFormatException e) {
-            return 0;
-        }
-
-    }
+    }*/
 
     private TextFigure getNameFigure() {
         return (TextFigure) ((ListFigure) getChild(0)).getChild(0);
-    }
-
-    private TextFigure getDurationFigure() {
-        return (TextFigure) ((ListFigure) getChild(2)).getChild(0);
-    }
-
-    private TextFigure getStartTimeFigure() {
-        return (TextFigure) ((ListFigure) getChild(2)).getChild(1);
     }
 
     /**
@@ -268,12 +243,9 @@ public class StateFigure extends GraphicalCompositeFigure {
         double h = in.getAttribute("h", 0d);
         setBounds(new Point2D.Double(x, y), new Point2D.Double(x + w, y + h));
         readAttributes(in);
-        in.openElement("model");
+        in.openElement("state");
         in.openElement("name");
         setName((String) in.readObject());
-        in.closeElement();
-        in.openElement("duration");
-        setDuration((Integer) in.readObject());
         in.closeElement();
         in.closeElement();
     }
@@ -284,12 +256,9 @@ public class StateFigure extends GraphicalCompositeFigure {
         out.addAttribute("x", r.x);
         out.addAttribute("y", r.y);
         writeAttributes(out);
-        out.openElement("model");
+        out.openElement("state");
         out.openElement("name");
         out.writeObject(getName());
-        out.closeElement();
-        out.openElement("duration");
-        out.writeObject(getDuration());
         out.closeElement();
         out.closeElement();
     }
@@ -305,14 +274,10 @@ public class StateFigure extends GraphicalCompositeFigure {
 
     public void addDependency(TransitionFigure f) {
         dependencies.add(f);
-        updateStartTime();
-
     }
 
     public void removeDependency(TransitionFigure f) {
         dependencies.remove(f);
-        updateStartTime();
-
     }
 
     /**

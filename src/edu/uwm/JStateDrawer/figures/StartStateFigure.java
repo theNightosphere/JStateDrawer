@@ -1,18 +1,12 @@
 package edu.uwm.JStateDrawer.figures;
 
-import java.awt.Color;
 import java.awt.geom.*;
 import java.util.HashSet;
 
-import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.CompositeFigure;
 import org.jhotdraw.draw.EllipseFigure;
-import org.jhotdraw.draw.Figure;
-import org.jhotdraw.draw.GraphicalCompositeFigure;
 import org.jhotdraw.draw.layouter.*;
 import org.jhotdraw.geom.*;
-
-import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * 
@@ -25,7 +19,6 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 public class StartStateFigure extends StateFigure{
 
 	private final int CIRCLE_DIAMETER = 40;
-	private int x, y;
 	
 	public StartStateFigure()
 	{
@@ -45,19 +38,19 @@ public class StartStateFigure extends StateFigure{
 					Point2D.Double anchor,
 					Point2D.Double lead) {
 				Dimension2DDouble preferredSize = getPreferredSize();
-				System.out.println("anchor.x:" + Double.toString(anchor.x) + " anchor.y:" + Double.toString(anchor.y) + " width:" + Double.toString(preferredSize.width) + " height:" + Double.toString(preferredSize.height));
 				return new Rectangle2D.Double(anchor.x, anchor.y, preferredSize.width, preferredSize.height);
 			}
 		});
 	}
 	
+	/**
+	 * Clones the StartStateFigure and clears all the children figures added to it by it's
+	 * call to super.clone();
+	 */
 	public StartStateFigure clone()
 	{
 		StartStateFigure myClone = (StartStateFigure) super.clone();
 		myClone.children.clear();
-		
-		Rectangle2D.Double myBounds = this.getBounds();
-		
 		myClone.dependencies = new HashSet<TransitionFigure>();
 		return myClone;
 	}
@@ -67,11 +60,6 @@ public class StartStateFigure extends StateFigure{
 		return "StartStateFigure";
 	}
 	
-	/*@Override
-	public void draw(Graphics2D g)
-	{
-		
-	}*/
 	public Dimension2DDouble getPreferredSize()
 	{
 		return new Dimension2DDouble(CIRCLE_DIAMETER, CIRCLE_DIAMETER);
