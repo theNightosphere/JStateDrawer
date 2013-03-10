@@ -16,6 +16,8 @@ import java.awt.*;
 import static org.jhotdraw.draw.AttributeKeys.*;
 import org.jhotdraw.draw.*;
 
+import edu.uwm.JStateDrawer.Models.TransitionModel;
+
 /**
  * DependencyFigure.
  *
@@ -24,7 +26,9 @@ import org.jhotdraw.draw.*;
  */
 @SuppressWarnings("serial")
 public class TransitionFigure extends LineConnectionFigure {
-
+	
+	private TransitionModel myModel;
+	
     /** Creates a new instance. */
     public TransitionFigure() {
         set(STROKE_COLOR, new Color(0x000099));
@@ -39,6 +43,7 @@ public class TransitionFigure extends LineConnectionFigure {
     }
 
     /**
+     * Called by org.jhotdraw.draw.handle.ConnectorHandle
      * Checks if two figures can be connected. Implement this method
      * to constrain the allowed connections between figures.
      * Updated 3/6 to ensure no connections can come from end state or go to start state.
@@ -103,14 +108,22 @@ public class TransitionFigure extends LineConnectionFigure {
 
     /**
      * Handles the connection of a connection.
+     * Initializes the TransitionFigure's {@link TransitionModel} with the models
+     * from start and end. 
      * Override this method to handle this event.
      */
     @Override
     protected void handleConnect(Connector start, Connector end) {
         StateFigure sf = (StateFigure) start.getOwner();
         StateFigure ef = (StateFigure) end.getOwner();
+        
+        myModel = new TransitionModel("DEFAULT_ACTION", sf.getModel(), ef.getModel());
 
+        sf.getModel().addOutgoingTransition(myModel);
+        sf.getModel().addTransition(myModel.getTrigger(), myModel);
         sf.addDependency(this);
+        
+        ef.getModel().addIncomingTransition(myModel);
         ef.addDependency(this);
     }
 

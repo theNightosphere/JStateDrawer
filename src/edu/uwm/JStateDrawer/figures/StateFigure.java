@@ -309,6 +309,15 @@ public class StateFigure extends GraphicalCompositeFigure {
         }
         return list;
     }
+    
+    /**
+     * Returns this StateFigure's associated {@link StateFigureModel}.
+     * @return {@link StateFigureModel}
+     */
+    public StateFigureModel getModel()
+    {
+    	return myModel;
+    }
 
     /**
      * Returns true, if the current task is a direct or
