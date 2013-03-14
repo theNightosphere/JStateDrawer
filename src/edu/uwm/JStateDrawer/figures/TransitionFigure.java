@@ -12,8 +12,13 @@ package edu.uwm.JStateDrawer.figures;
 
 import org.jhotdraw.draw.connector.Connector;
 import org.jhotdraw.draw.decoration.ArrowTip;
+import org.jhotdraw.draw.layouter.LocatorLayouter;
+import org.jhotdraw.draw.liner.CurvedLiner;
+import org.jhotdraw.draw.locator.RelativeLocator;
+
 import java.awt.*;
 import static org.jhotdraw.draw.AttributeKeys.*;
+
 import org.jhotdraw.draw.*;
 
 import edu.uwm.JStateDrawer.Models.TransitionModel;
@@ -25,7 +30,7 @@ import edu.uwm.JStateDrawer.Models.TransitionModel;
  * @version $Id: DependencyFigure.java 718 2010-11-21 17:49:53Z rawcoder $
  */
 @SuppressWarnings("serial")
-public class TransitionFigure extends LineConnectionFigure {
+public class TransitionFigure extends LabeledLineConnectionFigure {
 	
 	private TransitionModel myModel;
 	
@@ -34,6 +39,16 @@ public class TransitionFigure extends LineConnectionFigure {
         set(STROKE_COLOR, new Color(0x000099));
         set(STROKE_WIDTH, 1d);
         set(END_DECORATION, new ArrowTip());
+        //setLiner(new CurvedLiner());
+        //LocatorLayouter();
+        
+        setLayouter(new LocatorLayouter());
+        TextFigure nameFigure = new TextFigure("DEFAULT");
+        nameFigure.set(FONT_BOLD, true);
+        nameFigure.setAttributeEnabled(FONT_BOLD, false);
+        add(nameFigure);
+
+        LocatorLayouter.LAYOUT_LOCATOR.set(nameFigure, new RelativeLocator(.5, .5, false));
 
         setAttributeEnabled(END_DECORATION, false);
         setAttributeEnabled(START_DECORATION, false);
@@ -116,6 +131,8 @@ public class TransitionFigure extends LineConnectionFigure {
     protected void handleConnect(Connector start, Connector end) {
         StateFigure sf = (StateFigure) start.getOwner();
         StateFigure ef = (StateFigure) end.getOwner();
+        // If sf == ef, setLiner(new CurvedLiner());
+        
         
         myModel = new TransitionModel("DEFAULT_ACTION", sf.getModel(), ef.getModel());
 
@@ -125,6 +142,10 @@ public class TransitionFigure extends LineConnectionFigure {
         
         ef.getModel().addIncomingTransition(myModel);
         ef.addDependency(this);
+        if(sf == ef)
+        {
+        	setLiner(new CurvedLiner());
+        }
     }
 
     @Override

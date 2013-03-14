@@ -268,7 +268,52 @@ public class StateFigureModel {
 	{
 		myTransitionTriggers.remove(triggerOfTransitionToRemove);
 	}
-	 
+	
+	/**
+	 * Updates the {@link TransitionModel} pointed to by oldTrigger to have the 
+	 * trigger string specified by newTrigger
+	 * @param oldTrigger A string that triggers the associated {@link TransitionModel}
+	 * @param newTrigger The new desired trigger string for the {@link TransitionModel} associated with oldTrigger.
+	 * @return true if trigger is successfully updated, false if it is not.
+	 */
+	public boolean changeTransitionTrigger(String oldTrigger,
+			String newTrigger)
+	{
+		if(validateTrigger(newTrigger))
+		{
+			if(myTransitionTriggers.containsKey(oldTrigger))
+			{
+				TransitionModel transitionToUpdate = myTransitionTriggers.remove(oldTrigger);
+
+				myTransitionTriggers.put(newTrigger, transitionToUpdate);
+				return true;
+			}
+			
+		}
+		return false;
+	}
+	
+	/**
+	 * Ensures that the Trigger for the transition is of the proper format.
+	 * Namely, the trigger starts with an upper case letter and is followed
+	 * by only upper case letters, numbers, or underscores.
+	 * @param triggerToValidate String trigger to validate.
+	 * @return true if trigger string is valid, false if it is not.
+	 */
+	private boolean validateTrigger(String triggerToValidate)
+	{
+		Pattern p = Pattern.compile("[A-Z][A-Z0-9_]*+");
+		Matcher m = p.matcher(triggerToValidate);
+		if(m.matches())
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
 	/**
 	 * Creates a String representation of the StateFigureModel that can be used to
 	 * generate the StateFigureModel again.

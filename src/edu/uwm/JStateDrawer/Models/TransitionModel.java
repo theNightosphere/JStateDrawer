@@ -107,19 +107,20 @@ public class TransitionModel {
 	 * @throws {@link IllegalArgumentException} if trigger is not at least length 1.
 	 * @throws {@link IllegalArgumentException} if the trigger is not well-formed according to the definition in the method summary.
 	 */
-	public void setTrigger(String trigger){
-		Matcher m = p.matcher(trigger);
-		if(trigger.length() < 1)
+	public void setTrigger(String newTrigger){
+		Matcher m = p.matcher(newTrigger);
+		if(newTrigger.length() < 1)
 		{
 			throw new IllegalArgumentException("The new trigger is not long enough");
 		}
 		else if(!m.matches())
 		{
-			String error = String.format("The new trigger '%s' is not formatted properly.", trigger);
+			String error = String.format("The new trigger '%s' is not formatted properly.", newTrigger);
 			error += " Triggers must start with an uppercase letter and be followed by zero or more uppercase letters, numbers, and underscores.";
 			throw new IllegalArgumentException(error);
 		}
-		myEventTrigger = trigger;
+		myStartState.changeTransitionTrigger(myEventTrigger, newTrigger);
+		myEventTrigger = newTrigger;
 	}
 	
 	/**
