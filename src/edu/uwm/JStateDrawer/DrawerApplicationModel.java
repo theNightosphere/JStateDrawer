@@ -201,9 +201,7 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
             	serialize = am.get(SerializeFileAction.ID);
                 if(null != serialize)
                 {
-                	System.out.println(serialize);
-                	m.add(serialize);
-                	
+                	m.add(serialize); 	
                 }
                 //TODO Add actions for StateFigure to use in right-click popupmenu here
                 // in the format shown below

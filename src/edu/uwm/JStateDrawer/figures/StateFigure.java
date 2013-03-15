@@ -36,10 +36,10 @@ import edu.uwm.JStateDrawer.Actions.SerializeFileAction;
 import edu.uwm.JStateDrawer.Models.StateFigureModel;
 
 /**
- * TaskFigure.
+ * StateFigure.
  *
- * @author Werner Randelshofer.
- * @version $Id: TaskFigure.java 727 2011-01-09 13:23:59Z rawcoder $
+ * @author Reed Johnson, Scott Gill, and Chad Fisher.
+ * @version $Id: StateFigure.java 727 2013-3-14 11:45:59Z reed $
  */
 @SuppressWarnings("serial")
 public class StateFigure extends GraphicalCompositeFigure {
@@ -82,6 +82,7 @@ public class StateFigure extends GraphicalCompositeFigure {
     	@Override
     	public void setText(String newText)
     	{
+    		willChange();
     		String oldTrigger = getText();
     		ArrayList<String> actions = (ArrayList<String>)myModel.getActionsByTrigger(oldTrigger);
     		try
@@ -97,6 +98,7 @@ public class StateFigure extends GraphicalCompositeFigure {
     			super.setText(oldTrigger);
     			myModel.addActionsForTrigger(oldTrigger, actions);
     		}
+    		changed();
     	}
     }
     
@@ -122,30 +124,33 @@ public class StateFigure extends GraphicalCompositeFigure {
     	@Override
     	public void setText(String newText)
     	{
+    		willChange();
     		if(myTrigger != null)
     		{
     			String trigger = myTrigger.getText();
     			String oldText = getText();
     			try
     			{
+    				
     				super.setText(newText);
     				if(myModel.removeAction(trigger, oldText))
     				{
     					myModel.addAction(trigger, newText);	
-    				}
-    				
+    				}    				
     			}
     			catch(Exception e)
     			{
     				// Add action failed. add the old action again
     				super.setText(oldText);
     				myModel.addAction(trigger, oldText);
+
     			}
     		}
     		else
     		{
     			super.setText(myModel.DEFAULT_ACTION_NAME);
     		}
+    		changed();
     	}
     }
 
@@ -194,10 +199,6 @@ public class StateFigure extends GraphicalCompositeFigure {
 
         dependencies = new HashSet<TransitionFigure>();
         nameFigure.addFigureListener(new NameAdapter(this));
-        
-        System.out.println("Testing add default action");
-        addActionTextFigure();
-        
     }
 
     
@@ -219,6 +220,7 @@ public class StateFigure extends GraphicalCompositeFigure {
     public void addActionTextFigure(String newTrigger, String newAction)
     {
     	willChange();
+
     	ListFigure actionToAdd = new ListFigure();
     	actionToAdd.setLayouter(new HorizontalLayouter());
     	TriggerTextFigure trigger = new TriggerTextFigure(newTrigger);
