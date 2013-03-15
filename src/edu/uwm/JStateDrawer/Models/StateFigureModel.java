@@ -10,6 +10,8 @@ import java.util.regex.Pattern;
 
 public class StateFigureModel {
 	
+	public final String DEFAULT_ACTION_TRIGGER = "TRIGGER";
+	public final String DEFAULT_ACTION_NAME = "action";
 	protected String myName;
 	protected HashSet<TransitionModel> myIncomingTransitions, myOutgoingTransitions;
 	protected HashMap<String, List<String>> myActions;
@@ -17,13 +19,12 @@ public class StateFigureModel {
 	private ArrayList<StateFigureModel> myInternalStates;
 	private Pattern p = Pattern.compile("[A-Z][A-Z0-9_]*+");
 	
-	
 	public StateFigureModel()
 	{
 		this("default", new HashSet<TransitionModel>(), new HashSet<TransitionModel>(),
 				new HashMap<String, List<String>>(), new HashMap<String, TransitionModel>(),
 				new ArrayList<StateFigureModel>());
-	}	
+	}
 	
 	/**
 	 * Explicit constructor for StateFigureModel that is initialized with the given name while all other
@@ -246,6 +247,27 @@ public class StateFigureModel {
 	}
 	
 	/**
+	 * Adds a list of new Actions to the State's list of actions. If the trigger already exists, the actions are added to the trigger's
+	 * list of actions. A convenience method that is, in reality, multiple calls to {@link addAction}
+	 * @param actionTriggerEvent A string representing the action trigger. This must be all uppercase letters, start with an uppercase letter, numbers and underscores.
+	 * @param listOfActions A List<String> representing multiple actions
+	 * @throws {@link IllegalArgumentException} if any of the new action strings are not at least length 1.
+	 * @throws {@link IllegalArgumentException} if listOfActions is null
+	 * @throws {@link IllegalArgumentException} if the actionTriggerEvent string is not at least length 1.
+	 * @throws {@link IllegalArgumentException} if the actionTriggerEvent contains any characters that are not uppercase letters, numbers, or underscores and does not start with an uppercase letter.
+	 */
+	public void addActionsForTrigger(String actionTriggerEvent, List<String> listOfActions)
+	{
+		if(listOfActions != null)
+		{
+			for(String action : listOfActions)
+			{
+				addAction(actionTriggerEvent, action);
+			}
+		}
+	}
+	
+	/**
 	 * Removes an action. If the state does not have the action being removed, false is returned.
 	 * If removing an action leaves a trigger with no associated actions, the trigger is also removed
 	 * from the map of triggers to actions.
@@ -269,6 +291,21 @@ public class StateFigureModel {
 			}
 		}
 
+		return false;
+	}
+	
+	/**
+	 * Removes all the actions associated with a particular trigger. A convenience method.
+	 * @param triggerOfActions A String trigger that has one or more actions associated with it.
+	 * @return true if trigger and its actions are removed successfully, false if there is no trigger to remove.
+	 */
+	public boolean removeAllActionsOfTrigger(String triggerOfActions)
+	{
+		if(myActions.containsKey(triggerOfActions))
+		{
+			myActions.remove(triggerOfActions);
+			return true;
+		}
 		return false;
 	}
 	

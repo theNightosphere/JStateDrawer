@@ -67,6 +67,7 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
         m.put(ExportFileAction.ID, new ExportFileAction(a, v));
         m.put("view.toggleGrid", aa = new ToggleViewPropertyAction(a, v, DrawerView.GRID_VISIBLE_PROPERTY));
         m.put(SerializeFileAction.ID, new SerializeFileAction(a, v));
+        m.put(AddNewActionAction.ID, new AddNewActionAction(a, v));
         drawLabels.configureAction(aa, "view.toggleGrid");
         for (double sf : scaleFactors) {
             m.put((int) (sf * 100) + "%",
@@ -197,10 +198,23 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
             {
             	ActionMap am = app.getActionMap(v);
             	Action serialize;
-                if(null != (serialize = am.get(SerializeFileAction.ID)))
+            	serialize = am.get(SerializeFileAction.ID);
+                if(null != serialize)
                 {
+                	System.out.println(serialize);
                 	m.add(serialize);
+                	
                 }
+                //TODO Add actions for StateFigure to use in right-click popupmenu here
+                // in the format shown below
+                // StateFigure.addAction(serialize);
+                Action addDefaultAction;
+                addDefaultAction = am.get(AddNewActionAction.ID);
+                if(null != addDefaultAction)
+                {
+                	StateFigure.addAction(addDefaultAction);
+                }
+               
             }
         };
     }

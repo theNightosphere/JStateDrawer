@@ -15,6 +15,7 @@ import org.jhotdraw.draw.handle.MoveHandle;
 import org.jhotdraw.draw.handle.Handle;
 import org.jhotdraw.draw.event.FigureAdapter;
 import org.jhotdraw.draw.event.FigureEvent;
+import org.jhotdraw.draw.layouter.HorizontalLayouter;
 import org.jhotdraw.draw.layouter.VerticalLayouter;
 import org.jhotdraw.draw.connector.LocatorConnector;
 import org.jhotdraw.draw.handle.ConnectorHandle;
@@ -22,12 +23,16 @@ import java.io.IOException;
 import java.awt.geom.*;
 import static org.jhotdraw.draw.AttributeKeys.*;
 import java.util.*;
+
+import javax.swing.Action;
+
 import org.jhotdraw.draw.*;
 import org.jhotdraw.draw.handle.BoundsOutlineHandle;
 import org.jhotdraw.geom.*;
 import org.jhotdraw.util.*;
 import org.jhotdraw.xml.*;
 
+import edu.uwm.JStateDrawer.Actions.SerializeFileAction;
 import edu.uwm.JStateDrawer.Models.StateFigureModel;
 
 /**
@@ -36,14 +41,16 @@ import edu.uwm.JStateDrawer.Models.StateFigureModel;
  * @author Werner Randelshofer.
  * @version $Id: TaskFigure.java 727 2011-01-09 13:23:59Z rawcoder $
  */
+@SuppressWarnings("serial")
 public class StateFigure extends GraphicalCompositeFigure {
 
     protected HashSet<TransitionFigure> dependencies;
     protected StateFigureModel myModel;
+    protected static ArrayList<Action> myActions = new ArrayList<Action>();
 
     /**
      * This adapter is used, to connect a TextFigure with the name of
-     * the TaskFigure model.
+     * the StateFigure model.
      */
     private static class NameAdapter extends FigureAdapter {
 
@@ -55,30 +62,92 @@ public class StateFigure extends GraphicalCompositeFigure {
 
         @Override
         public void attributeChanged(FigureEvent e) {
-            // We could fire a property change event here, in case
-            // some other object would like to observe us.
-            //target.firePropertyChange("name", e.getOldValue(), e.getNewValue());
+        	target.setNameIfValid(e);
+        	
         }
     }
 
-    /*private static class DurationAdapter extends FigureAdapter {
-
-        private StateFigure target;
-
-        public DurationAdapter(StateFigure target) {
-            this.target = target;
-        }
-
-        @Override
-        public void attributeChanged(FigureEvent evt) {
-            // We could fire a property change event here, in case
-            // some other object would like to observe us.
-            // target.firePropertyChange("duration", e.getOldValue(), e.getNewValue());
-            for (StateFigure succ : target.getSuccessors()) {
-                succ.updateStartTime();
-            }
-        }
-    }*/
+    private class TriggerTextFigure extends TextFigure
+    {
+    	public TriggerTextFigure()
+    	{
+    		super();
+    	}
+    	
+    	public TriggerTextFigure(String text)
+    	{
+    		super(text);
+    	}
+    	
+    	@Override
+    	public void setText(String newText)
+    	{
+    		String oldTrigger = getText();
+    		ArrayList<String> actions = (ArrayList<String>)myModel.getActionsByTrigger(oldTrigger);
+    		try
+    		{
+    			myModel.removeAllActionsOfTrigger(oldTrigger);
+    			myModel.addActionsForTrigger(newText, actions);
+    			super.setText(newText);
+    		}
+    		catch(Exception e)
+    		{
+    			// The trigger was bad. Because all actions are added via the addAction function,
+    			// Exception thrown should never be from ill-formed action name.'
+    			super.setText(oldTrigger);
+    			myModel.addActionsForTrigger(oldTrigger, actions);
+    		}
+    	}
+    }
+    
+    /**
+     * A text figure meant to be used to store Actions.
+     */
+    private class ActionTextFigure extends TextFigure
+    {
+    	private TriggerTextFigure myTrigger;
+    	
+    	/**
+    	 * Constructs a text figure meant for Actions. Takes in the text for the figure 
+    	 * and a TriggerTextFigure that it is associated with. 
+    	 * @param text
+    	 * @param triggerText
+    	 */
+    	public ActionTextFigure(String text, TriggerTextFigure triggerText)
+    	{
+    		super(text);
+    		myTrigger = triggerText;
+    	}
+    	
+    	@Override
+    	public void setText(String newText)
+    	{
+    		if(myTrigger != null)
+    		{
+    			String trigger = myTrigger.getText();
+    			String oldText = getText();
+    			try
+    			{
+    				super.setText(newText);
+    				if(myModel.removeAction(trigger, oldText))
+    				{
+    					myModel.addAction(trigger, newText);	
+    				}
+    				
+    			}
+    			catch(Exception e)
+    			{
+    				// Add action failed. add the old action again
+    				super.setText(oldText);
+    				myModel.addAction(trigger, oldText);
+    			}
+    		}
+    		else
+    		{
+    			super.setText(myModel.DEFAULT_ACTION_NAME);
+    		}
+    	}
+    }
 
     
     /**
@@ -115,7 +184,9 @@ public class StateFigure extends GraphicalCompositeFigure {
 
         myModel = new StateFigureModel();
         
-        ResourceBundleUtil labels =
+        //TODO Decide whether to throw this statement out.
+        @SuppressWarnings("unused")
+		ResourceBundleUtil labels =
         		ResourceBundleUtil.getBundle("org.jhotdraw.samples.pert.Labels");
 
         setName(myModel.getName());
@@ -124,8 +195,72 @@ public class StateFigure extends GraphicalCompositeFigure {
         dependencies = new HashSet<TransitionFigure>();
         nameFigure.addFigureListener(new NameAdapter(this));
         
+        System.out.println("Testing add default action");
+        addActionTextFigure();
+        
     }
 
+    
+    /**
+     * Returns a list of {@link Action}s to be used in the population of a 
+     * popup menu. 
+     */
+    @Override
+    public Collection<Action> getActions(Point2D.Double p)
+    {
+    	return myActions; 	
+    }
+    
+    /**
+     * Adds a new action to the StateFigure and stores the data in the {@link StateFigureModel}
+     * @param newTrigger The String that will be the new action's trigger
+     * @param newAction The String that will be the new action.
+     */
+    public void addActionTextFigure(String newTrigger, String newAction)
+    {
+    	willChange();
+    	ListFigure actionToAdd = new ListFigure();
+    	actionToAdd.setLayouter(new HorizontalLayouter());
+    	TriggerTextFigure trigger = new TriggerTextFigure(newTrigger);
+    	
+    	trigger.set(AttributeKeys.FONT_ITALIC, true);
+    	trigger.setAttributeEnabled(AttributeKeys.FONT_ITALIC, false);
+    	
+    	TextFigure divider = new TextFigure("/");
+    	divider.set(AttributeKeys.FONT_BOLD, true);
+    	divider.setAttributeEnabled(AttributeKeys.FONT_BOLD, false);
+    	divider.setEditable(false);
+    	
+    	ActionTextFigure action = new ActionTextFigure(newAction, trigger);
+    	
+    	actionToAdd.add(trigger);
+    	actionToAdd.add(divider);
+    	actionToAdd.add(action);
+    	
+    	getActionTextFigures().add(actionToAdd);
+    	changed();
+    	myModel.addAction(newTrigger, newAction);
+    }
+    
+    /**
+     * Adds a new action to the StateFigure and stores the data in the {@link StateFigureModel}
+     * with default values.
+     */
+    public void addActionTextFigure()
+    {
+    	addActionTextFigure(myModel.DEFAULT_ACTION_TRIGGER, myModel.DEFAULT_ACTION_NAME);
+    }
+    
+    /**
+     * Accesses the {@link ListFigure} containing the {@link TextFigure}s that hold
+     * the {@link StateFigureModel}'s actions.
+     * @return A {@link ListFigure}
+     */
+    public ListFigure getActionTextFigures()
+    {
+    	return (ListFigure)getChild(2);
+    }
+    
     @Override
     public Collection<Handle> createHandles(int detailLevel) {
         java.util.List<Handle> handles = new LinkedList<Handle>();
@@ -140,7 +275,7 @@ public class StateFigure extends GraphicalCompositeFigure {
                 handles.add(new MoveHandle(this, RelativeLocator.southEast()));
                 ConnectorHandle ch;
                 handles.add(ch = new ConnectorHandle(new LocatorConnector(this, RelativeLocator.east()), new TransitionFigure()));
-                ch.setToolTipText("Drag the connector to a dependent task.");
+                ch.setToolTipText("Drag the connector to a connected state.");
                 break;
         }
         return handles;
@@ -201,25 +336,6 @@ public class StateFigure extends GraphicalCompositeFigure {
     private TextFigure getNameFigure() {
         return (TextFigure) ((ListFigure) getChild(0)).getChild(0);
     }
-
-    /**
-     * This provides a method for {@link StartStateFigure} and {@link EndStateFigure}
-     * to call the clone method of {@link GraphicalCompositeFigure} without cloning
-     * the attributes found in StateFigure.
-     * @param cloneSuperSkipStateFigure
-     * @return
-     */
-    public StateFigure clone(boolean cloneSuperSkipStateFigure)
-    {
-    	if(cloneSuperSkipStateFigure)
-    	{
-    		return (StateFigure) super.clone();
-    	}
-    	else
-    	{
-    		return this.clone();
-    	}
-    }
     
     @Override
     public StateFigure clone() {
@@ -229,6 +345,15 @@ public class StateFigure extends GraphicalCompositeFigure {
         return that;
     }
 
+    /**
+     * Adds a new {@link Action} to this StateFigure's list of actions. 
+     * @param newAction
+     */
+    public static void addAction(Action newAction)
+    {
+    	myActions.add(newAction);
+    }
+    
     @Override
     public void read(DOMInput in) throws IOException {
         double x = in.getAttribute("x", 0d);
@@ -262,6 +387,24 @@ public class StateFigure extends GraphicalCompositeFigure {
         return 0;
     }
 
+    /**
+     * Sets the name of StateFigure's associated {@link StateFigureModel} if the name is valid.
+     * If the name is not valid, the {@link StateFigureModel} remains unchanged and the StateFigure's name is returned
+     * to the old value.
+     * @param evt A {@link FigureEvent} created when the State's name is changed.
+     */
+    public void setNameIfValid(FigureEvent evt)
+    {
+    	try
+    	{
+    		myModel.setName((String)evt.getNewValue());
+    	}
+    	catch(Exception e)
+    	{
+    		setName((String)evt.getOldValue());
+    	}
+    }
+    
     public Set<TransitionFigure> getDependencies() {
         return Collections.unmodifiableSet(dependencies);
     }
@@ -275,8 +418,8 @@ public class StateFigure extends GraphicalCompositeFigure {
     }
 
     /**
-     * Returns dependent PertTasks which are directly connected via a
-     * PertDependency to this TaskFigure.
+     * Returns dependent StateFigure which are directly connected via a
+     * TransitionFigure to this StateFigure.
      */
     public List<StateFigure> getSuccessors() {
         LinkedList<StateFigure> list = new LinkedList<StateFigure>();
@@ -290,8 +433,8 @@ public class StateFigure extends GraphicalCompositeFigure {
     }
 
     /**
-     * Returns predecessor PertTasks which are directly connected via a
-     * PertDependency to this TaskFigure.
+     * Returns predecessor StateFigures which are directly connected via a
+     * TransitionFigure to this StateFigure.
      */
     public List<StateFigure> getPredecessors() {
         LinkedList<StateFigure> list = new LinkedList<StateFigure>();

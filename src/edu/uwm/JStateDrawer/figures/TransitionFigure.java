@@ -12,6 +12,8 @@ package edu.uwm.JStateDrawer.figures;
 
 import org.jhotdraw.draw.connector.Connector;
 import org.jhotdraw.draw.decoration.ArrowTip;
+import org.jhotdraw.draw.event.FigureAdapter;
+import org.jhotdraw.draw.event.FigureEvent;
 import org.jhotdraw.draw.layouter.LocatorLayouter;
 import org.jhotdraw.draw.liner.CurvedLiner;
 import org.jhotdraw.draw.locator.RelativeLocator;
@@ -21,6 +23,7 @@ import static org.jhotdraw.draw.AttributeKeys.*;
 
 import org.jhotdraw.draw.*;
 
+import edu.uwm.JStateDrawer.Models.StateFigureModel;
 import edu.uwm.JStateDrawer.Models.TransitionModel;
 
 /**
@@ -31,11 +34,46 @@ import edu.uwm.JStateDrawer.Models.TransitionModel;
  */
 @SuppressWarnings("serial")
 public class TransitionFigure extends LabeledLineConnectionFigure {
-	
+	private final String DEFAULT_NAME = "DEFAULT";
 	private TransitionModel myModel;
+    
+    @SuppressWarnings("unused")
+    private class TransitionTextFigure extends TextFigure
+    {
+    	
+    	
+		public TransitionTextFigure()
+    	{
+    		super();
+    	}
+    	
+    	public TransitionTextFigure(String text)
+    	{
+    		super(text);
+    	}
+    	
+    	/**
+    	 * Sets the text for the transition and updates the transition model. 
+    	 */
+    	@Override
+    	public void setText(String newText)
+    	{
+    		String oldText = getText();
+    		try
+    		{
+    			myModel.setTrigger(newText);
+    			super.setText(newText);
+    		}
+    		catch(Exception e)
+    		{
+    			// Nothing happens as of now.
+    		}
+    	}
+    }
 	
     /** Creates a new instance. */
     public TransitionFigure() {
+    	myModel = new TransitionModel(DEFAULT_NAME, new StateFigureModel(), new StateFigureModel());
         set(STROKE_COLOR, new Color(0x000099));
         set(STROKE_WIDTH, 1d);
         set(END_DECORATION, new ArrowTip());
@@ -43,10 +81,12 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
         //LocatorLayouter();
         
         setLayouter(new LocatorLayouter());
-        TextFigure nameFigure = new TextFigure("DEFAULT");
+        TransitionTextFigure nameFigure = new TransitionTextFigure("DEFAULT");
         nameFigure.set(FONT_BOLD, true);
         nameFigure.setAttributeEnabled(FONT_BOLD, false);
         add(nameFigure);
+        
+        setName(DEFAULT_NAME);
 
         LocatorLayouter.LAYOUT_LOCATOR.set(nameFigure, new RelativeLocator(.5, .5, false));
 
@@ -92,6 +132,11 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
         return false;
     }
 
+    public void setName(String newName)
+    {
+    	((TextFigure)getChild(0)).setText(newName);
+    }
+    
     /**
      * Determines if a state can connect. If the start state is an {@link EndStateFigure}
      * this returns false. If the start state is an instance of a StateFigure, this returns true.
@@ -133,15 +178,16 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
         StateFigure ef = (StateFigure) end.getOwner();
         // If sf == ef, setLiner(new CurvedLiner());
         
-        
-        myModel = new TransitionModel("DEFAULT_ACTION", sf.getModel(), ef.getModel());
-
+        myModel.setTrigger(DEFAULT_NAME);
+        myModel.setStartState(sf.getModel());
+        myModel.setEndState(ef.getModel());
         sf.getModel().addOutgoingTransition(myModel);
         sf.getModel().addTransition(myModel.getTrigger(), myModel);
         sf.addDependency(this);
         
         ef.getModel().addIncomingTransition(myModel);
         ef.addDependency(this);
+        
         if(sf == ef)
         {
         	setLiner(new CurvedLiner());
@@ -158,6 +204,24 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
     @Override
     public int getLayer() {
         return 1;
+    }
+    
+    /**
+     * Sets the name of TransitionFigure's associated {@link TransitionModel} if the name is valid.
+     * If the name is not valid, the {@link TransitionModel} remains unchanged and the TransitionFigure's name is returned
+     * to the old value.
+     * @param evt A {@link FigureEvent} created when the State's name is changed.
+     */
+    public void setNameIfValid(FigureEvent evt)
+    {
+    	try
+    	{
+    		myModel.setTrigger((String)evt.getNewValue());
+    	}
+    	catch(Exception e)
+    	{
+    		setName((String)evt.getOldValue());
+    	}
     }
 
     @Override

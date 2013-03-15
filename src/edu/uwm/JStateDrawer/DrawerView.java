@@ -50,9 +50,11 @@ public class DrawerView extends AbstractView {
 
         scrollPane.setLayout(new PlacardScrollPaneLayout());
         scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
-
+        
         setEditor(new DefaultDrawingEditor());
         undo = new UndoRedoManager();
+        // The following line should set states with 4 handles?
+        ((DefaultDrawingView)view).setHandleDetailLevel(0);
         view.setDrawing(createDrawing());
         view.getDrawing().addUndoableEditListener(undo);
         initActions();
