@@ -73,7 +73,7 @@ public class StateFigure extends GraphicalCompositeFigure {
         public void attributeChanged(FigureEvent evt) {
             // We could fire a property change event here, in case
             // some other object would like to observe us.
-            //target.firePropertyChange("duration", e.getOldValue(), e.getNewValue());
+            // target.firePropertyChange("duration", e.getOldValue(), e.getNewValue());
             for (StateFigure succ : target.getSuccessors()) {
                 succ.updateStartTime();
             }
@@ -110,12 +110,6 @@ public class StateFigure extends GraphicalCompositeFigure {
         nameCompartment.add(nameFigure = new TextFigure());
         nameFigure.set(FONT_BOLD, true);
         nameFigure.setAttributeEnabled(FONT_BOLD, false);
-
-        /*TextFigure durationFigure;
-        attributeCompartment.add(durationFigure = new TextFigure());
-        durationFigure.set(FONT_BOLD, true);
-        durationFigure.setText("0");
-        durationFigure.setAttributeEnabled(FONT_BOLD, false);*/
 
         setAttributeEnabled(STROKE_DASHES, false);
 

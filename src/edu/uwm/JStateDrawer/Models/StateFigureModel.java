@@ -3,6 +3,7 @@ package edu.uwm.JStateDrawer.Models;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,7 +12,7 @@ public class StateFigureModel {
 	
 	protected String myName;
 	protected HashSet<TransitionModel> myIncomingTransitions, myOutgoingTransitions;
-	protected HashMap<String, String> myActions;
+	protected HashMap<String, List<String>> myActions;
 	protected HashMap<String, TransitionModel> myTransitionTriggers;
 	private ArrayList<StateFigureModel> myInternalStates;
 	private Pattern p = Pattern.compile("[A-Z][A-Z0-9_]*+");
@@ -20,7 +21,7 @@ public class StateFigureModel {
 	public StateFigureModel()
 	{
 		this("default", new HashSet<TransitionModel>(), new HashSet<TransitionModel>(),
-				new HashMap<String, String>(), new HashMap<String, TransitionModel>(),
+				new HashMap<String, List<String>>(), new HashMap<String, TransitionModel>(),
 				new ArrayList<StateFigureModel>());
 	}	
 	
@@ -33,7 +34,7 @@ public class StateFigureModel {
 	public StateFigureModel(String name)
 	{
 		this(name, new HashSet<TransitionModel>(), new HashSet<TransitionModel>(),
-				new HashMap<String, String>(), new HashMap<String, TransitionModel>(),
+				new HashMap<String, List<String>>(), new HashMap<String, TransitionModel>(),
 				new ArrayList<StateFigureModel>());
 	}
 	
@@ -42,14 +43,14 @@ public class StateFigureModel {
 	 * @param name A String of length 1 or greater.
 	 * @param incomingTransitions A HashSet of {@link TransitionModel}s that are the incoming transitions to the StateFigureModel.
 	 * @param outgoingTransitions A HashSet of {@link TransitionModel}s that are the outgoing transitions from the StateFigureModel.
-	 * @param actions A HashMap<String, String> of Action Triggers to Actions.
+	 * @param actions A HashMap<String, List<String>> of Action Triggers to Actions.
 	 * @param transitionTriggers A HashMap<String, {@link TransitionModel}> of transition triggers to {@link TransitionModel}s.
 	 * @param internalStates An ArrayList of StateFigureModels that represent the internal states of this StateFigureModel.
 	 * @throws {@link IllegalArgumentException} If incomingTransitions, outgoingTransitions, actions, transitionTriggers, or internalStates is null.
 	 * @throws {@link IllegalArgumentException} If name is the empty string.
 	 */
 	public StateFigureModel(String name, HashSet<TransitionModel> incomingTransitions,
-			HashSet<TransitionModel> outgoingTransitions, HashMap<String, String> actions,
+			HashSet<TransitionModel> outgoingTransitions, HashMap<String, List<String>> actions,
 			HashMap<String, TransitionModel> transitionTriggers,
 			ArrayList<StateFigureModel> internalStates)
 	{
@@ -179,15 +180,33 @@ public class StateFigureModel {
 	
 	/**
 	 * Accesses a list of the state's actions.
-	 * @return An ArrayList<String> of the actions this state performs upon entry.
+	 * @return A HashMap<String, List<String>> of all the actions and their associated triggers held by a state.
 	 */
-	public HashMap<String, String> getActions()
+	public HashMap<String, List<String>> getAllActions()
 	{
 		return myActions;
 	}
 	
 	/**
-	 * Adds a new Action to the State's list of actions.
+	 * Gets a list of actions prompted by a specific trigger.
+	 * @param trigger
+	 * @return A list of strings associated with the trigger passed as a parameter. Null is returned if no such trigger exists.
+	 */
+	public List<String> getActionsByTrigger(String trigger)
+	{
+		if(myActions.containsKey(trigger))
+		{
+			return myActions.get(trigger);
+		}
+		else
+		{
+			return null;
+		}
+	}
+	
+	/**
+	 * Adds a new Action to the State's list of actions. If the trigger already exists, the action is added to the trigger's
+	 * list of actions.
 	 * @param actionTriggerEvent A string representing the action trigger. This must be all uppercase letters, start with an uppercase letter, numbers and underscores.
 	 * @param newAction A String representing an action.
 	 * @throws {@link IllegalArgumentException} if the newAction string is not at least length 1.
@@ -213,17 +232,44 @@ public class StateFigureModel {
 			throw new IllegalArgumentException(error);
 		}
 		
-		myActions.put(actionTriggerEvent, newAction);
+		// If the trigger already exists in map of triggers, add the action to the trigger's list of actions.
+		if(myActions.containsKey(actionTriggerEvent))
+		{
+			List<String> existingTriggersActions = myActions.get(actionTriggerEvent);
+			existingTriggersActions.add(newAction);
+		}
+		else{
+			ArrayList<String> newListOfActions = new ArrayList<String>();
+			newListOfActions.add(newAction);
+			myActions.put(actionTriggerEvent, newListOfActions);
+		}
 	}
 	
 	/**
-	 * Removes an action. If the state does not have the action being removed,
-	 * nothing happens.
-	 * @param actionToRemove A String representing the action to be removed. 
+	 * Removes an action. If the state does not have the action being removed, false is returned.
+	 * If removing an action leaves a trigger with no associated actions, the trigger is also removed
+	 * from the map of triggers to actions.
+	 * @param triggerOfAction A string representing the trigger of the action to be removed.
+	 * @param actionToRemove A String representing the action to be removed.
+	 * @return Returns true if the action is successfully removed, false if it is not. 
 	 */
-	public void removeAction(String actionToRemove)
+	public boolean removeAction(String triggerOfAction, String actionToRemove )
 	{
-		myActions.remove(actionToRemove);
+		if(myActions.containsKey(triggerOfAction))
+		{
+			List<String> listOfActions = myActions.get(triggerOfAction);
+			if(listOfActions.contains(actionToRemove))
+			{
+				listOfActions.remove(actionToRemove);
+				if(listOfActions.isEmpty())
+				{
+					myActions.remove(triggerOfAction);
+				}
+				return true;
+			}
+		}
+
+		return false;
 	}
 	
 	/**
@@ -322,9 +368,13 @@ public class StateFigureModel {
 	public String exportXML()
 	{
 		String XMLString = String.format("<state name='%s'>", myName);
-		for(String action : myActions.keySet())
+		for(String trigger : myActions.keySet())
 		{
-			XMLString += String.format("<action trigger='%s'>%s</action>",  action, myActions.get(action));
+			// XMLString += String.format("<action trigger='%s'>",  trigger);
+			for(String action : myActions.get(trigger))
+			{
+				XMLString += String.format("<action trigger='%s'>%s</action>", trigger, action);
+			}
 		}
 		
 		for(StateFigureModel sfm : myInternalStates)

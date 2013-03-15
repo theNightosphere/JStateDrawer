@@ -10,11 +10,16 @@ import edu.uwm.JStateDrawer.Models.TransitionModel;
 public class TransitionModelTests {
 	
 	private TransitionModel tm;
+	private StateFigureModel sf, ef;
 	
 	@Before
 	public void initDefaultTransitionModel()
 	{
 		tm = new TransitionModel();
+		sf = new StateFigureModel();
+		ef = new StateFigureModel();
+		sf.addOutgoingTransition(tm);
+		ef.addIncomingTransition(tm);
 	}
 	
 	/**
@@ -137,8 +142,15 @@ public class TransitionModelTests {
 	public void testSetNameProperlyChangesName()
 	{
 		assertEquals(tm.getTrigger(), "DEFAULT");
+		// Ensures that start figure has a transition stored under "DEFAULT"
+		assert(!(sf.getTransitionByEvent("DEFAULT") == null));
+		assert(sf.getTransitionByEvent("NOT_DEFAULT") == null);
+
 		tm.setTrigger("NOT_DEFAULT");
 		assertEquals(tm.getTrigger(), "NOT_DEFAULT");
+		// Ensures that setTrigger properly updated the start state's recorded trigger.
+		assert(sf.getTransitionByEvent("DEFAULT") == null);
+		assert(!(sf.getTransitionByEvent("NOT_DEFAULT") == null));
 	}
 	
 	/**

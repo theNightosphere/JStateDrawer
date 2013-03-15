@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +33,7 @@ public class StateFigureModelTests {
 		assertEquals(sm.getName(), "default");
 		assert(sm.getIncomingTransitions().isEmpty());
 		assert(sm.getOutgoingTransitions().isEmpty());
-		assert(sm.getActions().isEmpty());
+		assert(sm.getAllActions().isEmpty());
 		assert(sm.getTransitionTriggers().isEmpty());
 		assert(sm.getIncomingTransitions().isEmpty());
 	}
@@ -47,8 +48,10 @@ public class StateFigureModelTests {
 		HashSet<TransitionModel> outgoing = new HashSet<TransitionModel>();
 		incoming.add(new TransitionModel());
 		outgoing.add(new TransitionModel());
-		HashMap<String, String> actions = new HashMap<String, String>();
-		actions.put("TRIGGER_BANANA","Banana");
+		HashMap<String, List<String>> actions = new HashMap<String, List<String>>();
+		ArrayList<String> tempList = new ArrayList<String>();
+		tempList.add("Banana");
+		actions.put("TRIGGER_BANANA", tempList);
 		HashMap<String, TransitionModel> triggers = new HashMap<String, TransitionModel>();
 		triggers.put("test trigger", new TransitionModel());
 		ArrayList<StateFigureModel> internalStates = new ArrayList<StateFigureModel>();
@@ -60,7 +63,7 @@ public class StateFigureModelTests {
 		assertEquals(sm.getName(), "Awesome");
 		assert(!sm.getIncomingTransitions().isEmpty());
 		assert(!sm.getOutgoingTransitions().isEmpty());
-		assert(!sm.getActions().isEmpty());
+		assert(!sm.getAllActions().isEmpty());
 		assert(!sm.getTransitionTriggers().isEmpty());
 		assert(!sm.getInternalStates().isEmpty());
 	}
@@ -69,6 +72,7 @@ public class StateFigureModelTests {
 	 * Tests that the explicit constructor throws an error when passed null as any
 	 * collection parameter or if the name is the empty string.
 	 */
+	@SuppressWarnings("unused")
 	@Test
 	public void testConstructorThrowsExceptionOnAllErrors()
 	{
@@ -76,8 +80,10 @@ public class StateFigureModelTests {
 		HashSet<TransitionModel> outgoing = new HashSet<TransitionModel>();
 		incoming.add(new TransitionModel());
 		outgoing.add(new TransitionModel());
-		HashMap<String, String> actions = new HashMap<String, String>();
-		actions.put("TRIGGER_BANANA","Banana");
+		HashMap<String, List<String>> actions = new HashMap<String, List<String>>();
+		ArrayList<String> tempList = new ArrayList<String>();
+		tempList.add("Banana");
+		actions.put("TRIGGER_BANANA",tempList);
 		HashMap<String, TransitionModel> triggers = new HashMap<String, TransitionModel>();
 		triggers.put("test trigger", new TransitionModel());
 		ArrayList<StateFigureModel> internalStates = new ArrayList<StateFigureModel>();
@@ -344,12 +350,19 @@ public class StateFigureModelTests {
 	@Test
 	public void testCannotAddActionTriggerThatAlreadyExists()
 	{
-		assertEquals(sm.getActions().size(), 0);
-		sm.addAction("TEST","test");
-		assertEquals(sm.getActions().size(), 1);
-		sm.addAction("TEST","test");
-		// Assert that the test action was not added twice.
-		assertEquals(sm.getActions().size(), 1);
+		assertEquals(sm.getAllActions().size(), 0);
+		sm.addAction("TEST","test1");
+		ArrayList<String> listOfActions = (ArrayList<String>)sm.getActionsByTrigger("TEST");
+		assertEquals(sm.getAllActions().size(), 1);
+		assertEquals(listOfActions.size(), 1);
+		assert(listOfActions.get(0).equals("test1"));
+		sm.addAction("TEST","test2");
+		// Assert that the test action was not added twice, but that the test action was added again.
+		assertEquals(sm.getAllActions().size(), 1);
+		listOfActions = (ArrayList<String>)sm.getActionsByTrigger("TEST");
+		assertEquals(listOfActions.size(), 2);
+		assert(listOfActions.get(0).equals("test1"));
+		assert(listOfActions.get(1).equals("test2"));
 	}
 	
 	/**
@@ -358,13 +371,16 @@ public class StateFigureModelTests {
 	@Test
 	public void testActionsAreAddedProperly()
 	{
-		assert(sm.getActions().isEmpty());
+		assert(sm.getAllActions().isEmpty());
 		sm.addAction("TEST_CASE","test");
-		assertEquals(sm.getActions().size(), 1);
-		assert(sm.getActions().containsKey("TEST_CASE"));
+		assertEquals(sm.getAllActions().size(), 1);
+		ArrayList<String> listOfActions = (ArrayList<String>)sm.getActionsByTrigger("TEST_CASE");
+		assertEquals(listOfActions.size(), 1);
+		assert(listOfActions.get(0).equals("test"));
+		assert(sm.getAllActions().containsKey("TEST_CASE"));
 		// Next assertion ensures that the key and value are not being switched in 
 		// addAction(String, String).
-		assert(sm.getActions().containsKey("test"));
+		assert(sm.getAllActions().containsKey("test"));
 	}
 	
 	/**
@@ -375,23 +391,39 @@ public class StateFigureModelTests {
 	public void testRemovingNonExistantActionTriggerHasNoEffect()
 	{
 		sm.addAction("TEST_CASE","test");
-		assertEquals(sm.getActions().size(), 1);
-		sm.removeAction("NOT_TEST_CASE");
-		assertEquals(sm.getActions().size(), 1);
+		assertEquals(sm.getAllActions().size(), 1);
+		// Attempting to remove an action from a trigger that does not exist properly returns false
+		assertFalse(sm.removeAction("NOT_TEST_CASE","test"));
+		assertEquals(sm.getAllActions().size(), 1);
+		// Attempting to remove an action that does not exist from a trigger properly returns false
+		assertFalse(sm.removeAction("TEST_CASE", "test1"));
+		assertEquals(sm.getAllActions().size(), 1);
 	}
 	
 	/**
 	 * Tests that {@code removeAction} properly updates a state's list of actions 
-	 * when removing an existing action.
+	 * when removing an existing action. Also ensures that a trigger is removed when the trigger's
+	 * last action is removed. 
 	 */
 	@Test
 	public void testRemoveActionsWorksProperly()
 	{
-		assert(sm.getActions().isEmpty());
-		sm.addAction("TEST_CASE","test");
-		assertEquals(sm.getActions().size(), 1);
-		sm.removeAction("TEST_CASE");
-		assert(sm.getActions().isEmpty());
+		String myTrigger = "TEST_CASE";
+		assert(sm.getAllActions().isEmpty());
+		sm.addAction(myTrigger,"test");
+		assertEquals(sm.getAllActions().size(), 1);
+		
+		sm.addAction(myTrigger, "test2");
+		assertEquals(sm.getActionsByTrigger(myTrigger).size(), 2);
+		assertEquals(sm.getAllActions().size(), 1); 
+		
+		sm.removeAction(myTrigger, "test2");
+		assertEquals(sm.getActionsByTrigger(myTrigger).size(), 1);
+		assertEquals(sm.getAllActions().size(), 1);
+		
+		sm.removeAction("TEST_CASE", "test");
+		assert(sm.getAllActions().isEmpty());
+		
 	}
 	
 	/**
