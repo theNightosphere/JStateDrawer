@@ -176,7 +176,6 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
     protected void handleConnect(Connector start, Connector end) {
         StateFigure sf = (StateFigure) start.getOwner();
         StateFigure ef = (StateFigure) end.getOwner();
-        // If sf == ef, setLiner(new CurvedLiner());
         
         myModel.setTrigger(DEFAULT_NAME);
         myModel.setStartState(sf.getModel());
@@ -191,6 +190,7 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
         if(sf == ef)
         {
         	setLiner(new CurvedLiner());
+        	LocatorLayouter.LAYOUT_LOCATOR.set(getChild(0), new RelativeLocator(1, .5, false));
         }
     }
 
