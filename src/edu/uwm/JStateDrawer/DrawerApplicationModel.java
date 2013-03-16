@@ -68,6 +68,7 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
         m.put("view.toggleGrid", aa = new ToggleViewPropertyAction(a, v, DrawerView.GRID_VISIBLE_PROPERTY));
         m.put(SerializeFileAction.ID, new SerializeFileAction(a, v));
         m.put(AddNewActionAction.ID, new AddNewActionAction(a, v));
+        m.put(RemoveActionAction.ID, new RemoveActionAction(a, v));
         drawLabels.configureAction(aa, "view.toggleGrid");
         for (double sf : scaleFactors) {
             m.put((int) (sf * 100) + "%",
@@ -96,7 +97,7 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
      * Creates top tool bar.
      */
     private void addCreationButtonsTo(JToolBar tb, final DrawingEditor editor) {
-        // AttributeKeys for the entitie sets
+        // AttributeKeys for the entity sets
         HashMap<AttributeKey, Object> attributes;
 
         ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.samples.pert.Labels");
@@ -211,6 +212,12 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
                 if(null != addDefaultAction)
                 {
                 	StateFigure.addAction(addDefaultAction);
+                }
+                Action addRemoveAction;
+                addRemoveAction = am.get(RemoveActionAction.ID);
+                if(null != addRemoveAction)
+                {
+                	StateFigure.addAction(addRemoveAction);
                 }
                
             }

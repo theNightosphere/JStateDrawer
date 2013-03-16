@@ -25,6 +25,7 @@ import static org.jhotdraw.draw.AttributeKeys.*;
 import java.util.*;
 
 import javax.swing.Action;
+import javax.swing.JPopupMenu;
 
 import org.jhotdraw.draw.*;
 import org.jhotdraw.draw.handle.BoundsOutlineHandle;
@@ -67,45 +68,68 @@ public class StateFigure extends GraphicalCompositeFigure {
         }
     }
 
-    private class TriggerTextFigure extends TextFigure
+    public class TriggerTextFigure extends TextFigure
     {
-    	public TriggerTextFigure()
-    	{
-    		super();
-    	}
+    	
+    	private ActionTextFigure myAction;
     	
     	public TriggerTextFigure(String text)
     	{
     		super(text);
+    		myAction = null;
     	}
     	
     	@Override
     	public void setText(String newText)
     	{
-    		willChange();
-    		String oldTrigger = getText();
-    		ArrayList<String> actions = (ArrayList<String>)myModel.getActionsByTrigger(oldTrigger);
-    		try
+    		// If trigger has an action, it must also update the action.
+    		if(myAction != null)
     		{
-    			myModel.removeAllActionsOfTrigger(oldTrigger);
-    			myModel.addActionsForTrigger(newText, actions);
+    			String oldTrigger = getText();
+    			ArrayList<String> actions = (ArrayList<String>)myModel.getActionsByTrigger(oldTrigger);
+    			// If 
+    			if(actions.contains(myAction.getText()))
+    			{
+    				try
+    				{
+    					willChange();
+    					myModel.removeAction(oldTrigger, myAction.getText());
+    					myModel.addAction(newText, myAction.getText());
+    					super.setText(newText);
+    					changed();
+    				}
+    				catch(Exception e)
+    				{
+    					// The trigger was bad. Because all actions are added via the addAction function,
+    					// Exception thrown should never be from ill-formed action name.'
+    					super.setText(oldTrigger);
+    					myModel.addAction(oldTrigger, myAction.getText());
+    					changed();
+    				}
+    			}
+    		}
+    		// If trigger has no associated action, it is not responsible for updating the model's
+    		// record of that action. This occurs usually during initialization of a TriggerTextFigure.
+    		else
+    		{
     			super.setText(newText);
     		}
-    		catch(Exception e)
-    		{
-    			// The trigger was bad. Because all actions are added via the addAction function,
-    			// Exception thrown should never be from ill-formed action name.'
-    			super.setText(oldTrigger);
-    			myModel.addActionsForTrigger(oldTrigger, actions);
-    		}
-    		changed();
     	}
+    	
+    	public void setActionTextFigure(ActionTextFigure actionText)
+    	{
+    		if(actionText != null)
+    		{
+    			myAction = actionText;
+    		}
+    	}
+    	
     }
     
     /**
      * A text figure meant to be used to store Actions.
      */
-    private class ActionTextFigure extends TextFigure
+    public class ActionTextFigure extends TextFigure
     {
     	private TriggerTextFigure myTrigger;
     	
@@ -119,9 +143,10 @@ public class StateFigure extends GraphicalCompositeFigure {
     	{
     		super(text);
     		myTrigger = triggerText;
+    		myTrigger.setActionTextFigure(this);
     	}
-    	
-    	@Override
+
+		@Override
     	public void setText(String newText)
     	{
     		willChange();
@@ -220,7 +245,6 @@ public class StateFigure extends GraphicalCompositeFigure {
     public void addActionTextFigure(String newTrigger, String newAction)
     {
     	willChange();
-
     	ListFigure actionToAdd = new ListFigure();
     	actionToAdd.setLayouter(new HorizontalLayouter());
     	TriggerTextFigure trigger = new TriggerTextFigure(newTrigger);
@@ -234,6 +258,7 @@ public class StateFigure extends GraphicalCompositeFigure {
     	divider.setEditable(false);
     	
     	ActionTextFigure action = new ActionTextFigure(newAction, trigger);
+
     	
     	actionToAdd.add(trigger);
     	actionToAdd.add(divider);
@@ -253,6 +278,16 @@ public class StateFigure extends GraphicalCompositeFigure {
     	addActionTextFigure(myModel.DEFAULT_ACTION_TRIGGER, myModel.DEFAULT_ACTION_NAME);
     }
     
+    public TriggerTextFigure getIthChildTriggerFigure(ListFigure listOfActionFigures, int indexOfChild)
+    {
+    	 return (TriggerTextFigure)(((ListFigure)listOfActionFigures.getChild(indexOfChild)).getChild(0));
+    }
+    
+    public ActionTextFigure getIthChildActionTextFigure(ListFigure listOfActionFigures, int indexOfChild)
+    {
+    	return (ActionTextFigure)(((ListFigure)listOfActionFigures.getChild(indexOfChild)).getChild(2));
+    }
+    
     /**
      * Accesses the {@link ListFigure} containing the {@link TextFigure}s that hold
      * the {@link StateFigureModel}'s actions.
@@ -261,6 +296,32 @@ public class StateFigure extends GraphicalCompositeFigure {
     public ListFigure getActionTextFigures()
     {
     	return (ListFigure)getChild(2);
+    }
+    
+    /**
+     * Removes a trigger/action pair from a state corresponding to the index passed to the function.
+     * The indices start at 0 and are ordered in the state from top to bottom. False is returned if
+     * the indexofAction parameter is less than 0 or greater than or equal to the number of actions.
+     * Also updates the associated {@link StateFigureModel} if the index value is acceptable.
+     * @param indexOfAction The integer index of the trigger/action pair to remove.
+     * @return True if the action is successfully removed, false if it is not.
+     */
+    public boolean removeActionByIndex(int indexOfAction)
+    {
+    	ListFigure actions = getActionTextFigures();
+    	if(indexOfAction >= 0 && indexOfAction < actions.getChildCount())
+    	{
+    		willChange();
+    		
+    		String trigger = getIthChildTriggerFigure(actions, indexOfAction).getText();
+    		String action = getIthChildActionTextFigure(actions, indexOfAction).getText();
+    		myModel.removeAction(trigger, action);
+    		
+    		actions.removeChild(indexOfAction);
+    		changed();
+        	return true;
+    	}
+    	return false;
     }
     
     @Override
