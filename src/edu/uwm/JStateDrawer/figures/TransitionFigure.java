@@ -260,4 +260,8 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
     {
     	return super.toString() + " " + myModel.getTrigger();
     }
+
+	public TransitionModel getModel() {
+		return myModel;
+	}
 }

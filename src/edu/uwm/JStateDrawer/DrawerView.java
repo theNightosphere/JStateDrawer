@@ -24,6 +24,9 @@ import org.jhotdraw.draw.*;
 import org.jhotdraw.draw.action.*;
 import org.jhotdraw.gui.URIChooser;
 
+import edu.uwm.JStateDrawer.figures.StateFigure;
+import edu.uwm.JStateDrawer.figures.TransitionFigure;
+
 /**
  * A view for JStateDrawer diagrams based on the JHotDraw PertView class.
  *
@@ -172,6 +175,20 @@ public class DrawerView extends AbstractView {
     
     public void serialize(URI f, URIChooser chooser)
     {
+    	LinkedList<Figure> stateList = new LinkedList<Figure>();
+    	LinkedList<Figure> transList = new LinkedList<Figure>();
+    	String writeData = "";
+    	
+    	for(Figure s : view.getDrawing().getFiguresFrontToBack()){
+    		if (s instanceof StateFigure) stateList.add(s);
+    		if (s instanceof TransitionFigure) transList.add(s);
+    	}
+    	
+    	for(Figure s : stateList) writeData += ((StateFigure) s).getModel().exportXML();
+    	for(Figure s : transList) writeData += ((TransitionFigure) s).getModel().exportXML();
+    	
+    	DrawerFactory writer = new DrawerFactory();
+    	writer.write(f,  writeData);
     	System.out.println("Testing");
     }
 
