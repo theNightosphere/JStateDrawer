@@ -11,7 +11,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import org.jhotdraw.app.action.AbstractViewAction;
-import org.jhotdraw.app.action.file.SaveFileAction;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.app.*;
 import org.jhotdraw.draw.io.InputFormat;
@@ -35,6 +34,7 @@ import edu.uwm.JStateDrawer.*;
  * Exit Conditions: -Serialized File is a valid state diagram.
  *                  -DrawerFactory's serializeFile boolean is set to false
  */
+@SuppressWarnings("serial")
 public class SerializeFileAction extends AbstractViewAction{
 
 	public final static String ID = "file.serialize";

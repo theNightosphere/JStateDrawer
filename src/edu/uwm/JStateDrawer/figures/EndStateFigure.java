@@ -11,6 +11,8 @@ import org.jhotdraw.draw.EllipseFigure;
 import org.jhotdraw.draw.layouter.AbstractLayouter;
 import org.jhotdraw.geom.Dimension2DDouble;
 
+import edu.uwm.JStateDrawer.Models.EndStateModel;
+
 @SuppressWarnings("serial")
 public class EndStateFigure extends StateFigure{
 
@@ -19,6 +21,7 @@ public class EndStateFigure extends StateFigure{
 	
 	public EndStateFigure()
 	{
+		myModel = new EndStateModel();
 		eventHandler = createEventHandler();
 		setPresentationFigure(new EllipseFigure(0,0,CIRCLE_DIAMETER, CIRCLE_DIAMETER));
 		setLayouter(new AbstractLayouter()
@@ -54,10 +57,15 @@ public class EndStateFigure extends StateFigure{
 		myClone.add(ellipse);
 		set(AttributeKeys.STROKE_WIDTH, 3d);
 		
-		myClone.dependencies = new HashSet<TransitionFigure>();
+		myClone.myIncomingTransitions = new HashSet<TransitionFigure>();
 		return myClone;
 	}
 	
+	/**
+	 * Sets the bounds of the {@link EndStateFigure}. This function is defined in such a way
+	 * as to create the circle-in-circle that is displayed when an {@link EndStateFigure} is 
+	 * placed on the drawing.
+	 */
 	@Override
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead)
 	{
@@ -75,6 +83,19 @@ public class EndStateFigure extends StateFigure{
         }
 	}
 	
+	/**
+	 * Returns the name of the {@link EndStateFigure}, usually just 'end'.
+	 */
+	@Override
+	public String getName()
+	{
+		return myModel.getName();
+	}
+	
+	/**
+	 * Returns a {@link Dimension2DDouble} of equal height and width. The diameter is specified
+	 * by the {@code CIRCLE_DIAMETER} constant. 
+	 */
 	public Dimension2DDouble getPreferredSize()
 	{
 		return new Dimension2DDouble(CIRCLE_DIAMETER, CIRCLE_DIAMETER);

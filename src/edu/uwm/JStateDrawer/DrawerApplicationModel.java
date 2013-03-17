@@ -69,6 +69,7 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
         m.put(SerializeFileAction.ID, new SerializeFileAction(a, v));
         m.put(AddNewActionAction.ID, new AddNewActionAction(a, v));
         m.put(RemoveActionAction.ID, new RemoveActionAction(a, v));
+        m.put(CheckCurrentDrawingAction.ID, new CheckCurrentDrawingAction(a, v));
         drawLabels.configureAction(aa, "view.toggleGrid");
         for (double sf : scaleFactors) {
             m.put((int) (sf * 100) + "%",
@@ -203,6 +204,12 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
                 if(null != serialize)
                 {
                 	m.add(serialize); 	
+                }
+                Action checkCurrentDrawing;
+                checkCurrentDrawing = am.get(CheckCurrentDrawingAction.ID);
+                if(null != checkCurrentDrawing)
+                {
+                	m.add(checkCurrentDrawing);
                 }
                 //TODO Add actions for StateFigure to use in right-click popupmenu here
                 // in the format shown below

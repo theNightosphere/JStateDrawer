@@ -8,12 +8,13 @@ import org.jhotdraw.draw.EllipseFigure;
 import org.jhotdraw.draw.layouter.*;
 import org.jhotdraw.geom.*;
 
+import edu.uwm.JStateDrawer.Models.StartStateModel;
+
 /**
  * 
  * @author Reed Johnson
  * 
  */
-//TODO: StartState can have 0 incoming transitions and 1 outgoing transitions.
 
 @SuppressWarnings("serial")
 public class StartStateFigure extends StateFigure{
@@ -22,6 +23,7 @@ public class StartStateFigure extends StateFigure{
 	
 	public StartStateFigure()
 	{
+		myModel = new StartStateModel();
 		eventHandler = createEventHandler();
 		setPresentationFigure(new EllipseFigure(0,0,CIRCLE_DIAMETER, CIRCLE_DIAMETER));
 		setLayouter(new AbstractLayouter()
@@ -51,15 +53,23 @@ public class StartStateFigure extends StateFigure{
 	{
 		StartStateFigure myClone = (StartStateFigure) super.clone();
 		myClone.children.clear();
-		myClone.dependencies = new HashSet<TransitionFigure>();
+		myClone.myIncomingTransitions = new HashSet<TransitionFigure>();
 		return myClone;
 	}
 	
+	/**
+	 * Returns the name of the start state. Usually just 'start'.
+	 */
+	@Override
 	public String getName()
 	{
-		return "StartStateFigure";
+		return myModel.getName();
 	}
 	
+	/**
+	 * Returns a {@link Dimension2DDouble} with equal width and height, specified by the 
+	 * {@code CIRCLE_DIAMETER} constant. 
+	 */
 	public Dimension2DDouble getPreferredSize()
 	{
 		return new Dimension2DDouble(CIRCLE_DIAMETER, CIRCLE_DIAMETER);

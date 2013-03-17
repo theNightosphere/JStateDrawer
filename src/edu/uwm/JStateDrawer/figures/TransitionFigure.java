@@ -36,6 +36,7 @@ import edu.uwm.JStateDrawer.Models.TransitionModel;
 public class TransitionFigure extends LabeledLineConnectionFigure {
 	private final String DEFAULT_NAME = "DEFAULT";
 	private TransitionModel myModel;
+	private StateFigure myStartFigure, myEndFigure;
     
     @SuppressWarnings("unused")
     private class TransitionTextFigure extends TextFigure
@@ -162,8 +163,8 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
         StateFigure sf = (StateFigure) start.getOwner();
         StateFigure ef = (StateFigure) end.getOwner();
 
-        sf.removeDependency(this);
-        ef.removeDependency(this);
+        sf.removeOutgoingTransition(this);
+        ef.removeIncomingTransition(this);
     }
 
     /**
@@ -177,15 +178,18 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
         StateFigure sf = (StateFigure) start.getOwner();
         StateFigure ef = (StateFigure) end.getOwner();
         
+        myStartFigure = sf;
+        myEndFigure = ef;
+        
         myModel.setTrigger(DEFAULT_NAME);
         myModel.setStartState(sf.getModel());
         myModel.setEndState(ef.getModel());
         sf.getModel().addOutgoingTransition(myModel);
         sf.getModel().addTransition(myModel.getTrigger(), myModel);
-        sf.addDependency(this);
+        sf.addOutgoingTransition(this);
         
         ef.getModel().addIncomingTransition(myModel);
-        ef.addDependency(this);
+        ef.addIncomingTransition(this);
         
         if(sf == ef)
         {
@@ -204,6 +208,22 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
     @Override
     public int getLayer() {
         return 1;
+    }
+    
+    /**
+     * Returns the {@link StateFigure} at the start of the {@link TransitionFigure}
+     */
+    public StateFigure getStartStateFigure()
+    {
+    	return myStartFigure;
+    }
+    
+    /**
+     * Returns the {@link StateFigure} at the end of this {@link TransitionFigure}
+     */
+    public StateFigure getEndStateFigure()
+    {
+    	return myEndFigure;
     }
     
     /**
@@ -227,11 +247,17 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
     @Override
     public void removeNotify(Drawing d) {
         if (getStartFigure() != null) {
-            ((StateFigure) getStartFigure()).removeDependency(this);
+            ((StateFigure) getStartFigure()).removeOutgoingTransition(this);
         }
         if (getEndFigure() != null) {
-            ((StateFigure) getEndFigure()).removeDependency(this);
+            ((StateFigure) getEndFigure()).removeIncomingTransition(this);
         }
         super.removeNotify(d);
+    }
+    
+    @Override
+    public String toString()
+    {
+    	return super.toString() + " " + myModel.getTrigger();
     }
 }

@@ -45,7 +45,7 @@ import edu.uwm.JStateDrawer.Models.StateFigureModel;
 @SuppressWarnings("serial")
 public class StateFigure extends GraphicalCompositeFigure {
 
-    protected HashSet<TransitionFigure> dependencies;
+    protected HashSet<TransitionFigure> myIncomingTransitions, myOutgoingTransitions;
     protected StateFigureModel myModel;
     protected static ArrayList<Action> myActions = new ArrayList<Action>();
 
@@ -222,7 +222,8 @@ public class StateFigure extends GraphicalCompositeFigure {
         setName(myModel.getName());
 
 
-        dependencies = new HashSet<TransitionFigure>();
+        myIncomingTransitions = new HashSet<TransitionFigure>();
+        myOutgoingTransitions = new HashSet<TransitionFigure>();
         nameFigure.addFigureListener(new NameAdapter(this));
     }
 
@@ -403,7 +404,8 @@ public class StateFigure extends GraphicalCompositeFigure {
     @Override
     public StateFigure clone() {
         StateFigure that = (StateFigure) super.clone();
-        that.dependencies = new HashSet<TransitionFigure>();
+        that.myIncomingTransitions = new HashSet<TransitionFigure>();
+        that.myOutgoingTransitions = new HashSet<TransitionFigure>();
         that.getNameFigure().addFigureListener(new NameAdapter(that));
         return that;
     }
@@ -468,16 +470,55 @@ public class StateFigure extends GraphicalCompositeFigure {
     	}
     }
     
-    public Set<TransitionFigure> getDependencies() {
-        return Collections.unmodifiableSet(dependencies);
+    /**
+     * Returns an unmodifiable set of the incoming {@link TransitionFigure}s.
+     * @return
+     */
+    public Set<TransitionFigure> getIncomingTransitions() {
+        return Collections.unmodifiableSet(myIncomingTransitions);
     }
 
-    public void addDependency(TransitionFigure f) {
-        dependencies.add(f);
+    /**
+     * Adds the specified {@link TransitionFigure} to the set of incoming {@link TransitionFigure}s.
+     * @param f
+     */
+    public void addIncomingTransition(TransitionFigure f) {
+        myIncomingTransitions.add(f);
     }
 
-    public void removeDependency(TransitionFigure f) {
-        dependencies.remove(f);
+    /**
+     * Removes the specified {@link TransitionFigure} from the set of incoming {@link TransitionFigure}s.
+     * @param f
+     */
+    public void removeIncomingTransition(TransitionFigure f) {
+        myIncomingTransitions.remove(f);
+    }
+    
+    /**
+     * Returns an unmodifiable set of outgoing {@link TransitionFigure}s.
+     * @return
+     */
+    public Set<TransitionFigure> getOutgoingTransitions()
+    {
+    	return Collections.unmodifiableSet(myOutgoingTransitions);
+    }
+    
+    /**
+     * Adds the passed {@link TransitionFigure} to the Set of {@link TransitionFigures}
+     * @param f
+     */
+    public void addOutgoingTransition(TransitionFigure f)
+    {
+    	myOutgoingTransitions.add(f);
+    }
+    
+    /**
+     * Removes the specified {@link TransitionFigure} from the set of outgoing TransitionFigures.
+     * @param f
+     */
+    public void removeOutgoingTransition(TransitionFigure f)
+    {
+    	myOutgoingTransitions.remove(f);
     }
 
     /**
@@ -486,7 +527,7 @@ public class StateFigure extends GraphicalCompositeFigure {
      */
     public List<StateFigure> getSuccessors() {
         LinkedList<StateFigure> list = new LinkedList<StateFigure>();
-        for (TransitionFigure c : getDependencies()) {
+        for (TransitionFigure c : getIncomingTransitions()) {
             if (c.getStartFigure() == this) {
                 list.add((StateFigure) c.getEndFigure());
             }
@@ -501,7 +542,7 @@ public class StateFigure extends GraphicalCompositeFigure {
      */
     public List<StateFigure> getPredecessors() {
         LinkedList<StateFigure> list = new LinkedList<StateFigure>();
-        for (TransitionFigure c : getDependencies()) {
+        for (TransitionFigure c : getIncomingTransitions()) {
             if (c.getEndFigure() == this) {
                 list.add((StateFigure) c.getStartFigure());
             }
