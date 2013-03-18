@@ -187,7 +187,7 @@ public class DrawerView extends AbstractView {
     	for(Figure s : stateList) writeData += ((StateFigure) s).getModel().exportXML();
     	
     	DrawerFactory writer = new DrawerFactory();
-    	writer.write(f,  writeData);
+    	// writer.write(f,  writeData);
     	System.out.println("Testing");
     }
 
@@ -198,6 +198,7 @@ public class DrawerView extends AbstractView {
     public void write(URI f, URIChooser chooser) throws IOException {
         Drawing drawing = view.getDrawing();
         OutputFormat outputFormat = drawing.getOutputFormats().get(0);
+        System.out.println(outputFormat);
         outputFormat.write(f, drawing);
     }
 
@@ -214,6 +215,7 @@ public class DrawerView extends AbstractView {
             DrawerFactory df = new DrawerFactory();
             //TODO Associate URI with DOM
             
+            //TODO Make sure this is properly attaching Transitions to their targets.
             boolean found = false;
             for(StateFigure t : s){
             	for(TransitionFigure l : t.getIncomingTransitions()){

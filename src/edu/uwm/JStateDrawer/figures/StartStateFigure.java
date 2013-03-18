@@ -1,12 +1,15 @@
 package edu.uwm.JStateDrawer.figures;
 
+import java.awt.Color;
 import java.awt.geom.*;
 import java.util.HashSet;
 
+import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.CompositeFigure;
 import org.jhotdraw.draw.EllipseFigure;
 import org.jhotdraw.draw.layouter.*;
 import org.jhotdraw.geom.*;
+import org.jhotdraw.xml.DOMInput;
 
 import edu.uwm.JStateDrawer.Models.StartStateModel;
 
@@ -73,5 +76,17 @@ public class StartStateFigure extends StateFigure{
 	public Dimension2DDouble getPreferredSize()
 	{
 		return new Dimension2DDouble(CIRCLE_DIAMETER, CIRCLE_DIAMETER);
+	}
+	
+	@Override
+	public void read(DOMInput in)
+	{
+		double x = in.getAttribute("x", 0d);
+        double y = in.getAttribute("y", 0d);
+        double w = in.getAttribute("w", 0d);
+        double h = in.getAttribute("h", 0d);
+        setBounds(new Point2D.Double(x, y), new Point2D.Double(x + w, y + h));
+        set(AttributeKeys.FILL_COLOR, Color.black);
+        children.clear();
 	}
 }

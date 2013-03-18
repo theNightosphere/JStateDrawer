@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 public class TransitionModel {
 
 	private StateFigureModel myStartState, myEndState;
-	private String myEventTrigger;
+	private String myEventTrigger, myTarget;
 	// The following pattern is one that ensures the first letter is an uppercase letter followed by
 	// 0 or more uppercase letters, numbers, or underscores.
 	private Pattern p = Pattern.compile("[A-Z][A-Z0-9_]*+");
@@ -18,6 +18,7 @@ public class TransitionModel {
 		myStartState = new StateFigureModel();
 		myEndState = new StateFigureModel();
 		myEventTrigger = "DEFAULT";
+		myTarget = "DEFAULT";
 	}
 	
 	/**
@@ -56,6 +57,7 @@ public class TransitionModel {
 		myEventTrigger = trigger;
 		myStartState = startState;
 		myEndState = endState;
+		myTarget = myEndState.getName();
 	}
 	
 	/**
@@ -74,20 +76,29 @@ public class TransitionModel {
 	}
 	
 	/**
-	 * Sets the transition with the given start state.
+	 * Sets the transition with the given start state. It also updates the associated {@link StateFigureModel}s
+	 * that are the old and new start states.
 	 * @param ss A {@link StateFigureModel} that will be set as the start state for this transition.
 	 * @throws {@link IllegalArgumentException} if ss is null.
 	 */
 	public void setStartState(StateFigureModel ss){
+		
 		if (ss == null)
 		{
 			throw new IllegalArgumentException("Cannot set a null startState");
 		}
+		// Updates the start state model of this transition if it isn't null.
+		if(myStartState != null)
+		{
+			myStartState.removeOutgoingTransition(this);
+		}
 		myStartState = ss;
+		myStartState.addOutgoingTransition(this);
 	}
 	
 	/**
-	 * Sets the transition with the given end state.
+	 * Sets the transition with the given end state. It also updates the associated {@link StateFigureModel}s
+	 * which are the old and new end states.
 	 * @param es A {@link StateFigureModel} that will be set as the end state for this transition.
 	 * @throws {@link IllegalArgumentException} if es is null.
 	 */
@@ -96,7 +107,13 @@ public class TransitionModel {
 		{
 			throw new IllegalArgumentException("Cannot set a null endState");
 		}
+		if(myEndState != null)
+		{
+			myEndState.removeIncomingTransition(this);
+		}
 		myEndState = es;
+		myTarget = myEndState.getName();
+		myEndState.addIncomingTransition(this);
 	}
 	
 	/**
@@ -145,5 +162,27 @@ public class TransitionModel {
 	 */
 	public String getTrigger(){
 		return myEventTrigger;
+	}
+	
+	/**
+	 * 
+	 * @return The name of this {@link TransitionModel}'s end state.
+	 */
+	public String getTarget()
+	{
+		return myTarget;
+	}
+	
+	/**
+	 * Sets the target of this {@link TransitionModel} to the string parameter passed as long as
+	 * it isn't the empty string. 
+	 * @param newTarget
+	 */
+	public void setTarget(String newTarget)
+	{
+		if(newTarget != "")
+		{
+			myTarget = newTarget;
+		}
 	}
 }

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.io.IOException;
 
+import org.jhotdraw.draw.liner.CurvedLiner;
 import org.jhotdraw.draw.locator.RelativeLocator;
 import org.jhotdraw.draw.connector.LocatorConnector;
 import org.jhotdraw.draw.connector.ChopRectangleConnector;
@@ -24,6 +25,9 @@ public class DrawerFactory extends DefaultDOMFactory {
     private final static Object[][] classTagArray = {
         { DefaultDrawing.class, "DrawerDiagram" },
         { StateFigure.class, "state" },
+        { StartStateFigure.class, "startState"},
+        { EndStateFigure.class, "endState" },
+        { CurvedLiner.class, "CurvedLiner" },
         { TransitionFigure.class, "transition" },
         { ListFigure.class, "list" },
         { TextFigure.class, "text" },
@@ -47,13 +51,7 @@ public class DrawerFactory extends DefaultDOMFactory {
         if (o == null) {
             // nothing to do
         } else if (o instanceof DOMStorable) {
-        	if(serializeFile)
-        	{
-        		((StateFigure) o).serialize(out);
-        	}
-        	else{
-        		((DOMStorable) o).write(out);
-        	}
+        	((DOMStorable) o).write(out);
         } else if (o instanceof String) {
             out.addText((String) o);
         } else if (o instanceof Integer) {
@@ -140,32 +138,69 @@ public class DrawerFactory extends DefaultDOMFactory {
     }
     
     //TODO Tell DOM to scan the next element in various locations.
+    @Override
     public Object read(DOMInput in) throws IOException{
-    	Object r = null;
+    	Object o = super.read(in);
+    	/*Object r = null;
     	Object i = null;
     	String s = "";
     	
-    	if (in.getTagName() == "state"){
+    	if (in.getTagName().equals("state")){
     		r = new StateFigure();
     		((StateFigure) r).setName(in.getAttribute("name", "default"));
-    		while (true){
-    			if (in.getTagName() == "action") ((StateFigure) r).getModel().addAction(in.getAttribute("trigger", "DEFAULT"), in.getText());
-    			if (in.getTagName() == "transition") {
-    				s = in.getAttribute("target", "DEFAULT");
+    		//while (true){
+    			if (in.getTagName().equals("action")) ((StateFigure) r).getModel().addAction(in.getAttribute("trigger", "DEFAULT"), in.getText());
+    			if (in.getTagName().equals("transition")) {
+    				s = in.getAttribute("trigger", "DEFAULT");
+    				// Create new TransitionFigure with no associated start and end.
     				i = new TransitionFigure();
-    				((TransitionFigure) i).getModel().setTrigger(s);
-    				if (s == ((StateFigure) r).getName()) {
-    					((StateFigure) r).getIncomingTransitions().add((TransitionFigure) i);
-    					((TransitionFigure) i).getModel().setEndState((StateFigureModel) r);
+    				// Set the start for the new transition figure and model as the current StateFigure.
+    				((TransitionFigure) i).setStartFigure((StateFigure) r);
+    				// Set the name for the figure and the trigger for the model. This also updates start figure and model. 
+    				((TransitionFigure) i).setName(s);
+    				// Check whether target is current state.
+    				if (s.equals(((StateFigure) r).getName())) {
+    					((StateFigure) r).addIncomingTransition((TransitionFigure) i);
+    					((TransitionFigure) i).setEndFigure((StateFigure) r);
     				}
-    				else{
-    					((StateFigure) r).getOutgoingTransitions().add((TransitionFigure) i);
-    					((TransitionFigure) i).getModel().setStartState((StateFigureModel) r);
-    				}
+    				
+    				// The default here is that if a transition doesn't have a target, it points
+    				// to the end state. In the future this may point to null to cause errors
+    				// and force this to be handled.
+    				s = in.getAttribute("target", "end");
+    				
+    				((TransitionFigure) i).getModel().setTarget(s);
+    				
     			}
-    		}
+    		//}
     	}
-    	return r;
+    	else if(in.getTagName().equals("startState"))
+    	{
+    		r = new StartStateFigure();
+    		((StartStateFigure) r).setName(in.getAttribute("name", "start"));
+    		/*while (true)
+    		{
+    			if(in.getTagName().equals("transition"))
+    			{
+    				s = in.getAttribute("trigger", "DEFAULT");
+    				i = new TransitionFigure();
+    				// Set the start for the new transition figure and model as the current StateFigure.
+    				((TransitionFigure) i).setStartFigure((StateFigure) r);
+    				// Set the name for the figure and the trigger for the model. This also updates start figure and model. 
+    				((TransitionFigure) i).setName(s);
+    				
+    				s = in.getAttribute("target", "end");
+    				
+    				((TransitionFigure) i).getModel().setTarget(s);
+    			}
+    		//}
+    	}
+    	else if(in.getTagName().equals("endState"))
+    	{
+    		r = new EndStateFigure();
+    		((EndStateFigure) r).setName(in.getAttribute("name", "end"));
+    	}*/
+    	return o;
     }
     
     public void setSerializeFile(boolean newValue)

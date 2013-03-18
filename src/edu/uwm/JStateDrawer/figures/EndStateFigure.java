@@ -10,6 +10,7 @@ import org.jhotdraw.draw.CompositeFigure;
 import org.jhotdraw.draw.EllipseFigure;
 import org.jhotdraw.draw.layouter.AbstractLayouter;
 import org.jhotdraw.geom.Dimension2DDouble;
+import org.jhotdraw.xml.DOMInput;
 
 import edu.uwm.JStateDrawer.Models.EndStateModel;
 
@@ -99,6 +100,24 @@ public class EndStateFigure extends StateFigure{
 	public Dimension2DDouble getPreferredSize()
 	{
 		return new Dimension2DDouble(CIRCLE_DIAMETER, CIRCLE_DIAMETER);
+	}
+	
+	@Override
+	public void read(DOMInput in)
+	{
+		
+		double x = in.getAttribute("x", 0d);
+        double y = in.getAttribute("y", 0d);
+        double w = in.getAttribute("w", 0d);
+        double h = in.getAttribute("h", 0d);
+        setBounds(new Point2D.Double(x, y), new Point2D.Double(x + w, y + h));
+        
+        children.clear();
+        EllipseFigure ellipse = new EllipseFigure(0,0, CIRCLE_DIAMETER-INNER_CIRCLE_OFFSET,
+				CIRCLE_DIAMETER-INNER_CIRCLE_OFFSET);
+		ellipse.set(AttributeKeys.FILL_COLOR, Color.black);
+		add(ellipse);
+        set(AttributeKeys.STROKE_WIDTH, 3d);
 	}
 	
 }

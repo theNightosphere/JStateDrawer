@@ -398,6 +398,22 @@ public class StateFigureModel {
 	}
 	
 	/**
+	 * Counts the number of actions associated with the {@link StateFigureModel}
+	 * and returns that number.
+	 * @return
+	 */
+	public int getNumberOfActions()
+	{
+		int totalNumberOfActions = 0;
+		for(String trigger : myActions.keySet())
+		{
+			totalNumberOfActions += myActions.get(trigger).size();
+		}
+		
+		return totalNumberOfActions;
+	}
+	
+	/**
 	 * Creates a String representation of the StateFigureModel that can be used to
 	 * generate the StateFigureModel again.
 	 * @return A String representation of the StateFigureModel.

@@ -431,6 +431,24 @@ public class StateFigure extends GraphicalCompositeFigure {
         in.openElement("name");
         setName((String) in.readObject());
         in.closeElement();
+        
+        in.openElement("actions");
+        int numberOfTriggers = in.getAttribute("triggers", 0);
+        for(int i = 0; i < numberOfTriggers; i++)
+        {
+        	in.openElement("action" + Integer.toString(i));
+        	String trigger = in.getAttribute("trigger", "DEFAULT");
+        	int numActionsForTrigger = in.getAttribute("numActions", 0);
+        	for(int j = 0; j < numActionsForTrigger; j++)
+        	{
+        		String action = (String) in.readObject();
+        		addActionTextFigure(trigger, action);
+        	}
+        	
+        	in.closeElement();
+        }
+        in.closeElement();
+        
         in.closeElement();
     }
 
@@ -443,6 +461,27 @@ public class StateFigure extends GraphicalCompositeFigure {
         out.openElement("state");
         out.openElement("name");
         out.writeObject(getName());
+        out.closeElement();
+        
+        out.openElement("actions");
+        out.addAttribute("triggers", myModel.getAllActions().keySet().size());
+        HashMap<String, List<String>> actions = myModel.getAllActions();
+        int i = 0;
+        for(String trigger : actions.keySet())
+        {
+        	// I number the actions so I can read multiple 'action's without screwing up the XML parser
+        	out.openElement("action" + Integer.toString(i));
+    		out.addAttribute("trigger", trigger);
+    		out.addAttribute("numActions", actions.get(trigger).size());
+        	for(String action : actions.get(trigger))
+        	{
+        		
+        		out.writeObject(action);
+        		
+        	}
+        	out.closeElement();
+        	i++;
+        }
         out.closeElement();
         out.closeElement();
     }

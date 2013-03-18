@@ -19,9 +19,13 @@ import org.jhotdraw.draw.liner.CurvedLiner;
 import org.jhotdraw.draw.locator.RelativeLocator;
 
 import java.awt.*;
+import java.io.IOException;
+
 import static org.jhotdraw.draw.AttributeKeys.*;
 
 import org.jhotdraw.draw.*;
+import org.jhotdraw.xml.DOMInput;
+import org.jhotdraw.xml.DOMOutput;
 
 import edu.uwm.JStateDrawer.Models.StateFigureModel;
 import edu.uwm.JStateDrawer.Models.TransitionModel;
@@ -153,6 +157,30 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
     	}
         
     }
+    
+    /**
+     * Sets the starting {@link StateFigure} of this {@link TransitionFigure} to the 
+     * {@link StateFigure} specified by the start parameter. This updates by the {@link TransitionFigure}
+     * and its associated {@link TransitionModel}.
+     * @param start
+     */
+    public void setStartFigure(StateFigure start)
+    {
+    	if(start != null)
+    	{
+    		myStartFigure = start;
+    		myModel.setStartState(start.getModel());
+    	}
+    }
+    
+    public void setEndFigure(StateFigure end)
+    {
+    	if(end != null)
+    	{
+    		myEndFigure = end;
+    		myModel.setEndState(end.getModel());
+    	}
+    }
 
     /**
      * Handles the disconnection of a connection.
@@ -263,5 +291,33 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
 
 	public TransitionModel getModel() {
 		return myModel;
+	}
+	
+	@Override
+	public void write(DOMOutput out)
+	{
+		try {
+			super.write(out);
+			out.openElement("name");
+			out.writeObject(myModel.getTrigger());
+			out.closeElement();
+		} catch (IOException e) {
+			// IOException. Nothing to do here for now.
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void read(DOMInput in)
+	{
+		try {
+			super.read(in);
+			in.openElement("name");
+			setName((String)in.readObject());
+			in.closeElement();
+		} catch (IOException e) {
+			// IO exception occured.
+			e.printStackTrace();
+		}
 	}
 }
