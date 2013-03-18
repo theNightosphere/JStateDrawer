@@ -221,9 +221,11 @@ public class DrawerView extends AbstractView {
             	for(TransitionFigure l : t.getIncomingTransitions()){
             		for(StateFigure n : s){
             			for(TransitionFigure k : n.getOutgoingTransitions()){
-            				if(l.getModel().getTrigger() == k.getModel().getTrigger()){
+            				if((l.getModel().getTrigger() == k.getModel().getTrigger())){
             					l.getModel().setStartState(n.getModel());
             					k.getModel().setEndState(t.getModel());
+            					l.setStartFigure(n);
+            					k.setEndFigure(t);
             					//TODO initiate GUI connection
                 				found = true;
                 				break;
@@ -233,6 +235,7 @@ public class DrawerView extends AbstractView {
             		}
             		if (found) break;
             	}
+            	found = false;
             }
             SwingUtilities.invokeAndWait(new Runnable() {
                 @Override
