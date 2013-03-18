@@ -233,9 +233,8 @@ public class DrawerView extends AbstractView {
             			}
             			if (found) break;
             		}
-            		if (found) break;
+            		found = false;
             	}
-            	found = false;
             }
             SwingUtilities.invokeAndWait(new Runnable() {
                 @Override
