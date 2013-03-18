@@ -8,7 +8,10 @@ import org.jhotdraw.draw.locator.RelativeLocator;
 import org.jhotdraw.draw.connector.LocatorConnector;
 import org.jhotdraw.draw.connector.ChopRectangleConnector;
 import org.jhotdraw.draw.decoration.ArrowTip;
+
+import edu.uwm.JStateDrawer.Models.StateFigureModel;
 import edu.uwm.JStateDrawer.figures.*;
+
 import org.jhotdraw.draw.*;
 import org.jhotdraw.xml.*;
 /**
@@ -134,6 +137,35 @@ public class DrawerFactory extends DefaultDOMFactory {
         } else {
             throw new IllegalArgumentException("Unsupported object type:" + o);
         }
+    }
+    
+    //TODO Tell DOM to scan the next element in various locations.
+    public Object read(DOMInput in) throws IOException{
+    	Object r = null;
+    	Object i = null;
+    	String s = "";
+    	
+    	if (in.getTagName() == "state"){
+    		r = new StateFigure();
+    		((StateFigure) r).setName(in.getAttribute("name", "default"));
+    		while (true){
+    			if (in.getTagName() == "action") ((StateFigure) r).getModel().addAction(in.getAttribute("trigger", "DEFAULT"), in.getText());
+    			if (in.getTagName() == "transition") {
+    				s = in.getAttribute("target", "DEFAULT");
+    				i = new TransitionFigure();
+    				((TransitionFigure) i).getModel().setTrigger(s);
+    				if (s == ((StateFigure) r).getName()) {
+    					((StateFigure) r).getIncomingTransitions().add((TransitionFigure) i);
+    					((TransitionFigure) i).getModel().setEndState((StateFigureModel) r);
+    				}
+    				else{
+    					((StateFigure) r).getOutgoingTransitions().add((TransitionFigure) i);
+    					((TransitionFigure) i).getModel().setStartState((StateFigureModel) r);
+    				}
+    			}
+    		}
+    	}
+    	return r;
     }
     
     public void setSerializeFile(boolean newValue)

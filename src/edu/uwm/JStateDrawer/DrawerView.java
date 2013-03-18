@@ -185,7 +185,6 @@ public class DrawerView extends AbstractView {
     	}
     	
     	for(Figure s : stateList) writeData += ((StateFigure) s).getModel().exportXML();
-    	for(Figure s : transList) writeData += ((TransitionFigure) s).getModel().exportXML();
     	
     	DrawerFactory writer = new DrawerFactory();
     	writer.write(f,  writeData);
@@ -211,8 +210,29 @@ public class DrawerView extends AbstractView {
             final Drawing drawing = createDrawing();
             InputFormat inputFormat = drawing.getInputFormats().get(0);
             inputFormat.read(f, drawing, true);
+            LinkedList<StateFigure> s = new LinkedList<StateFigure>();
+            DrawerFactory df = new DrawerFactory();
+            //TODO Associate URI with DOM
+            
+            boolean found = false;
+            for(StateFigure t : s){
+            	for(TransitionFigure l : t.getIncomingTransitions()){
+            		for(StateFigure n : s){
+            			for(TransitionFigure k : n.getOutgoingTransitions()){
+            				if(l.getModel().getTrigger() == k.getModel().getTrigger()){
+            					l.getModel().setStartState(n.getModel());
+            					k.getModel().setEndState(t.getModel());
+            					//TODO initiate GUI connection
+                				found = true;
+                				break;
+            				}
+            			}
+            			if (found) break;
+            		}
+            		if (found) break;
+            	}
+            }
             SwingUtilities.invokeAndWait(new Runnable() {
-
                 @Override
                 public void run() {
                     view.getDrawing().removeUndoableEditListener(undo);
