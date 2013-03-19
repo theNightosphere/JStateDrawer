@@ -211,7 +211,7 @@ public class DrawerView extends AbstractView {
             final Drawing drawing = createDrawing();
             InputFormat inputFormat = drawing.getInputFormats().get(0);
             inputFormat.read(f, drawing, true);
-            LinkedList<StateFigure> s = new LinkedList<StateFigure>();
+            /*LinkedList<StateFigure> s = new LinkedList<StateFigure>();
             DrawerFactory df = new DrawerFactory();
             //TODO Associate URI with DOM
             
@@ -235,7 +235,7 @@ public class DrawerView extends AbstractView {
             		}
             		found = false;
             	}
-            }
+            }*/
             SwingUtilities.invokeAndWait(new Runnable() {
                 @Override
                 public void run() {
