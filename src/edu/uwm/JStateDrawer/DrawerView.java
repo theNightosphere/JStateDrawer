@@ -221,7 +221,7 @@ public class DrawerView extends AbstractView {
             	for(TransitionFigure l : t.getIncomingTransitions()){
             		for(StateFigure n : s){
             			for(TransitionFigure k : n.getOutgoingTransitions()){
-            				if((l.getModel().getTrigger() == k.getModel().getTrigger())){
+            				if((l.getModel().getTrigger().equals(k.getModel().getTrigger()))){
             					l.getModel().setStartState(n.getModel());
             					k.getModel().setEndState(t.getModel());
             					l.setStartFigure(n);
