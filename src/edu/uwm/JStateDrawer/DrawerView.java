@@ -24,6 +24,8 @@ import org.jhotdraw.draw.*;
 import org.jhotdraw.draw.action.*;
 import org.jhotdraw.gui.URIChooser;
 
+import edu.uwm.JStateDrawer.figures.EndStateFigure;
+import edu.uwm.JStateDrawer.figures.StartStateFigure;
 import edu.uwm.JStateDrawer.figures.StateFigure;
 import edu.uwm.JStateDrawer.figures.TransitionFigure;
 
@@ -198,7 +200,6 @@ public class DrawerView extends AbstractView {
     public void write(URI f, URIChooser chooser) throws IOException {
         Drawing drawing = view.getDrawing();
         OutputFormat outputFormat = drawing.getOutputFormats().get(0);
-        System.out.println(outputFormat);
         outputFormat.write(f, drawing);
     }
 
@@ -211,31 +212,7 @@ public class DrawerView extends AbstractView {
             final Drawing drawing = createDrawing();
             InputFormat inputFormat = drawing.getInputFormats().get(0);
             inputFormat.read(f, drawing, true);
-            /*LinkedList<StateFigure> s = new LinkedList<StateFigure>();
-            DrawerFactory df = new DrawerFactory();
-            //TODO Associate URI with DOM
-            
-            //TODO Make sure this is properly attaching Transitions to their targets.
-            boolean found = false;
-            for(StateFigure t : s){
-            	for(TransitionFigure l : t.getIncomingTransitions()){
-            		for(StateFigure n : s){
-            			for(TransitionFigure k : n.getOutgoingTransitions()){
-            				if((l.getModel().getTrigger().equals(k.getModel().getTrigger()))){
-            					l.getModel().setStartState(n.getModel());
-            					k.getModel().setEndState(t.getModel());
-            					l.setStartFigure(n);
-            					k.setEndFigure(t);
-            					//TODO initiate GUI connection
-                				found = true;
-                				break;
-            				}
-            			}
-            			if (found) break;
-            		}
-            		found = false;
-            	}
-            }*/
+           
             SwingUtilities.invokeAndWait(new Runnable() {
                 @Override
                 public void run() {

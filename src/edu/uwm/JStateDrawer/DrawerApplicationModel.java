@@ -31,10 +31,16 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
 
     private final static double[] scaleFactors = {5, 4, 3, 2, 1.5, 1.25, 1, 0.75, 0.5, 0.25, 0.10};
 
+    public static TransitionFigure transitionTemplate = new TransitionFigure();
+
     private static class ToolButtonListener implements ItemListener {
 
         private Tool tool;
         private DrawingEditor editor;
+        
+        
+        
+   
 
         public ToolButtonListener(Tool t, DrawingEditor editor) {
             this.tool = t;
@@ -130,7 +136,7 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
         
         attributes = new HashMap<AttributeKey, Object>();
         attributes.put(AttributeKeys.STROKE_COLOR, new Color(0x000099));
-        ButtonFactory.addToolTo(tb, editor, new ConnectionTool(new TransitionFigure(), attributes), "edit.createDependency", labels);
+        ButtonFactory.addToolTo(tb, editor, new ConnectionTool(transitionTemplate, attributes), "edit.createDependency", labels);
         tb.addSeparator();
         ButtonFactory.addToolTo(tb, editor, new TextAreaCreationTool(new TextAreaFigure()), "edit.createTextArea", drawLabels);
 
@@ -159,16 +165,6 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
         addCreationButtonsTo(tb, editor);
         tb.setName(drawLabels.getString("window.drawToolBar.title"));
         list.add(tb);
-        // Middle toolbar
-        /*tb = new JToolBar();
-        ButtonFactory.addAttributesButtonsTo(tb, editor);
-        tb.setName(drawLabels.getString("window.attributesToolBar.title"));
-        list.add(tb);
-        //Bottom toolbar
-        tb = new JToolBar();
-        ButtonFactory.addAlignmentButtonsTo(tb, editor);
-        tb.setName(drawLabels.getString("window.alignmentToolBar.title"));
-        list.add(tb);*/
         return list;
     }
 
@@ -216,15 +212,15 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
                 // StateFigure.addAction(serialize);
                 Action addDefaultAction;
                 addDefaultAction = am.get(AddNewActionAction.ID);
-                if(null != addDefaultAction)
+                if(null != addDefaultAction && (!StateFigure.containsAction(AddNewActionAction.ID)))
                 {
-                	StateFigure.addAction(addDefaultAction);
+                	StateFigure.addAction(AddNewActionAction.ID, addDefaultAction);
                 }
                 Action addRemoveAction;
                 addRemoveAction = am.get(RemoveActionAction.ID);
-                if(null != addRemoveAction)
+                if(null != addRemoveAction && (!StateFigure.containsAction(RemoveActionAction.ID)))
                 {
-                	StateFigure.addAction(addRemoveAction);
+                	StateFigure.addAction(RemoveActionAction.ID, addRemoveAction);
                 }
                
             }
@@ -243,5 +239,10 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
         JFileURIChooser c = new JFileURIChooser();
         c.addChoosableFileFilter(new ExtensionFileFilter("Pert Diagram", "xml"));
         return c;
+    }
+    
+    public TransitionFigure getTransitionTemplate()
+    {
+    	return DrawerApplicationModel.transitionTemplate;
     }
 }

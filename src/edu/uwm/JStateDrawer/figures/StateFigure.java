@@ -47,7 +47,7 @@ public class StateFigure extends GraphicalCompositeFigure {
 
     protected HashSet<TransitionFigure> myIncomingTransitions, myOutgoingTransitions;
     protected StateFigureModel myModel;
-    protected static ArrayList<Action> myActions = new ArrayList<Action>();
+    protected static HashMap<String, Action> myActions = new HashMap<String, Action>();
 
     /**
      * This adapter is used, to connect a TextFigure with the name of
@@ -92,9 +92,10 @@ public class StateFigure extends GraphicalCompositeFigure {
     			{
     				try
     				{
-    					willChange();
+    					
     					myModel.removeAction(oldTrigger, myAction.getText());
     					myModel.addAction(newText, myAction.getText());
+    					willChange();
     					super.setText(newText);
     					changed();
     				}
@@ -102,6 +103,7 @@ public class StateFigure extends GraphicalCompositeFigure {
     				{
     					// The trigger was bad. Because all actions are added via the addAction function,
     					// Exception thrown should never be from ill-formed action name.'
+    					willChange();
     					super.setText(oldTrigger);
     					myModel.addAction(oldTrigger, myAction.getText());
     					changed();
@@ -235,7 +237,7 @@ public class StateFigure extends GraphicalCompositeFigure {
     @Override
     public Collection<Action> getActions(Point2D.Double p)
     {
-    	return myActions; 	
+    	return myActions.values(); 	
     }
     
     /**
@@ -404,19 +406,42 @@ public class StateFigure extends GraphicalCompositeFigure {
     @Override
     public StateFigure clone() {
         StateFigure that = (StateFigure) super.clone();
+        that.clearStateFigureModel();
         that.myIncomingTransitions = new HashSet<TransitionFigure>();
         that.myOutgoingTransitions = new HashSet<TransitionFigure>();
         that.getNameFigure().addFigureListener(new NameAdapter(that));
         return that;
+        
+    }
+    
+    /**
+     * Method that assigns the myModel variable to a new, blank StateFigureModel. 
+     * This is used by clone to ensure that all statefigures do not share one statemodel. 
+     */
+    private void clearStateFigureModel()
+    {
+    	myModel = new StateFigureModel();
     }
 
     /**
-     * Adds a new {@link Action} to this StateFigure's list of actions. 
+     * Adds a new {@link Action} by its String actionID to this {@link StateFigure}'s map of actions. 
      * @param newAction
      */
-    public static void addAction(Action newAction)
+    public static void addAction(String actionID, Action newAction)
     {
-    	myActions.add(newAction);
+    	myActions.put(actionID, newAction);
+    }
+    
+    /**
+     * Checks whether the {@link StateFigure} has the specified {@link Action} based on its String
+     * action ID.
+     * @param actionID
+     * @return true if the actionToCheck is in the list of the {@link StateFigure}'s actions,
+     * false if it is not. 
+     */
+    public static boolean containsAction(String actionID)
+    {
+    	return myActions.containsKey(actionID);
     }
     
     @Override
@@ -429,7 +454,9 @@ public class StateFigure extends GraphicalCompositeFigure {
         readAttributes(in);
         in.openElement("state");
         in.openElement("name");
+        willChange();
         setName((String) in.readObject());
+        changed();
         in.closeElement();
         
         in.openElement("actions");

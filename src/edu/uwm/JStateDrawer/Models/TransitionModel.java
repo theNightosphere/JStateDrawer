@@ -136,7 +136,7 @@ public class TransitionModel {
 			error += " Triggers must start with an uppercase letter and be followed by zero or more uppercase letters, numbers, and underscores.";
 			throw new IllegalArgumentException(error);
 		}
-		myStartState.changeTransitionTrigger(myEventTrigger, newTrigger);
+		myStartState.changeTransitionTrigger(myEventTrigger, newTrigger, this);
 		myEventTrigger = newTrigger;
 	}
 	
@@ -184,5 +184,11 @@ public class TransitionModel {
 		{
 			myTarget = newTarget;
 		}
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "TransitionModel#" + hashCode() + " " + myEventTrigger;
 	}
 }

@@ -110,6 +110,20 @@ public class EndStateFigure extends StateFigure{
         double y = in.getAttribute("y", 0d);
         double w = in.getAttribute("w", 0d);
         double h = in.getAttribute("h", 0d);
+        try{
+        	in.openElement("state");
+        	in.openElement("name");
+        	// Read object to store the name 'default' in the idobjects list.
+        	// This is important if any states that are not start/end use the string 'default' because
+        	// NanoXML will use references to earlier objects that are duplicates. 
+        	in.readObject();
+        	in.closeElement();
+        	in.closeElement();
+        }
+        catch(Exception e)
+        {
+        	e.printStackTrace();
+        }
         setBounds(new Point2D.Double(x, y), new Point2D.Double(x + w, y + h));
         
         children.clear();

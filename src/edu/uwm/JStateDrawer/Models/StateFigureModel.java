@@ -357,21 +357,28 @@ public class StateFigureModel {
 	 * trigger string specified by newTrigger
 	 * @param oldTrigger A string that triggers the associated {@link TransitionModel}
 	 * @param newTrigger The new desired trigger string for the {@link TransitionModel} associated with oldTrigger.
+	 * @param transitionToUpdate TODO
 	 * @return true if trigger is successfully updated, false if it is not.
 	 */
 	public boolean changeTransitionTrigger(String oldTrigger,
-			String newTrigger)
+			String newTrigger, TransitionModel transitionToUpdate)
 	{
 		if(validateTrigger(newTrigger))
 		{
 			if(myTransitionTriggers.containsKey(oldTrigger))
 			{
-				TransitionModel transitionToUpdate = myTransitionTriggers.remove(oldTrigger);
+				TransitionModel transToUpdate = myTransitionTriggers.remove(oldTrigger);
 
 				myTransitionTriggers.put(newTrigger, transitionToUpdate);
 				return true;
 			}
-			
+			// If the old value is not in the list of transition triggers, add it.
+			// Consider it like 'put'
+			else if(!myTransitionTriggers.containsValue(oldTrigger))
+			{
+				myTransitionTriggers.put(newTrigger, transitionToUpdate);
+				return true;
+			}
 		}
 		return false;
 	}
@@ -482,4 +489,10 @@ public class StateFigureModel {
 		myInternalStates.remove(internalStateToRemove);
 	}
 	
+	
+	@Override
+	public String toString()
+	{
+		return "StateFigureModel#" + hashCode() + " " + myName;
+	}
 }

@@ -20,6 +20,7 @@ import org.jhotdraw.draw.locator.RelativeLocator;
 
 import java.awt.*;
 import java.io.IOException;
+import java.util.Map;
 
 import static org.jhotdraw.draw.AttributeKeys.*;
 
@@ -27,6 +28,7 @@ import org.jhotdraw.draw.*;
 import org.jhotdraw.xml.DOMInput;
 import org.jhotdraw.xml.DOMOutput;
 
+import edu.uwm.JStateDrawer.DrawerApplicationModel;
 import edu.uwm.JStateDrawer.Models.StateFigureModel;
 import edu.uwm.JStateDrawer.Models.TransitionModel;
 
@@ -45,16 +47,17 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
     @SuppressWarnings("unused")
     private class TransitionTextFigure extends TextFigure
     {
-    	
+    	private TransitionFigure myTransition;
     	
 		public TransitionTextFigure()
     	{
     		super();
     	}
     	
-    	public TransitionTextFigure(String text)
+    	public TransitionTextFigure(String text, TransitionFigure tFigure)
     	{
     		super(text);
+    		myTransition = tFigure;
     	}
     	
     	/**
@@ -66,7 +69,14 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
     		String oldText = getText();
     		try
     		{
-    			myModel.setTrigger(newText);
+    			if(myTransition != null)
+    			{
+    				myTransition.myModel.setTrigger(newText);
+    			}
+    			else
+    			{
+    				myModel.setTrigger(newText);
+    			}
     			super.setText(newText);
     		}
     		catch(Exception e)
@@ -82,16 +92,12 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
         set(STROKE_COLOR, new Color(0x000099));
         set(STROKE_WIDTH, 1d);
         set(END_DECORATION, new ArrowTip());
-        //setLiner(new CurvedLiner());
-        //LocatorLayouter();
         
         setLayouter(new LocatorLayouter());
-        TransitionTextFigure nameFigure = new TransitionTextFigure("DEFAULT");
+        TransitionTextFigure nameFigure = new TransitionTextFigure("DEFAULT", this);
         nameFigure.set(FONT_BOLD, true);
         nameFigure.setAttributeEnabled(FONT_BOLD, false);
         add(nameFigure);
-        
-        setName(DEFAULT_NAME);
 
         LocatorLayouter.LAYOUT_LOCATOR.set(nameFigure, new RelativeLocator(.5, .5, false));
 
@@ -139,7 +145,7 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
 
     public void setName(String newName)
     {
-    	((TextFigure)getChild(0)).setText(newName);
+    	((TransitionTextFigure)getChild(0)).setText(newName);
     }
     
     /**
@@ -208,15 +214,13 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
         
         myStartFigure = sf;
         myEndFigure = ef;
-        
-        myModel.setTrigger(DEFAULT_NAME);
+
         myModel.setStartState(sf.getModel());
         myModel.setEndState(ef.getModel());
-        sf.getModel().addOutgoingTransition(myModel);
+
         sf.getModel().addTransition(myModel.getTrigger(), myModel);
         sf.addOutgoingTransition(this);
         
-        ef.getModel().addIncomingTransition(myModel);
         ef.addIncomingTransition(this);
         
         if(sf == ef)
@@ -229,6 +233,16 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
     @Override
     public TransitionFigure clone() {
         TransitionFigure that = (TransitionFigure) super.clone();
+        // that.myModel = new TransitionModel();
+        TransitionModel tm = new TransitionModel();
+        myModel = tm;
+        that.myModel = tm;
+        that.basicRemoveAllChildren();
+        TransitionTextFigure nameFigure = new TransitionTextFigure("DEFAULT", that);
+        nameFigure.set(FONT_BOLD, true);
+        nameFigure.setAttributeEnabled(FONT_BOLD, false);
+        that.add(nameFigure);
+        LocatorLayouter.LAYOUT_LOCATOR.set(nameFigure, new RelativeLocator(.5, .5, false));
 
         return that;
     }
@@ -254,23 +268,6 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
     	return myEndFigure;
     }
     
-    /**
-     * Sets the name of TransitionFigure's associated {@link TransitionModel} if the name is valid.
-     * If the name is not valid, the {@link TransitionModel} remains unchanged and the TransitionFigure's name is returned
-     * to the old value.
-     * @param evt A {@link FigureEvent} created when the State's name is changed.
-     */
-    public void setNameIfValid(FigureEvent evt)
-    {
-    	try
-    	{
-    		myModel.setTrigger((String)evt.getNewValue());
-    	}
-    	catch(Exception e)
-    	{
-    		setName((String)evt.getOldValue());
-    	}
-    }
 
     @Override
     public void removeNotify(Drawing d) {
@@ -308,16 +305,83 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
 	}
 	
 	@Override
-	public void read(DOMInput in)
+	public void read(DOMInput in) throws IOException
 	{
-		try {
+		
 			super.read(in);
-			in.openElement("name");
-			setName((String)in.readObject());
+			
+			in.openElement("startConnector");
+			// Depending on how the transition is created, either a rectConnector or locConnector 
+			// elemenet was used, but not both. If locConnector is the right elt, then keep on going.
+			// If locConnector wasn't right, then try it again with rectConnector.
+			// When an element doesn't exist, an IOException is thrown. 
+			try
+			{
+				in.openElement("locConnector");
+			}
+			catch(IOException e)
+			{
+				in.openElement("rectConnector");
+			}
+			in.openElement("Owner");
+			StateFigure start = (StateFigure)in.readObject();
 			in.closeElement();
-		} catch (IOException e) {
-			// IO exception occured.
-			e.printStackTrace();
-		}
+			in.closeElement();
+			in.closeElement();
+			
+			myModel.setStartState(start.getModel());
+			in.openElement("name");
+			String name = (String) in.readObject();
+			setName(name);
+			in.closeElement();
+			
+			in.openElement("endConnector");
+
+			try{
+				in.openElement("locConnector");
+			}
+			catch(IOException e)
+			{
+				in.openElement("rectConnector");
+			}
+			in.openElement("Owner");
+			StateFigure end = (StateFigure)in.readObject();
+			in.closeElement();
+			in.closeElement();
+			in.closeElement();
+			myModel.setEndState(end.getModel());
+			
 	}
+	/**
+	 * Overrides the writeAttributes of {@link AbstractAttributedFigure} to prevent the rewriting of the
+	 * name for this {@link TransitionFigure}.
+	 */
+	@Override
+	protected void writeAttributes(DOMOutput out) throws IOException {
+        
+        boolean isElementOpen = false;
+        for (Map.Entry<AttributeKey, Object> entry : getAttributes().entrySet()) {
+            AttributeKey key = entry.getKey();
+            if (isAttributeEnabled(key)) {
+                @SuppressWarnings("unchecked")
+                Object prototypeValue = this.get(key);
+                @SuppressWarnings("unchecked")
+                Object attributeValue = get(key);
+                if (prototypeValue != attributeValue ||
+                        (prototypeValue != null && attributeValue != null &&
+                        ! prototypeValue.equals(attributeValue))) {
+                    if (! isElementOpen) {
+                        out.openElement("a");
+                        isElementOpen = true;
+                    }
+                    out.openElement(key.getKey());
+                    out.writeObject(entry.getValue());
+                    out.closeElement();
+                }
+            }
+        }
+        if (isElementOpen) {
+            out.closeElement();
+        }
+    }
 }
