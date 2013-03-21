@@ -77,7 +77,6 @@ public abstract class AbstractSelectedAction
         @Override
         public void selectionChanged(FigureSelectionEvent evt) {
             updateEnabledState();
-
         }
     };
     @Nullable private EventHandler eventHandler = new EventHandler();

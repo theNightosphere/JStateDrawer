@@ -243,6 +243,7 @@ public class SDIApplication extends AbstractApplication {
                 public void windowGainedFocus(WindowEvent e) {
                     setActiveView(view);
                 }
+                
             });
 
             view.addPropertyChangeListener(new PropertyChangeListener() {
@@ -469,7 +470,7 @@ public class SDIApplication extends AbstractApplication {
 
     @Override
     public boolean isSharingToolsAmongViews() {
-        return false;
+        return true;
     }
 
     @Override

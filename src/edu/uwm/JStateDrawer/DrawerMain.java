@@ -4,6 +4,7 @@ package edu.uwm.JStateDrawer;
 
 import org.jhotdraw.app.Application;
 import org.jhotdraw.app.DefaultApplicationModel;
+import org.jhotdraw.app.MDIApplication;
 import org.jhotdraw.app.OSXApplication;
 import org.jhotdraw.app.SDIApplication;
 
@@ -20,8 +21,8 @@ public class DrawerMain {
         if (os.startsWith("mac")) {
             app = new OSXApplication();
         } else if (os.startsWith("win")) {
-          //  app = new DefaultMDIApplication();
-            app = new SDIApplication();
+           // app = new MDIApplication();
+        	app = new SDIApplication();
         } else {
             app = new SDIApplication();
         }

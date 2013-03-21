@@ -7,6 +7,9 @@ import org.jhotdraw.draw.io.InputFormat;
 import org.jhotdraw.draw.io.ImageOutputFormat;
 import org.jhotdraw.draw.print.DrawingPageable;
 import org.jhotdraw.draw.io.DOMStorableInputOutputFormat;
+
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.awt.print.Pageable;
 import java.util.*;
 import org.jhotdraw.gui.*;
@@ -33,8 +36,8 @@ import edu.uwm.JStateDrawer.figures.TransitionFigure;
  * A view for JStateDrawer diagrams based on the JHotDraw PertView class.
  *
  */
-public class DrawerView extends AbstractView {
-
+public class DrawerView extends AbstractView{
+	
     public final static String GRID_VISIBLE_PROPERTY = "gridVisible";
     /**
      * Each view uses its own undo redo manager.
@@ -58,6 +61,7 @@ public class DrawerView extends AbstractView {
         
         setEditor(new DefaultDrawingEditor());
         undo = new UndoRedoManager();
+        
         // The following line should set states with 4 handles?
         ((DefaultDrawingView)view).setHandleDetailLevel(0);
         view.setDrawing(createDrawing());
@@ -231,6 +235,11 @@ public class DrawerView extends AbstractView {
             e.initCause(e);
             throw error;
         }
+    }
+    
+    private View getSelf()
+    {
+    	return this;
     }
 
     /**

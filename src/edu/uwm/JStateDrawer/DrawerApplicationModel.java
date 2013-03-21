@@ -37,10 +37,6 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
 
         private Tool tool;
         private DrawingEditor editor;
-        
-        
-        
-   
 
         public ToolButtonListener(Tool t, DrawingEditor editor) {
             this.tool = t;
@@ -54,6 +50,7 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
             }
         }
     }
+    
     /**
      * This editor is shared by all views.
      */
@@ -73,7 +70,6 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
         m.put(ExportFileAction.ID, new ExportFileAction(a, v));
         m.put("view.toggleGrid", aa = new ToggleViewPropertyAction(a, v, DrawerView.GRID_VISIBLE_PROPERTY));
         m.put(SerializeFileAction.ID, new SerializeFileAction(a, v));
-        m.put(AddNewActionAction.ID, new AddNewActionAction(a, v));
         m.put(RemoveActionAction.ID, new RemoveActionAction(a, v));
         m.put(CheckCurrentDrawingAction.ID, new CheckCurrentDrawingAction(a, v));
         drawLabels.configureAction(aa, "view.toggleGrid");
@@ -83,6 +79,17 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
             aa.putValue(Action.NAME, (int) (sf * 100) + " %");
 
         }
+        
+        // Lines 86-91 comes from SVGApplicationModel's createActionMap method.
+        DrawingEditor editor;
+        if (a.isSharingToolsAmongViews()) {
+            editor=getSharedEditor();
+        } else {
+           editor = (v == null) ? null : ((DrawerView)v).getEditor();
+        }
+        
+        m.put(AddNewActionAction.ID, new AddNewActionAction(editor));
+        
         return m;
     }
 
@@ -133,7 +140,7 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
         attributes.put(AttributeKeys.FILL_COLOR, Color.white);
         attributes.put(AttributeKeys.STROKE_WIDTH, 3d);
         ButtonFactory.addToolTo(tb, editor, new CreationTool(new EndStateFigure(), attributes), "edit.EndState", StateLabels);
-        
+
         attributes = new HashMap<AttributeKey, Object>();
         attributes.put(AttributeKeys.STROKE_COLOR, new Color(0x000099));
         ButtonFactory.addToolTo(tb, editor, new ConnectionTool(transitionTemplate, attributes), "edit.createDependency", labels);
@@ -207,9 +214,7 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
                 {
                 	m.add(checkCurrentDrawing);
                 }
-                //TODO Add actions for StateFigure to use in right-click popupmenu here
-                // in the format shown below
-                // StateFigure.addAction(serialize);
+                
                 Action addDefaultAction;
                 addDefaultAction = am.get(AddNewActionAction.ID);
                 if(null != addDefaultAction && (!StateFigure.containsAction(AddNewActionAction.ID)))
@@ -230,19 +235,15 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
     @Override
     public URIChooser createOpenChooser(Application a, @Nullable View v) {
         JFileURIChooser c = new JFileURIChooser();
-        c.addChoosableFileFilter(new ExtensionFileFilter("Pert Diagram", "xml"));
+        c.addChoosableFileFilter(new ExtensionFileFilter("JStateDrawer Diagram", "xml"));
         return c;
     }
 
     @Override
     public URIChooser createSaveChooser(Application a, @Nullable View v) {
         JFileURIChooser c = new JFileURIChooser();
-        c.addChoosableFileFilter(new ExtensionFileFilter("Pert Diagram", "xml"));
+        c.addChoosableFileFilter(new ExtensionFileFilter("JStateDrawer Diagram", "xml"));
         return c;
     }
     
-    public TransitionFigure getTransitionTemplate()
-    {
-    	return DrawerApplicationModel.transitionTemplate;
-    }
 }
