@@ -53,8 +53,12 @@ public class DrawingSimulator {
 			else{ r += "Action NOT Performed: " + e + "\n"; }
 			if (currentState.getName().equals("End")) break;
 		}
-		
 		f.close();
+		
+		
+		PrintWriter p = new PrintWriter(new File("OUTPUT"));
+		p.print(r);
+		p.close();
 		return r;
 	}
 }
