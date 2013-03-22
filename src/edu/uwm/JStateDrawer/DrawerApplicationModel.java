@@ -209,6 +209,12 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
                 {
                 	m.add(serialize); 	
                 }
+                Action simD;
+                simD = am.get(simDrawingAction.ID);
+                if(null != simD)
+                {
+                	m.add(simD);
+                }
                 Action checkCurrentDrawing;
                 checkCurrentDrawing = am.get(CheckCurrentDrawingAction.ID);
                 if(null != checkCurrentDrawing)
