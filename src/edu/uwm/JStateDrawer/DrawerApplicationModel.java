@@ -72,6 +72,7 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
         m.put(SerializeFileAction.ID, new SerializeFileAction(a, v));
         m.put(RemoveActionAction.ID, new RemoveActionAction(a, v));
         m.put(CheckCurrentDrawingAction.ID, new CheckCurrentDrawingAction(a, v));
+        m.put(simDrawingAction.ID, new simDrawingAction(a,v));
         drawLabels.configureAction(aa, "view.toggleGrid");
         for (double sf : scaleFactors) {
             m.put((int) (sf * 100) + "%",
