@@ -13,6 +13,7 @@ import javax.swing.UIManager;
 import org.jhotdraw.app.action.AbstractViewAction;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.app.*;
+import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.io.InputFormat;
 import org.jhotdraw.draw.io.OutputFormat;
 import org.jhotdraw.gui.JFileURIChooser;
@@ -64,6 +65,16 @@ public class SerializeFileAction extends AbstractViewAction{
             return;
         }
         if (view.isEnabled()) {
+        	Drawing drawing = ((DrawerView) view).getDrawing();
+        	DrawingChecker checker = new DrawingChecker();
+        	// If the drawing isn't valid, end early. 
+        	if(!checker.validateCurrentDrawing(drawing))
+        	{
+        		JOptionPane.showMessageDialog(((DrawerView) view).getEditor().getActiveView().getComponent(),
+    					"The drawing is invalid and cannot be serialized for the following reason:\n" + checker.getErrorString(),
+    					"Drawing Invalid", JOptionPane.ERROR_MESSAGE);
+        		return;
+        	}
             oldFocusOwner = SwingUtilities.getWindowAncestor(view.getComponent()).getFocusOwner();
             view.setEnabled(false);
 
@@ -103,12 +114,14 @@ public class SerializeFileAction extends AbstractViewAction{
             @Override
             protected Object construct() throws IOException {
             
-                ((DrawerView) view).serialize(file, chooser);
+            	DrawerFactory.serializeFile = true;
+                ((DrawerView) view).write(file, chooser);
                 return null;
             }
 
             @Override
             protected void done(Object value) {
+            	DrawerFactory.serializeFile = false;
                 view.setURI(file);
                 view.markChangesAsSaved();
                 int multiOpenId = 1;
@@ -123,6 +136,7 @@ public class SerializeFileAction extends AbstractViewAction{
 
             @Override
             protected void failed(Throwable value) {
+            	DrawerFactory.serializeFile = false;
                 value.printStackTrace();
                 String message = value.getMessage() != null ? value.getMessage() : value.toString();
                 ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");

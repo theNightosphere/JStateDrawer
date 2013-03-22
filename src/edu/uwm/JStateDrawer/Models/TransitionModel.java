@@ -1,7 +1,11 @@
 package edu.uwm.JStateDrawer.Models;
 
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.jhotdraw.xml.DOMInput;
+import org.jhotdraw.xml.DOMOutput;
 
 //TODO: Add regex checking of trigger name.
 public class TransitionModel {
@@ -184,6 +188,45 @@ public class TransitionModel {
 		{
 			myTarget = newTarget;
 		}
+	}
+	
+	/**
+	 * Writes the {@link TransitionModel} to a file using the {@link DOMOutput}.
+	 * @param out
+	 * @throws IOException
+	 */
+	public void write(DOMOutput out) throws IOException
+	{
+		
+		out.openElement("name");
+		out.writeObject(myEventTrigger);
+		out.closeElement();
+		out.openElement("start");
+		out.writeObject(myStartState);
+		out.closeElement();
+		out.openElement("end");
+		out.writeObject(myEndState);
+		out.closeElement();
+	}
+	
+	/**
+	 * Reads the {@link TransitionModel} from  a file using the {@link DOMInput}.
+	 * @param in
+	 * @throws IOException
+	 */
+	public void read(DOMInput in) throws IOException
+	{
+		in.openElement("name");
+		setTrigger((String)in.readObject());
+		in.closeElement();
+		
+		in.openElement("start");
+		setStartState((StateFigureModel)in.readObject());
+		in.closeElement();
+		
+		in.openElement("end");
+		setEndState((StateFigureModel)in.readObject());
+		in.closeElement();
 	}
 	
 	@Override

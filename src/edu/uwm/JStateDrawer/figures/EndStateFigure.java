@@ -13,6 +13,7 @@ import org.jhotdraw.geom.Dimension2DDouble;
 import org.jhotdraw.xml.DOMInput;
 
 import edu.uwm.JStateDrawer.Models.EndStateModel;
+import edu.uwm.JStateDrawer.Models.StateFigureModel;
 
 @SuppressWarnings("serial")
 public class EndStateFigure extends StateFigure{
@@ -70,7 +71,6 @@ public class EndStateFigure extends StateFigure{
 	@Override
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead)
 	{
-		//set(AttributeKeys.FILL_COLOR, Color.white);
 		if (getLayouter() == null) {
             super.setBounds(anchor, lead);
             basicSetPresentationFigureBounds(anchor, lead);
@@ -111,13 +111,8 @@ public class EndStateFigure extends StateFigure{
         double w = in.getAttribute("w", 0d);
         double h = in.getAttribute("h", 0d);
         try{
-        	in.openElement("state");
-        	in.openElement("name");
-        	// Read object to store the name 'default' in the idobjects list.
-        	// This is important if any states that are not start/end use the string 'default' because
-        	// NanoXML will use references to earlier objects that are duplicates. 
-        	in.readObject();
-        	in.closeElement();
+        	in.openElement("stateContainer");
+        	myModel = (StateFigureModel) in.readObject();
         	in.closeElement();
         }
         catch(Exception e)

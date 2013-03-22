@@ -179,9 +179,30 @@ public class DrawerView extends AbstractView{
         undo.setHasSignificantEdits(newValue);
     }
     
-    public void serialize(URI f, URIChooser chooser)
+    /**
+     * Functionally very similar to {@link write(URI f, URIChooser chooser)},
+     * except diagram checking is included. If the diagram is invalid, the file is not serialized.
+     * @param f
+     * @param chooser
+     * @throws IOException
+     */
+    public void serialize(URI f, URIChooser chooser) throws IOException
     {
-    	LinkedList<Figure> stateList = new LinkedList<Figure>();
+    	Drawing drawing = view.getDrawing();
+    	DrawingChecker checker = new DrawingChecker();
+    	if(checker.validateCurrentDrawing(drawing))
+    	{
+    		OutputFormat outputFormat = drawing.getOutputFormats().get(0);
+        	outputFormat.write(f, drawing);
+    	}
+    	else
+    	{
+    		JOptionPane.showMessageDialog(editor.getActiveView().getComponent(),
+					"The drawing is invalid and was not serialized for the following reason:\n" + checker.getErrorString(),
+					"Drawing Invalid", JOptionPane.ERROR_MESSAGE);
+    	}
+    	
+    	/*LinkedList<Figure> stateList = new LinkedList<Figure>();
     	LinkedList<Figure> transList = new LinkedList<Figure>();
     	String writeData = "";
     	
@@ -190,9 +211,9 @@ public class DrawerView extends AbstractView{
     		if (s instanceof TransitionFigure) transList.add(s);
     	}
     	
-    	for(Figure s : stateList) writeData += ((StateFigure) s).getModel().exportXML();
+    	for(Figure s : stateList) writeData += ((StateFigure) s).getModel().exportXML();*/
     	
-    	DrawerFactory writer = new DrawerFactory();
+    	// DrawerFactory writer = new DrawerFactory();
     	// writer.write(f,  writeData);
     	System.out.println("Testing");
     }
@@ -237,11 +258,34 @@ public class DrawerView extends AbstractView{
         }
     }
     
-    private View getSelf()
+    /**
+     * Loads a serialized version of a drawing for use in simulation. Calling
+     * methods should check whether the returned value is null. When null is returned,
+     * the drawing to be loaded contained one or more errors that is shown to the user via a
+     * message box. 
+     * @param f
+     * @param chooser
+     * @return A {@link Drawing} if loading is successful, but null if the loaded drawing is not valid.
+     * @throws IOException
+     */
+    public Drawing importDrawing(URI f, URIChooser chooser) throws IOException
     {
-    	return this;
+    	final Drawing drawing = createDrawing();
+    	InputFormat inputFormat = drawing.getInputFormats().get(0);
+    	inputFormat.read(f, drawing);
+    	
+    	DrawingChecker checker = new DrawingChecker();
+    	if(!checker.validateCurrentDrawing(drawing))
+    	{
+    		JOptionPane.showMessageDialog(editor.getActiveView().getComponent(),
+					"The drawing is invalid and cannot be loaded for the following reason:\n" + checker.getErrorString(),
+					"Drawing Invalid", JOptionPane.ERROR_MESSAGE);
+    		return null;
+    	}
+    	
+    	return drawing;
     }
-
+    
     /**
      * Clears the view.
      */

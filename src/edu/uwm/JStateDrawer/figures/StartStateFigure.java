@@ -13,6 +13,7 @@ import org.jhotdraw.geom.*;
 import org.jhotdraw.xml.DOMInput;
 
 import edu.uwm.JStateDrawer.Models.StartStateModel;
+import edu.uwm.JStateDrawer.Models.StateFigureModel;
 
 /**
  * 
@@ -57,7 +58,7 @@ public class StartStateFigure extends StateFigure{
 	{
 		StartStateFigure myClone = (StartStateFigure) super.clone();
 		myClone.children.clear();
-		myClone.myIncomingTransitions = new HashSet<TransitionFigure>();
+		myClone.myOutgoingTransitions = new HashSet<TransitionFigure>();
 		return myClone;
 	}
 	
@@ -80,22 +81,18 @@ public class StartStateFigure extends StateFigure{
 	}
 	
 	@Override
-	public void read(DOMInput in)
+	public void read(DOMInput in) throws IOException
 	{
 		double x = in.getAttribute("x", 0d);
         double y = in.getAttribute("y", 0d);
         double w = in.getAttribute("w", 0d);
         double h = in.getAttribute("h", 0d);
         setBounds(new Point2D.Double(x, y), new Point2D.Double(x + w, y + h));
+        readAttributes(in);
         try {
-        	in.openElement("state");
-			in.openElement("name");
-			// Read object to store the name 'default' in the idobjects list.
-			// This is important if any states that are not start/end use the string 'default' because
-			// NanoXML will use references to earlier objects that are duplicates. 
-			in.readObject();
-			in.closeElement();
-			in.closeElement();
+        	in.openElement("stateContainer");
+        	myModel = (StateFigureModel) in.readObject();
+        	in.closeElement();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

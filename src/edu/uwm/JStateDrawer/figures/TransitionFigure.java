@@ -29,6 +29,7 @@ import org.jhotdraw.xml.DOMInput;
 import org.jhotdraw.xml.DOMOutput;
 
 import edu.uwm.JStateDrawer.DrawerApplicationModel;
+import edu.uwm.JStateDrawer.DrawerFactory;
 import edu.uwm.JStateDrawer.Models.StateFigureModel;
 import edu.uwm.JStateDrawer.Models.TransitionModel;
 
@@ -237,6 +238,10 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
         TransitionModel tm = new TransitionModel();
         myModel = tm;
         that.myModel = tm;
+        System.out.println("this: " + this);
+        System.out.println("this.myModel: " + this.myModel);
+        System.out.println("that: " + that);
+        System.out.println("that.myModel: " + that.myModel);
         that.basicRemoveAllChildren();
         TransitionTextFigure nameFigure = new TransitionTextFigure("DEFAULT", that);
         nameFigure.set(FONT_BOLD, true);
@@ -290,18 +295,28 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
 		return myModel;
 	}
 	
+	/**
+	 * Overrides write method of {@link LineConnectionFigure} to include the ability to write
+	 * a stripped-down version of the {@link TransitionFigure} meant for use in diagram simulations.
+	 */
 	@Override
-	public void write(DOMOutput out)
+	public void write(DOMOutput out) throws IOException
 	{
-		try {
-			super.write(out);
-			out.openElement("name");
-			out.writeObject(myModel.getTrigger());
+		if(DrawerFactory.serializeFile)
+		{
+			writePoints(out);
+			out.openElement("transitionContainer");
+			out.writeObject(myModel);
 			out.closeElement();
-		} catch (IOException e) {
-			// IOException. Nothing to do here for now.
-			e.printStackTrace();
 		}
+		else
+		{
+			super.write(out);
+			out.openElement("transitionContainer");
+			out.writeObject(myModel);
+			out.closeElement();
+		}
+		
 	}
 	
 	@Override
@@ -310,46 +325,11 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
 		
 			super.read(in);
 			
-			in.openElement("startConnector");
-			// Depending on how the transition is created, either a rectConnector or locConnector 
-			// elemenet was used, but not both. If locConnector is the right elt, then keep on going.
-			// If locConnector wasn't right, then try it again with rectConnector.
-			// When an element doesn't exist, an IOException is thrown. 
-			try
-			{
-				in.openElement("locConnector");
-			}
-			catch(IOException e)
-			{
-				in.openElement("rectConnector");
-			}
-			in.openElement("Owner");
-			StateFigure start = (StateFigure)in.readObject();
+			in.openElement("transitionContainer");
+			myModel = (TransitionModel)in.readObject();
 			in.closeElement();
-			in.closeElement();
-			in.closeElement();
-			
-			myModel.setStartState(start.getModel());
-			in.openElement("name");
-			String name = (String) in.readObject();
-			setName(name);
-			in.closeElement();
-			
-			in.openElement("endConnector");
-
-			try{
-				in.openElement("locConnector");
-			}
-			catch(IOException e)
-			{
-				in.openElement("rectConnector");
-			}
-			in.openElement("Owner");
-			StateFigure end = (StateFigure)in.readObject();
-			in.closeElement();
-			in.closeElement();
-			in.closeElement();
-			myModel.setEndState(end.getModel());
+		
+			setName(myModel.getTrigger());
 			
 	}
 	/**
@@ -384,4 +364,11 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
             out.closeElement();
         }
     }
+
+	public void serialize(DOMOutput out) throws IOException {
+		out.openElement("name");
+		out.writeObject(myModel.getTrigger());
+		out.closeElement();
+		
+	}
 }

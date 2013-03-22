@@ -33,6 +33,7 @@ import org.jhotdraw.geom.*;
 import org.jhotdraw.util.*;
 import org.jhotdraw.xml.*;
 
+import edu.uwm.JStateDrawer.DrawerFactory;
 import edu.uwm.JStateDrawer.Actions.SerializeFileAction;
 import edu.uwm.JStateDrawer.Models.StateFigureModel;
 
@@ -245,9 +246,20 @@ public class StateFigure extends GraphicalCompositeFigure {
      * @param newTrigger The String that will be the new action's trigger
      * @param newAction The String that will be the new action.
      */
-    public void addActionTextFigure(String newTrigger, String newAction)
+    public void addActionTextFigureUpdateModel(String newTrigger, String newAction)
     {
-    	willChange();
+    	createActionTextFigure(newTrigger, newAction);
+    	myModel.addAction(newTrigger, newAction);
+    }
+
+    /**
+     * Helper method that creates a pairing of {@link ActionTextFigure} and {@link TriggerTextFigure}
+     * to visually represent an action trigger pairing. 
+     * @param newTrigger The display string of the new trigger.
+     * @param newAction The display string of the new action.
+     */
+	private void createActionTextFigure(String newTrigger, String newAction) {
+		willChange();
     	ListFigure actionToAdd = new ListFigure();
     	actionToAdd.setLayouter(new HorizontalLayouter());
     	TriggerTextFigure trigger = new TriggerTextFigure(newTrigger);
@@ -269,8 +281,20 @@ public class StateFigure extends GraphicalCompositeFigure {
     	
     	getActionTextFigures().add(actionToAdd);
     	changed();
-    	myModel.addAction(newTrigger, newAction);
+	}
+    
+	/**
+     * Adds a new action to the StateFigure but does not update the {@link StateFigureModel}.
+     * This is most likely to be used when a model has the action/trigger pairing but the figure
+     * has not been updated yet (e.g. while reading from a file).
+     * @param newTrigger The String that will be the new action's trigger
+     * @param newAction The String that will be the new action.
+     */
+    public void addActionTextFigureNoUpdate(String newTrigger, String newAction)
+    {
+    	createActionTextFigure(newTrigger, newAction);
     }
+    
     
     /**
      * Adds a new action to the StateFigure and stores the data in the {@link StateFigureModel}
@@ -278,14 +302,28 @@ public class StateFigure extends GraphicalCompositeFigure {
      */
     public void addActionTextFigure()
     {
-    	addActionTextFigure(myModel.DEFAULT_ACTION_TRIGGER, myModel.DEFAULT_ACTION_NAME);
+    	addActionTextFigureUpdateModel(myModel.DEFAULT_ACTION_TRIGGER, myModel.DEFAULT_ACTION_NAME);
     }
     
+    /**
+     * Returns the {@link TriggerTextFigure} corresponding to the index of the {@code indexOfChild} TextFigure.
+     * This child is taken from the list of {@link ListFigure}s that store the trigger/action pairs.
+     * @param listOfActionFigures
+     * @param indexOfChild
+     * @return The ({@code indexOfChild})th {@link TriggerTextFigure}.
+     */
     public TriggerTextFigure getIthChildTriggerFigure(ListFigure listOfActionFigures, int indexOfChild)
     {
     	 return (TriggerTextFigure)(((ListFigure)listOfActionFigures.getChild(indexOfChild)).getChild(0));
     }
     
+    /**
+     * Returns the {@link ActionTextFigure} corresponding to the index of the {@code indexOfChild} TextFigure.
+     * This child is taken from the list of {@link ListFigure}s that store the trigger/action pairs.
+     * @param listOfActionFigures
+     * @param indexOfChild
+     * @return The ({@code indexOfChild})th {@link ActionTextFigure}.
+     */
     public ActionTextFigure getIthChildActionTextFigure(ListFigure listOfActionFigures, int indexOfChild)
     {
     	return (ActionTextFigure)(((ListFigure)listOfActionFigures.getChild(indexOfChild)).getChild(2));
@@ -354,26 +392,6 @@ public class StateFigure extends GraphicalCompositeFigure {
     public String getName() {
         return getNameFigure().getText();
     }
-
-    /*public void setDuration(int newValue) {
-        int oldValue = getDuration();
-        getDurationFigure().setText(Integer.toString(newValue));
-        if (oldValue != newValue) {
-            for (StateFigure succ : getSuccessors()) {
-                succ.updateStartTime();
-            }
-
-        }
-    }
-
-    public int getDuration() {
-        try {
-            return Integer.valueOf(getDurationFigure().getText());
-        } catch (NumberFormatException e) {
-            return 0;
-        }
-
-    }*/
 
     // Good example for how to make changes to internal figures.
     /*public void updateStartTime() {
@@ -452,7 +470,23 @@ public class StateFigure extends GraphicalCompositeFigure {
         double h = in.getAttribute("h", 0d);
         setBounds(new Point2D.Double(x, y), new Point2D.Double(x + w, y + h));
         readAttributes(in);
-        in.openElement("state");
+        in.openElement("stateContainer");
+        myModel = (StateFigureModel) in.readObject();
+        in.closeElement();
+        
+        willChange();
+        setName(myModel.getName());
+        changed();
+        
+        for(String trigger : myModel.getAllActions().keySet())
+        {
+        	for(String action : myModel.getActionsByTrigger(trigger))
+        	{
+        		addActionTextFigureNoUpdate(trigger, action);
+        	}
+        }
+        
+        /*in.openElement("state");
         in.openElement("name");
         willChange();
         setName((String) in.readObject());
@@ -469,48 +503,36 @@ public class StateFigure extends GraphicalCompositeFigure {
         	for(int j = 0; j < numActionsForTrigger; j++)
         	{
         		String action = (String) in.readObject();
-        		addActionTextFigure(trigger, action);
+        		addActionTextFigureUpdateModel(trigger, action);
         	}
         	
         	in.closeElement();
         }
         in.closeElement();
         
-        in.closeElement();
+        in.closeElement();*/
     }
 
+    /**
+     * If the value {@code DrawerFactory.serializeFile} is true, then write will 
+     * output a stripped-down version of the figure meant for running simulations but not
+     * reconstructing diagrams. {@code DrawerFactory.serializeFile} is set to true by the
+     * {@link SerializeFileAction} and reset to false once the writing is finished or fails. 
+     */
     @Override
     public void write(DOMOutput out) throws IOException {
-        Rectangle2D.Double r = getBounds();
-        out.addAttribute("x", r.x);
-        out.addAttribute("y", r.y);
-        writeAttributes(out);
-        out.openElement("state");
-        out.openElement("name");
-        out.writeObject(getName());
-        out.closeElement();
-        
-        out.openElement("actions");
-        out.addAttribute("triggers", myModel.getAllActions().keySet().size());
-        HashMap<String, List<String>> actions = myModel.getAllActions();
-        int i = 0;
-        for(String trigger : actions.keySet())
-        {
-        	// I number the actions so I can read multiple 'action's without screwing up the XML parser
-        	out.openElement("action" + Integer.toString(i));
-    		out.addAttribute("trigger", trigger);
-    		out.addAttribute("numActions", actions.get(trigger).size());
-        	for(String action : actions.get(trigger))
-        	{
-        		
-        		out.writeObject(action);
-        		
-        	}
-        	out.closeElement();
-        	i++;
-        }
-        out.closeElement();
-        out.closeElement();
+    	// If serializeFile is set to false, we also want to store the location of the state
+    	// and its display attributes. 
+    	if(!DrawerFactory.serializeFile)
+    	{
+    		Rectangle2D.Double r = getBounds();
+    		out.addAttribute("x", r.x);
+    		out.addAttribute("y", r.y);
+    		writeAttributes(out);
+    	}
+    	out.openElement("stateContainer");
+    	out.writeObject(myModel);
+    	out.closeElement();
     }
 
     @Override

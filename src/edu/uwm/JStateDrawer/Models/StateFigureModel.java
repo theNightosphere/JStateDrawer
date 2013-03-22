@@ -1,5 +1,6 @@
 package edu.uwm.JStateDrawer.Models;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -7,6 +8,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.jhotdraw.xml.DOMInput;
+import org.jhotdraw.xml.DOMOutput;
 
 public class StateFigureModel {
 	
@@ -494,5 +498,71 @@ public class StateFigureModel {
 	public String toString()
 	{
 		return "StateFigureModel#" + hashCode() + " " + myName;
+	}
+	
+	/**
+	 * Writes the {@link StateFigureModel} to a file using the {@link DOMOutput}.
+	 * @param out
+	 * @throws IOException
+	 */
+	public void write(DOMOutput out) throws IOException
+	{
+		out.openElement("state");
+		out.openElement("name");
+		out.writeObject(myName);
+		out.closeElement();
+
+		out.openElement("actions");
+		out.addAttribute("triggers", myActions.keySet().size());
+		int i = 0;
+		for(String trigger : myActions.keySet())
+		{
+			// I number the actions so I can read multiple 'action's without screwing up the XML parser
+			out.openElement("action" + Integer.toString(i));
+			out.addAttribute("trigger", trigger);
+			out.addAttribute("numActions", myActions.get(trigger).size());
+			for(String action : myActions.get(trigger))
+			{
+
+				out.writeObject(action);
+
+			}
+			out.closeElement();
+			i++;
+		}
+		out.closeElement();
+		out.closeElement();
+	}
+	
+	/**
+	 * Reads the {@link StateFigureModel} from a file using the {@link DOMInput}. 
+	 * @param in
+	 * @throws IOException
+	 */
+	public void read(DOMInput in) throws IOException
+	{
+		in.openElement("state");
+        in.openElement("name");
+        setName((String)in.readObject());
+        in.closeElement();
+        
+        in.openElement("actions");
+        int numberOfTriggers = in.getAttribute("triggers", 0);
+        for(int i = 0; i < numberOfTriggers; i++)
+        {
+        	in.openElement("action" + Integer.toString(i));
+        	String trigger = in.getAttribute("trigger", "DEFAULT");
+        	int numActionsForTrigger = in.getAttribute("numActions", 0);
+        	for(int j = 0; j < numActionsForTrigger; j++)
+        	{
+        		String action = (String) in.readObject();
+        		addAction(trigger, action);
+        	}
+        	
+        	in.closeElement();
+        }
+        in.closeElement();
+        
+        in.closeElement();
 	}
 }
