@@ -159,7 +159,8 @@ public class StateFigureModel {
 	}
 	
 	/**
-	 * Adds an outgoing {@link TransitionModel} to this StateModel.
+	 * Adds an outgoing {@link TransitionModel} to this StateModel.If successful, the Transition and its trigger
+	 * are added to list of transition triggers.
 	 * @param outgoingTransition A {@link TransitionModel} that represents an outgoing transition.
 	 * @throws Throws an illegal argument exception if the outgoing transition is null.
 	 */
@@ -171,6 +172,7 @@ public class StateFigureModel {
 		}
 		
 		myOutgoingTransitions.add(outgoingTransition);
+		myTransitionTriggers.put(outgoingTransition.getTrigger(), outgoingTransition);
 	}
 	
 	/**
@@ -335,6 +337,7 @@ public class StateFigureModel {
 	/**
 	 * Takes an event string and a transition and adds them to the State's HashMap of Transitions.
 	 * Nothing is added if the State already has a transition that is triggered by the string triggerEvent.
+	 * If addTransition is successful, the transition model is also added to the list of outgoing transitions.
 	 * @param triggerEvent A string that triggers a transition.
 	 * @param t The {@link TransitionModel} that is triggered by the triggerEvent String.
 	 */
@@ -343,6 +346,7 @@ public class StateFigureModel {
 		if (!myTransitionTriggers.containsKey(triggerEvent))
 		{
 			myTransitionTriggers.put(triggerEvent, t);
+			myOutgoingTransitions.add(t);
 		}
 	}
 	
@@ -531,6 +535,19 @@ public class StateFigureModel {
 			i++;
 		}
 		out.closeElement();
+		
+		out.openElement("outgoingTransitions");
+		out.addAttribute("count", myOutgoingTransitions.size());
+		int j = 0;
+		for(TransitionModel tm : myOutgoingTransitions)
+		{
+			out.openElement("transition" + Integer.toString(j));
+			out.writeObject(tm);
+			out.closeElement();
+			j++;
+		}
+		out.closeElement();
+		
 		out.closeElement();
 	}
 	
@@ -560,6 +577,18 @@ public class StateFigureModel {
         	}
         	
         	in.closeElement();
+        }
+
+        in.closeElement();
+        
+        in.openElement("outgoingTransitions");
+        int numberOfTransitions = in.getAttribute("count", 0);
+        for(int i = 0; i < numberOfTransitions; i++)
+        {
+        	in.openElement("transition" + Integer.toString(i));
+        	TransitionModel tm = (TransitionModel) in.readObject();
+        	in.closeElement();
+        	addOutgoingTransition(tm);
         }
         in.closeElement();
         

@@ -2,14 +2,24 @@ package edu.uwm.JStateDrawer.Tests;
 
 import static org.junit.Assert.*;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+import org.jhotdraw.xml.NanoXMLDOMInput;
+import org.jhotdraw.xml.NanoXMLDOMOutput;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.uwm.JStateDrawer.DrawerFactory;
 import edu.uwm.JStateDrawer.Models.EndStateModel;
 import edu.uwm.JStateDrawer.Models.StartStateModel;
 import edu.uwm.JStateDrawer.Models.StateFigureModel;
@@ -507,29 +517,96 @@ public class StateFigureModelTests {
 	
 	/**
 	 * Tests the exporting of XML.
+	 * @throws IOException 
 	 */
 	@Test
-	public void testExportXML()
+	public void testExportXML() throws IOException
 	{
 		sm.addAction("ACTION_TRIGGER1","action1");
 		sm.addAction("ACTION_TRIGGER2","action2");
 		sm.addAction("ACTION_TRIGGER3","action3");
-	
-		assertEquals(sm.exportXML(),
-				"<state name='default'><action trigger='ACTION_TRIGGER3'>action3</action><action trigger='ACTION_TRIGGER2'>action2</action><action trigger='ACTION_TRIGGER1'>action1</action></state>");
 		
 		sm.addTransition("TRANSITION1", new TransitionModel("TRANSITION1", 
 				new StateFigureModel(), new StateFigureModel()));
 		sm.addTransition("TRANSITION2", new TransitionModel("TRANSITION2",
 				new StateFigureModel(), new StateFigureModel()));
 		
-		assertEquals(sm.exportXML(),
-				"<state name='default'><action trigger='ACTION_TRIGGER3'>action3</action><action trigger='ACTION_TRIGGER2'>action2</action><action trigger='ACTION_TRIGGER1'>action1</action><transition trigger='TRANSITION1' target='default'/><transition trigger='TRANSITION2' target='default'/></state>");
-		
 		sm.addInternalState(new StateFigureModel("innerState1"));
 		sm.addInternalState(new StateFigureModel("innerState2"));
 		assertEquals(sm.exportXML(),
 				"<state name='default'><action trigger='ACTION_TRIGGER3'>action3</action><action trigger='ACTION_TRIGGER2'>action2</action><action trigger='ACTION_TRIGGER1'>action1</action><state name='innerState1'></state><state name='innerState2'></state><transition trigger='TRANSITION1' target='default'/><transition trigger='TRANSITION2' target='default'/></state>");
+		DrawerFactory factory = new DrawerFactory();
+		NanoXMLDOMOutput out = new NanoXMLDOMOutput(factory);
+		String uri = "src/edu/uwm/JStateDrawer/Tests/testState.xml";
+		out.openElement("test");
+		// Create the XML representation of the TransitionModel
+		try {
+			// Factory.write will call tm.write(out) which exports the XML.
+			// factory.write ensures that the XML tags are placed around the TransitionModel that will
+			// allow it to be read via the readObject method later.
+			out.openElement("stateModel");
+			out.writeObject(sm);
+			out.closeElement();
+			out.closeElement();
+		} catch (IOException e) {
+			fail("Exporting XML caused some sort of problem.");
+			e.printStackTrace();
+		}
+		//URI uri = new URI("testTransition.xml");
+		BufferedOutputStream output = new BufferedOutputStream(
+				new FileOutputStream(new File(uri)));
+		// Writes the XML to a file.
+		try{
+			out.save(output);
+			out.dispose();
+		}
+		catch(FileNotFoundException e)
+		{
+			fail("File not created correctly.");
+		} catch (IOException e) {
+			fail("Something failed in out.save(output)");
+			e.printStackTrace();
+		}
+		finally
+		{
+			output.close();
+		}
+		
+		// Open the file
+		
+		BufferedInputStream in = new BufferedInputStream(new FileInputStream(new File(uri)));
+
+		NanoXMLDOMInput domIn = new NanoXMLDOMInput(factory, in);
+		
+		try
+		{
+			domIn.openElement("test");
+			domIn.openElement("stateModel");
+			System.out.println("1");
+			StateFigureModel fileState = (StateFigureModel) domIn.readObject();
+			System.out.println("2");
+			domIn.closeElement();
+			domIn.closeElement();
+			assertEquals(fileState.getName(), "default");
+			assertEquals(fileState.getActionsByTrigger("ACTION_TRIGGER1").get(0), "action1");
+			assertEquals(fileState.getActionsByTrigger("ACTION_TRIGGER2").get(0), "action2");
+			assertEquals(fileState.getActionsByTrigger("ACTION_TRIGGER3").get(0), "action3");
+			assertEquals(fileState.getTransitionByEvent("TRANSITION1").getTrigger(), "TRANSITION1");
+			assertEquals(fileState.getTransitionByEvent("TRANSITION2").getTrigger(), "TRANSITION2");
+			TransitionModel t1 = fileState.getTransitionByEvent("TRANSITION1");
+			TransitionModel t2 = fileState.getTransitionByEvent("TRANSITION2");
+			assert(fileState.getOutgoingTransitions().contains(t1));
+			assert(fileState.getOutgoingTransitions().contains(t2));
+			
+		}
+		catch(IOException e)
+		{
+			fail("Attempted to access an element that does not exist");
+		}
+		finally
+		{
+			in.close();
+		}	
 	}
 	
 	@Test

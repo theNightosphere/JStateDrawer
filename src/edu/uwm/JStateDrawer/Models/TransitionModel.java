@@ -98,6 +98,7 @@ public class TransitionModel {
 		}
 		myStartState = ss;
 		myStartState.addOutgoingTransition(this);
+		myStartState.addTransition(myEventTrigger, this);
 	}
 	
 	/**
@@ -216,17 +217,19 @@ public class TransitionModel {
 	 */
 	public void read(DOMInput in) throws IOException
 	{
+
 		in.openElement("name");
 		setTrigger((String)in.readObject());
 		in.closeElement();
-		
+
 		in.openElement("start");
 		setStartState((StateFigureModel)in.readObject());
 		in.closeElement();
-		
+
 		in.openElement("end");
 		setEndState((StateFigureModel)in.readObject());
 		in.closeElement();
+
 	}
 	
 	@Override

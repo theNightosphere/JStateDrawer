@@ -2,8 +2,20 @@ package edu.uwm.JStateDrawer.Tests;
 
 import static org.junit.Assert.*;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import org.jhotdraw.xml.NanoXMLDOMInput;
+import org.jhotdraw.xml.NanoXMLDOMOutput;
 import org.junit.Before;
 import org.junit.Test;
+
+import edu.uwm.JStateDrawer.DrawerFactory;
 import edu.uwm.JStateDrawer.Models.StateFigureModel;
 import edu.uwm.JStateDrawer.Models.TransitionModel;
 
@@ -191,5 +203,79 @@ public class TransitionModelTests {
 		tm = new TransitionModel(trigger, sf, ef);
 	}
 	
+	/**
+	 * Tests that exporting and importing XML properly saves and retrieves Transitionmodel data. 
+	 * @throws IOException
+	 */
+	@Test
+	public void testExportXML() throws IOException
+	{
+		tm = new TransitionModel("TEST", new StateFigureModel("start"),
+				new StateFigureModel("end"));
+		DrawerFactory factory = new DrawerFactory();
+		NanoXMLDOMOutput out = new NanoXMLDOMOutput(factory);
+		String uri = "src/edu/uwm/JStateDrawer/Tests/testTransition.xml";
+		out.openElement("test");
+		// Create the XML representation of the TransitionModel
+		try {
+			// Factory.write will call tm.write(out) which exports the XML.
+			// factory.write ensures that the XML tags are placed around the TransitionModel that will
+			// allow it to be read via the readObject method later.
+			out.openElement("transitionModel");
+			tm.write(out);
+			out.closeElement();
+			out.closeElement();
+		} catch (IOException e) {
+			fail("Exporting XML caused some sort of problem.");
+			e.printStackTrace();
+		}
+		//URI uri = new URI("testTransition.xml");
+		BufferedOutputStream output = new BufferedOutputStream(
+				new FileOutputStream(new File(uri)));
+		// Writes the XML to a file.
+		try{
+			out.save(output);
+			out.dispose();
+		}
+		catch(FileNotFoundException e)
+		{
+			fail("File not created correctly.");
+		} catch (IOException e) {
+			fail("Something failed in out.save(output)");
+			e.printStackTrace();
+		}
+		finally
+		{
+			output.close();
+		}
+		
+		// Open the file
+		
+		BufferedInputStream in = new BufferedInputStream(new FileInputStream(new File(uri)));
+		
+		NanoXMLDOMInput domIn = new NanoXMLDOMInput(factory, in);
+		
+		try
+		{
+			domIn.openElement("test");
+			TransitionModel fileTransition = (TransitionModel) domIn.readObject();
+			domIn.closeElement();
+			assertEquals(fileTransition.getTrigger(), "TEST");
+			assertEquals(fileTransition.getStartState().getName(), "start");
+			assertEquals(fileTransition.getEndState().getName(), "end");
+			assert(fileTransition.getStartState().getOutgoingTransitions().contains(fileTransition));
+			assertEquals(fileTransition.getStartState().getTransitionByEvent("TEST"),fileTransition);
+			
+		}
+		catch(IOException e)
+		{
+			fail("Attempted to access an element that does not exist");
+			e.printStackTrace();
+		}
+		finally
+		{
+			in.close();
+		}	
+	}
 	
 }
