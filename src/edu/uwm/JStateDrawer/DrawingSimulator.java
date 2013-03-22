@@ -26,9 +26,10 @@ public class DrawingSimulator {
 		String e = "";
 		
 		StateFigure currentState = null;
+		
+		Scanner f = new Scanner(new FileReader("INPUT"));
 
 		if (new DrawingChecker().validateCurrentDrawing(view)){
-			Scanner f = new Scanner(new FileReader("INPUT"));
 			for (StateFigure s : statelist){
 				if (s.getName().equals("Start")){
 					currentState = s;
@@ -53,11 +54,9 @@ public class DrawingSimulator {
 						}
 					}
 				}
+				else{ r += "Action NOT Performed: " + e + "\n"; }
 				if (currentState.getName().equals("End")) break;
 			}
-		}
-		else{
-			return r;
 		}
 		f.close();
 		return r;
