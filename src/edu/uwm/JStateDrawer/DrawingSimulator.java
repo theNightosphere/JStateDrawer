@@ -1,6 +1,7 @@
 package edu.uwm.JStateDrawer;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 import java.io.*;
 import java.net.URI;
@@ -9,6 +10,8 @@ import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.Figure;
 
 import edu.uwm.JStateDrawer.figures.StateFigure;
+import edu.uwm.JStateDrawer.figures.StartStateFigure;
+import edu.uwm.JStateDrawer.figures.EndStateFigure;
 import edu.uwm.JStateDrawer.figures.TransitionFigure;
 
 public class DrawingSimulator {
@@ -21,12 +24,14 @@ public class DrawingSimulator {
 			if (s instanceof StateFigure) statelist.add((StateFigure) s);
 		}
 		String e = "";
+		String w = "";
 		StateFigure currentState = null;
 		
 		Scanner f = new Scanner(new FileReader(u.getPath()));
+		PrintWriter p = new PrintWriter(new File("JSimOutput.txt"));
 
 		for (StateFigure s : statelist){
-			if (s.getName().equals("Start")){
+			if (s instanceof StartStateFigure){
 				currentState = s;
 				break;
 			}
@@ -34,33 +39,79 @@ public class DrawingSimulator {
 		r += currentState.getOutgoingTransitions().iterator().next().getModel().getTrigger();
 		r += " to " + currentState.getOutgoingTransitions().iterator().next().getEndStateFigure().getName() + "\n";
 		currentState = currentState.getOutgoingTransitions().iterator().next().getEndStateFigure();
-		for (String s : currentState.getModel().getActionsByTrigger("ENTRY")) r += "Entering action: " + s + "\n";
+		
+		w = r;
+		
+		p.println(w);
+		
+		List<String> i;
+		
+		i = currentState.getModel().getActionsByTrigger("ENTRY");
+		if (i != null){
+			for (String s : currentState.getModel().getActionsByTrigger("ENTRY")) {
+				w = "Entering action: " + s + "\n";
+				r += w;
+				p.println(w);
+			}
+		}
+		//Iterator<String> i;
+		//i = currentState.getModel().getActionsByTrigger("ENTRY").iterator();
+		//while (i.hasNext()) r += "Entering action: " + i.next() + "\n";
+		
 		while(true){
-			e = f.next();
-			System.out.println("Read Action: " + e);
-			if (e.equals("")){
-				r += "Incomplete action list.\n";
+			if (f.hasNext()){ 
+				e = f.nextLine();
+				e = e.substring(0, e.length());
+			}
+			else{
+				w = "Incomplete action list.\n";
+				r += w;
+				p.println(w);
 				break;
 			}
+			System.out.println("Read Action: " + e);
 			if (currentState.getModel().getAllActions().containsValue(e)) {
-				r += "Action Performed: " + e + "\n";
+				w = "Action Performed: " + e + "\n";
+				r += w;
+				p.println(w);
 				for (TransitionFigure s : currentState.getOutgoingTransitions()){
 					if (currentState.getModel().getActionsByTrigger(s.getModel().getTrigger()).contains(e)){
-						for (String d : currentState.getModel().getActionsByTrigger("EXIT")) r += "Exiting action: " + d + "\n";
+						i = currentState.getModel().getActionsByTrigger("EXIT");
+						if (i != null){
+							for (String d : i) {
+								w = "Exiting action: " + d + "\n";
+								r += w;
+								p.println(w);
+							}
+						}
+						
 						currentState = s.getEndStateFigure();
-						r += "Transition to: " + currentState.getName() + "\n";
-						for (String d : currentState.getModel().getActionsByTrigger("ENTRY")) r += "Entering action: " + d + "\n";
+						w = "Transition to: " + currentState.getName() + "\n";
+						r += w;
+						p.println(w);
+						
+						i = currentState.getModel().getActionsByTrigger("ENTRY");
+						if (i != null){
+							for (String d : i) {
+								w = "Entering action: " + d + "\n";
+								r += w;
+								p.println(w);
+							}
+						}
+						
 						break;
 					}
 				}
 			}
-			else{ r += "Action NOT Performed: " + e + "\n"; }
-			if (currentState.getName().equals("End")) break;
+			else{ 
+				w = "Action NOT Performed: " + e + "\n";
+				r += w;
+				p.println(w);
+			}
+			if (currentState instanceof EndStateFigure) break;
 		}
-		f.close();
 		
-		PrintWriter p = new PrintWriter(new File("OUTPUT.txt"));
-		p.print(r);
+		f.close();
 		p.close();
 		return r;
 	}
