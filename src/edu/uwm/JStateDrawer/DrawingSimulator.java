@@ -38,6 +38,11 @@ public class DrawingSimulator {
 		for (String s : currentState.getModel().getActionsByTrigger("ENTRY")) r += "Entering action: " + s + "\n";
 		while(true){
 			e = f.next();
+			System.out.println("Read Action: " + e);
+			if (e.equals("")){
+				r += "Incomplete action list.\n";
+				break;
+			}
 			if (currentState.getModel().getAllActions().containsValue(e)) {
 				r += "Action Performed: " + e + "\n";
 				for (TransitionFigure s : currentState.getOutgoingTransitions()){
