@@ -264,11 +264,10 @@ public class DrawerView extends AbstractView{
      * the drawing to be loaded contained one or more errors that is shown to the user via a
      * message box. 
      * @param f
-     * @param chooser
      * @return A {@link Drawing} if loading is successful, but null if the loaded drawing is not valid.
      * @throws IOException
      */
-    public Drawing importDrawing(URI f, URIChooser chooser) throws IOException
+    public Drawing importDrawing(URI f) throws IOException
     {
     	final Drawing drawing = createDrawing();
     	InputFormat inputFormat = drawing.getInputFormats().get(0);

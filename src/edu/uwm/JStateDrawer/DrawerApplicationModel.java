@@ -72,7 +72,8 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
         m.put(SerializeFileAction.ID, new SerializeFileAction(a, v));
         m.put(RemoveActionAction.ID, new RemoveActionAction(a, v));
         m.put(CheckCurrentDrawingAction.ID, new CheckCurrentDrawingAction(a, v));
-        m.put(simDrawingAction.ID, new simDrawingAction(a,v));
+        m.put(SimulateCurrentDrawingAction.ID, new SimulateCurrentDrawingAction(a,v));
+        m.put(SimulateSerializedDrawingAction.ID, new SimulateSerializedDrawingAction(a,v));
         drawLabels.configureAction(aa, "view.toggleGrid");
         for (double sf : scaleFactors) {
             m.put((int) (sf * 100) + "%",
@@ -210,11 +211,19 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
                 	m.add(serialize); 	
                 }
                 Action simD;
-                simD = am.get(simDrawingAction.ID);
+                simD = am.get(SimulateCurrentDrawingAction.ID);
                 if(null != simD)
                 {
                 	m.add(simD);
                 }
+                
+                Action simulateSerializedDrawing;
+                simulateSerializedDrawing = am.get(SimulateSerializedDrawingAction.ID);
+                if(null != simulateSerializedDrawing)
+                {
+                	m.add(simulateSerializedDrawing);
+                }
+                
                 Action checkCurrentDrawing;
                 checkCurrentDrawing = am.get(CheckCurrentDrawingAction.ID);
                 if(null != checkCurrentDrawing)
@@ -228,6 +237,7 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
                 {
                 	StateFigure.addAction(AddNewActionAction.ID, addDefaultAction);
                 }
+                
                 Action addRemoveAction;
                 addRemoveAction = am.get(RemoveActionAction.ID);
                 if(null != addRemoveAction && (!StateFigure.containsAction(RemoveActionAction.ID)))
@@ -251,6 +261,13 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
         JFileURIChooser c = new JFileURIChooser();
         c.addChoosableFileFilter(new ExtensionFileFilter("JStateDrawer Diagram", "xml"));
         return c;
+    }
+    
+    public URIChooser createInputFileChooser(Application a, @Nullable View v)
+    {
+    	JFileURIChooser c = new JFileURIChooser();
+    	c.addChoosableFileFilter(new ExtensionFileFilter("JStateDrawer Diagram Input", "txt"));
+    	return c;
     }
     
 }

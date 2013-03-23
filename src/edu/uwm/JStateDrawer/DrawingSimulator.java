@@ -12,7 +12,6 @@ import edu.uwm.JStateDrawer.figures.StateFigure;
 import edu.uwm.JStateDrawer.figures.TransitionFigure;
 
 public class DrawingSimulator {
-	
 	public DrawingSimulator(){}
 	
 	public String simulateD(Drawing view, URI u) throws FileNotFoundException{
@@ -60,8 +59,7 @@ public class DrawingSimulator {
 		}
 		f.close();
 		
-		
-		PrintWriter p = new PrintWriter(new File("OUTPUT"));
+		PrintWriter p = new PrintWriter(new File("OUTPUT.txt"));
 		p.print(r);
 		p.close();
 		return r;

@@ -24,15 +24,16 @@ import org.jhotdraw.gui.filechooser.ExtensionFileFilter;
 import org.jhotdraw.util.ResourceBundleUtil;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
+import edu.uwm.JStateDrawer.DrawerApplicationModel;
 import edu.uwm.JStateDrawer.DrawerView;
 import edu.uwm.JStateDrawer.DrawingChecker;
 import edu.uwm.JStateDrawer.DrawingSimulator;
 
-public class simDrawingAction extends AbstractViewAction {
+public class SimulateCurrentDrawingAction extends AbstractViewAction {
 	public final static String ID = "file.SimulateDrawing";
 	private Component oldFocusOwner;
 	
-	public simDrawingAction(Application app, @Nullable View view){
+	public SimulateCurrentDrawingAction(Application app, @Nullable View view){
 		super(app, view);
 		ResourceBundleUtil Labels = ResourceBundleUtil.getBundle("edu.uwm.JStateDrawer.Actions.Labels");
 		Labels.configureAction(this, ID);
@@ -41,7 +42,8 @@ public class simDrawingAction extends AbstractViewAction {
 	protected URIChooser getChooser(View view) {
         URIChooser chsr = (URIChooser) (view.getComponent()).getClientProperty("saveChooser");
         if (chsr == null) {
-            chsr = getApplication().getModel().createSaveChooser(getApplication(), view);
+        	DrawerApplicationModel model = (DrawerApplicationModel)(getApplication().getModel());
+            chsr = model.createInputFileChooser(getApplication(), view);
             view.getComponent().putClientProperty("saveChooser", chsr);
         }
         return chsr;
@@ -67,42 +69,34 @@ public class simDrawingAction extends AbstractViewAction {
             oldFocusOwner = SwingUtilities.getWindowAncestor(view.getComponent()).getFocusOwner();
             view.setEnabled(false);
 
-            if (view.getURI() != null) {
-                try {
-					new DrawingSimulator().simulateD(((DrawerView) view).getDrawing(), view.getURI());
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-            } else {
-                URIChooser fileChooser = getChooser(view);
+            URIChooser fileChooser = getChooser(view);
 
-                JSheet.showOpenSheet(fileChooser, view.getComponent(), new SheetListener() {
+            JSheet.showOpenSheet(fileChooser, view.getComponent(), new SheetListener() {
 
-                    @Override
-                    public void optionSelected(final SheetEvent evt) {
-                        if (evt.getOption() == JFileChooser.APPROVE_OPTION) {
-                            final URI uri;
-                            if ((evt.getChooser() instanceof JFileURIChooser) && (evt.getFileChooser().getFileFilter() instanceof ExtensionFileFilter)) {
-                                uri = ((ExtensionFileFilter) evt.getFileChooser().getFileFilter()).makeAcceptable(evt.getFileChooser().getSelectedFile()).toURI();
-                            } else {
-                                uri = evt.getChooser().getSelectedURI();
-                            }
-                            try {
-								new DrawingSimulator().simulateD(((DrawerView) view).getDrawing(), uri);
-							} catch (FileNotFoundException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-                        } else {
-                            view.setEnabled(true);
-                            if (oldFocusOwner != null) {
-                                oldFocusOwner.requestFocus();
-                            }
-                        }
-                    }
-                });
-            }
+            	@Override
+            	public void optionSelected(final SheetEvent evt) {
+            		if (evt.getOption() == JFileChooser.APPROVE_OPTION) {
+            			final URI uri;
+            			if ((evt.getChooser() instanceof JFileURIChooser) && (evt.getFileChooser().getFileFilter() instanceof ExtensionFileFilter)) {
+            				uri = ((ExtensionFileFilter) evt.getFileChooser().getFileFilter()).makeAcceptable(evt.getFileChooser().getSelectedFile()).toURI();
+            			} else {
+            				uri = evt.getChooser().getSelectedURI();
+            			}
+            			try {
+            				new DrawingSimulator().simulateD(((DrawerView) view).getDrawing(), uri);
+            			} catch (FileNotFoundException e) {
+            				// TODO Auto-generated catch block
+            				e.printStackTrace();
+            			}
+            		} else {
+            			view.setEnabled(true);
+            			if (oldFocusOwner != null) {
+            				oldFocusOwner.requestFocus();
+            			}
+            		}
+            	}
+            });
+            
         }
     }
 }
