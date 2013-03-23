@@ -25,6 +25,7 @@ import org.jhotdraw.xml.*;
  */
 public class DrawerFactory extends DefaultDOMFactory {
 	public static boolean serializeFile = false;
+	public static boolean importFile = false;
     private final static Object[][] classTagArray = {
         { DefaultDrawing.class, "DrawerDiagram" },
         { StateFigure.class, "state" },
@@ -38,9 +39,10 @@ public class DrawerFactory extends DefaultDOMFactory {
         { TextAreaFigure.class, "ta" },
         { SeparatorLineFigure.class, "separator" },
         
-        { StateFigureModel.class, "stateModel"},
+        
         { StartStateModel.class, "startModel" },
         { EndStateModel.class, "endModel" },
+        { StateFigureModel.class, "stateModel"},
         { TransitionModel.class, "transitionModel" },
         
         { ChopRectangleConnector.class, "rectConnector" },
@@ -60,8 +62,12 @@ public class DrawerFactory extends DefaultDOMFactory {
             // nothing to do
         } else if (o instanceof DOMStorable) {
         	((DOMStorable) o).write(out);
-        } else if (isStateFigureModel(o)) {
+        } else if (o instanceof StateFigureModel) {
         	((StateFigureModel) o).write(out);
+        } else if (o instanceof StartStateModel) {
+        	((StartStateModel) o).write(out);
+        } else if (o instanceof EndStateModel) {
+        	((EndStateModel) o).write(out);
         } else if (o instanceof TransitionModel) {
         	((TransitionModel) o).write(out);
         } else if (o instanceof String) {
@@ -225,13 +231,20 @@ public class DrawerFactory extends DefaultDOMFactory {
                 a[i] = ((Double) in.readObject(i)).doubleValue();
             }
             o = a;
-        } else if (tagName.equals("stateModel") ||
-        		tagName.equals("startModel")||
-        		tagName.equals("endModel")){
+        } else if (tagName.equals("stateModel")){
             StateFigureModel a = new StateFigureModel();
             a.read(in);
             o = a;
-        } else if (tagName.equals("transitionModel"))
+        } else if (tagName.equals("startModel")) {
+        	StartStateModel a = new StartStateModel();
+        	a.read(in);
+        	o = a;
+        } else if (tagName.equals("endModel")) {
+        	EndStateModel a = new EndStateModel();
+        	a.read(in);
+        	o = a;
+        }
+        else if (tagName.equals("transitionModel"))
         {
         	TransitionModel a = new TransitionModel();
         	a.read(in);

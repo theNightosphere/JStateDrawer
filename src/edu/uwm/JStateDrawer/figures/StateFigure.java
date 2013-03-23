@@ -1,13 +1,4 @@
-/*
- * @(#)TaskFigure.java
- *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
- * contributors. All rights reserved.
- *
- * You may not use, copy or modify this file, except in compliance with the 
- * license agreement you entered into with the copyright holders. For details
- * see accompanying license terms.
- */
+
 package edu.uwm.JStateDrawer.figures;
 
 import org.jhotdraw.draw.locator.RelativeLocator;
@@ -25,7 +16,6 @@ import static org.jhotdraw.draw.AttributeKeys.*;
 import java.util.*;
 
 import javax.swing.Action;
-import javax.swing.JPopupMenu;
 
 import org.jhotdraw.draw.*;
 import org.jhotdraw.draw.handle.BoundsOutlineHandle;
@@ -144,9 +134,11 @@ public class StateFigure extends GraphicalCompositeFigure {
     	 */
     	public ActionTextFigure(String text, TriggerTextFigure triggerText)
     	{
+    		
     		super(text);
     		myTrigger = triggerText;
     		myTrigger.setActionTextFigure(this);
+    		setText(text);
     	}
 
 		@Override
@@ -271,7 +263,6 @@ public class StateFigure extends GraphicalCompositeFigure {
     	divider.set(AttributeKeys.FONT_BOLD, true);
     	divider.setAttributeEnabled(AttributeKeys.FONT_BOLD, false);
     	divider.setEditable(false);
-    	
     	ActionTextFigure action = new ActionTextFigure(newAction, trigger);
 
     	
@@ -393,30 +384,6 @@ public class StateFigure extends GraphicalCompositeFigure {
         return getNameFigure().getText();
     }
 
-    // Good example for how to make changes to internal figures.
-    /*public void updateStartTime() {
-        willChange();
-        int oldValue = getStartTime();
-        int newValue = 0;
-        for (StateFigure pre : getPredecessors()) {
-            newValue = Math.max(newValue,
-                    pre.getStartTime() + pre.getDuration());
-        }
-
-        getStartTimeFigure().setText(Integer.toString(newValue));
-        if (newValue != oldValue) {
-            for (StateFigure succ : getSuccessors()) {
-                // The if-statement here guards against
-                // cyclic task dependencies. 
-                if (!this.isDependentOf(succ)) {
-                    succ.updateStartTime();
-                }
-
-            }
-        }
-        changed();
-    }*/
-
     private TextFigure getNameFigure() {
         return (TextFigure) ((ListFigure) getChild(0)).getChild(0);
     }
@@ -477,40 +444,16 @@ public class StateFigure extends GraphicalCompositeFigure {
         willChange();
         setName(myModel.getName());
         changed();
-        
+
         for(String trigger : myModel.getAllActions().keySet())
         {
         	for(String action : myModel.getActionsByTrigger(trigger))
         	{
+
         		addActionTextFigureNoUpdate(trigger, action);
         	}
         }
-        
-        /*in.openElement("state");
-        in.openElement("name");
-        willChange();
-        setName((String) in.readObject());
-        changed();
-        in.closeElement();
-        
-        in.openElement("actions");
-        int numberOfTriggers = in.getAttribute("triggers", 0);
-        for(int i = 0; i < numberOfTriggers; i++)
-        {
-        	in.openElement("action" + Integer.toString(i));
-        	String trigger = in.getAttribute("trigger", "DEFAULT");
-        	int numActionsForTrigger = in.getAttribute("numActions", 0);
-        	for(int j = 0; j < numActionsForTrigger; j++)
-        	{
-        		String action = (String) in.readObject();
-        		addActionTextFigureUpdateModel(trigger, action);
-        	}
-        	
-        	in.closeElement();
-        }
-        in.closeElement();
-        
-        in.closeElement();*/
+
     }
 
     /**
@@ -608,36 +551,6 @@ public class StateFigure extends GraphicalCompositeFigure {
     {
     	myOutgoingTransitions.remove(f);
     }
-
-    /**
-     * Returns dependent StateFigure which are directly connected via a
-     * TransitionFigure to this StateFigure.
-     */
-    public List<StateFigure> getSuccessors() {
-        LinkedList<StateFigure> list = new LinkedList<StateFigure>();
-        for (TransitionFigure c : getIncomingTransitions()) {
-            if (c.getStartFigure() == this) {
-                list.add((StateFigure) c.getEndFigure());
-            }
-
-        }
-        return list;
-    }
-
-    /**
-     * Returns predecessor StateFigures which are directly connected via a
-     * TransitionFigure to this StateFigure.
-     */
-    public List<StateFigure> getPredecessors() {
-        LinkedList<StateFigure> list = new LinkedList<StateFigure>();
-        for (TransitionFigure c : getIncomingTransitions()) {
-            if (c.getEndFigure() == this) {
-                list.add((StateFigure) c.getStartFigure());
-            }
-
-        }
-        return list;
-    }
     
     /**
      * Returns this StateFigure's associated {@link StateFigureModel}.
@@ -648,43 +561,9 @@ public class StateFigure extends GraphicalCompositeFigure {
     	return myModel;
     }
 
-    /**
-     * Returns true, if the current task is a direct or
-     * indirect dependent of the specified task.
-     * If the dependency is cyclic, then this method returns true
-     * if <code>this</code> is passed as a parameter and for every other
-     * task in the cycle.
-     */
-    public boolean isDependentOf(StateFigure t) {
-        if (this == t) {
-            return true;
-        }
-
-        for (StateFigure pre : getPredecessors()) {
-            if (pre.isDependentOf(t)) {
-                return true;
-            }
-
-        }
-        return false;
-    }
-
     @Override
     public String toString() {
         return "StateFigure#" + hashCode() + " " + getName();
     }
-
-	public void serialize(DOMOutput out) throws IOException {
-		 Rectangle2D.Double r = getBounds();
-	        out.addAttribute("x", r.x);
-	        out.addAttribute("y", r.y);
-	        writeAttributes(out);
-	        out.openElement("model");
-	        out.openElement("name");
-	        out.writeObject(getName());
-	        out.closeElement();
-	        out.closeElement();
-		
-	}
 }
 

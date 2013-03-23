@@ -516,7 +516,11 @@ public class StateFigureModelTests {
 	}
 	
 	/**
-	 * Tests the exporting of XML.
+	 * Tests the exporting of XML.Transitions are not tested here because they are generated after
+	 * States by the NanoXML library. When they are children of states then NanoXML creates them in such
+	 * a way that they attempt to reference states that have not yet finished creation, so the best way
+	 * to export transitions as separate entities. XML generation for transitions is tested in the
+	 * TransitionModelTest class.
 	 * @throws IOException 
 	 */
 	@Test
@@ -582,22 +586,13 @@ public class StateFigureModelTests {
 		{
 			domIn.openElement("test");
 			domIn.openElement("stateModel");
-			System.out.println("1");
 			StateFigureModel fileState = (StateFigureModel) domIn.readObject();
-			System.out.println("2");
 			domIn.closeElement();
 			domIn.closeElement();
 			assertEquals(fileState.getName(), "default");
 			assertEquals(fileState.getActionsByTrigger("ACTION_TRIGGER1").get(0), "action1");
 			assertEquals(fileState.getActionsByTrigger("ACTION_TRIGGER2").get(0), "action2");
 			assertEquals(fileState.getActionsByTrigger("ACTION_TRIGGER3").get(0), "action3");
-			assertEquals(fileState.getTransitionByEvent("TRANSITION1").getTrigger(), "TRANSITION1");
-			assertEquals(fileState.getTransitionByEvent("TRANSITION2").getTrigger(), "TRANSITION2");
-			TransitionModel t1 = fileState.getTransitionByEvent("TRANSITION1");
-			TransitionModel t2 = fileState.getTransitionByEvent("TRANSITION2");
-			assert(fileState.getOutgoingTransitions().contains(t1));
-			assert(fileState.getOutgoingTransitions().contains(t2));
-			
 		}
 		catch(IOException e)
 		{

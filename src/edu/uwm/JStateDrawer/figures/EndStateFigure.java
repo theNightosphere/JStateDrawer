@@ -57,6 +57,7 @@ public class EndStateFigure extends StateFigure{
 				CIRCLE_DIAMETER-INNER_CIRCLE_OFFSET);
 		ellipse.set(AttributeKeys.FILL_COLOR, Color.black);
 		myClone.add(ellipse);
+		myClone.getModel().setName("end");
 		set(AttributeKeys.STROKE_WIDTH, 3d);
 		
 		myClone.myIncomingTransitions = new HashSet<TransitionFigure>();

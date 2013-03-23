@@ -58,6 +58,7 @@ public class StartStateFigure extends StateFigure{
 	{
 		StartStateFigure myClone = (StartStateFigure) super.clone();
 		myClone.children.clear();
+		myClone.getModel().setName("start");
 		myClone.myOutgoingTransitions = new HashSet<TransitionFigure>();
 		return myClone;
 	}

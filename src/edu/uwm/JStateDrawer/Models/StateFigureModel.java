@@ -187,7 +187,7 @@ public class StateFigureModel {
 	
 	/**
 	 * Accesses a list of the state's actions.
-	 * @return A HashMap<String, List<String>> of all the actions and their associated triggers held by a state.
+	 * @return A {@code HashMap<String, List<String>>} of all the actions and their associated triggers held by a state.
 	 */
 	public HashMap<String, List<String>> getAllActions()
 	{
@@ -536,18 +536,6 @@ public class StateFigureModel {
 		}
 		out.closeElement();
 		
-		out.openElement("outgoingTransitions");
-		out.addAttribute("count", myOutgoingTransitions.size());
-		int j = 0;
-		for(TransitionModel tm : myOutgoingTransitions)
-		{
-			out.openElement("transition" + Integer.toString(j));
-			out.writeObject(tm);
-			out.closeElement();
-			j++;
-		}
-		out.closeElement();
-		
 		out.closeElement();
 	}
 	
@@ -579,17 +567,6 @@ public class StateFigureModel {
         	in.closeElement();
         }
 
-        in.closeElement();
-        
-        in.openElement("outgoingTransitions");
-        int numberOfTransitions = in.getAttribute("count", 0);
-        for(int i = 0; i < numberOfTransitions; i++)
-        {
-        	in.openElement("transition" + Integer.toString(i));
-        	TransitionModel tm = (TransitionModel) in.readObject();
-        	in.closeElement();
-        	addOutgoingTransition(tm);
-        }
         in.closeElement();
         
         in.closeElement();

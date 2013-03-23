@@ -68,7 +68,7 @@ public class SerializeFileAction extends AbstractViewAction{
         	Drawing drawing = ((DrawerView) view).getDrawing();
         	DrawingChecker checker = new DrawingChecker();
         	// If the drawing isn't valid, end early. 
-        	if(!checker.validateCurrentDrawing(drawing))
+        	if(!checker.validateCurrentDrawing(drawing, false))
         	{
         		JOptionPane.showMessageDialog(((DrawerView) view).getEditor().getActiveView().getComponent(),
     					"The drawing is invalid and cannot be serialized for the following reason:\n" + checker.getErrorString(),

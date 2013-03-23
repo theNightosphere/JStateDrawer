@@ -2,7 +2,6 @@ package edu.uwm.JStateDrawer.Actions;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
@@ -27,6 +26,7 @@ import edu.uwm.JStateDrawer.DrawerView;
 import edu.uwm.JStateDrawer.DrawingChecker;
 import edu.uwm.JStateDrawer.DrawingSimulator;
 
+@SuppressWarnings("serial")
 public class SimulateSerializedDrawingAction extends AbstractViewAction {
 
 	public final static String ID = "file.SimulateLoadedDrawing";
@@ -65,7 +65,7 @@ public class SimulateSerializedDrawingAction extends AbstractViewAction {
 						DrawingChecker checker = new DrawingChecker();
 	        			if(drawing != null)
 	        			{
-	        				if(!checker.validateCurrentDrawing(drawing))
+	        				if(!checker.validateCurrentDrawing(drawing, true))
 	        				{
 	        					JOptionPane.showMessageDialog(getActiveView().getComponent(),
 	        							"The drawing is invalid and cannot be simulated for the following reason:\n" + checker.getErrorString(),
@@ -89,8 +89,7 @@ public class SimulateSerializedDrawingAction extends AbstractViewAction {
 	        		        			
 	        		        			try
 	        		        			{
-	        		        				/*DrawingSimulator simulator = */new DrawingSimulator().simulateD(drawing, uri);//simulateF(drawing, uri);
-	        		        				//String result = simulator.simulateD(drawing, uri);
+	        		        				new DrawingSimulator().simulateD(drawing, uri);
 	        		        			}
 	        		        			catch(FileNotFoundException e)
 	        		        			{

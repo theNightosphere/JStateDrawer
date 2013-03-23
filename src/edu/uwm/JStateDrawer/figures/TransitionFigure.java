@@ -238,10 +238,6 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
         TransitionModel tm = new TransitionModel();
         myModel = tm;
         that.myModel = tm;
-        System.out.println("this: " + this);
-        System.out.println("this.myModel: " + this.myModel);
-        System.out.println("that: " + that);
-        System.out.println("that.myModel: " + that.myModel);
         that.basicRemoveAllChildren();
         TransitionTextFigure nameFigure = new TransitionTextFigure("DEFAULT", that);
         nameFigure.set(FONT_BOLD, true);
@@ -304,7 +300,6 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
 	{
 		if(DrawerFactory.serializeFile)
 		{
-			writePoints(out);
 			out.openElement("transitionContainer");
 			out.writeObject(myModel);
 			out.closeElement();
@@ -322,15 +317,18 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
 	@Override
 	public void read(DOMInput in) throws IOException
 	{
-		
+		if(!DrawerFactory.importFile)
+		{
 			super.read(in);
+		}
 			
-			in.openElement("transitionContainer");
-			myModel = (TransitionModel)in.readObject();
-			in.closeElement();
+		in.openElement("transitionContainer");
+		myModel = (TransitionModel)in.readObject();
+		in.closeElement();
+
+		setName(myModel.getTrigger());
 		
-			setName(myModel.getTrigger());
-			
+
 	}
 	/**
 	 * Overrides the writeAttributes of {@link AbstractAttributedFigure} to prevent the rewriting of the

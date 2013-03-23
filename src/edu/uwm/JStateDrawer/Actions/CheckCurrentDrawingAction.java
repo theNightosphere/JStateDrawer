@@ -40,7 +40,7 @@ public class CheckCurrentDrawingAction extends AbstractViewAction {
 	public void actionPerformed(ActionEvent arg0) {
 		DefaultDrawingEditor editor = (DefaultDrawingEditor) ((DrawerView)getActiveView()).getEditor();
 		DrawingChecker check = new DrawingChecker();
-		boolean isDrawingValid = check.validateCurrentDrawing(editor.getActiveView().getDrawing());
+		boolean isDrawingValid = check.validateCurrentDrawing(editor.getActiveView().getDrawing(), false);
 		if(!isDrawingValid)
 		{
 			JOptionPane.showMessageDialog(editor.getActiveView().getComponent(),

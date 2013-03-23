@@ -3,13 +3,11 @@ package edu.uwm.JStateDrawer.Actions;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.URI;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 
 import org.jhotdraw.app.Application;
 import org.jhotdraw.app.View;
@@ -29,6 +27,7 @@ import edu.uwm.JStateDrawer.DrawerView;
 import edu.uwm.JStateDrawer.DrawingChecker;
 import edu.uwm.JStateDrawer.DrawingSimulator;
 
+@SuppressWarnings("serial")
 public class SimulateCurrentDrawingAction extends AbstractViewAction {
 	public final static String ID = "file.SimulateDrawing";
 	private Component oldFocusOwner;
@@ -59,7 +58,7 @@ public class SimulateCurrentDrawingAction extends AbstractViewAction {
         	Drawing drawing = ((DrawerView) view).getDrawing();
         	DrawingChecker checker = new DrawingChecker();
         	// If the drawing isn't valid, end early. 
-        	if(!checker.validateCurrentDrawing(drawing))
+        	if(!checker.validateCurrentDrawing(drawing, false))
         	{
         		JOptionPane.showMessageDialog(((DrawerView) view).getEditor().getActiveView().getComponent(),
     					"The drawing is invalid and cannot be simulated for the following reason:\n" + checker.getErrorString(),

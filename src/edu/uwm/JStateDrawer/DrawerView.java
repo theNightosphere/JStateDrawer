@@ -8,8 +8,6 @@ import org.jhotdraw.draw.io.ImageOutputFormat;
 import org.jhotdraw.draw.print.DrawingPageable;
 import org.jhotdraw.draw.io.DOMStorableInputOutputFormat;
 
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.awt.print.Pageable;
 import java.util.*;
 import org.jhotdraw.gui.*;
@@ -27,15 +25,11 @@ import org.jhotdraw.draw.*;
 import org.jhotdraw.draw.action.*;
 import org.jhotdraw.gui.URIChooser;
 
-import edu.uwm.JStateDrawer.figures.EndStateFigure;
-import edu.uwm.JStateDrawer.figures.StartStateFigure;
-import edu.uwm.JStateDrawer.figures.StateFigure;
-import edu.uwm.JStateDrawer.figures.TransitionFigure;
-
 /**
  * A view for JStateDrawer diagrams based on the JHotDraw PertView class.
  *
  */
+@SuppressWarnings("serial")
 public class DrawerView extends AbstractView{
 	
     public final static String GRID_VISIBLE_PROPERTY = "gridVisible";
@@ -190,7 +184,7 @@ public class DrawerView extends AbstractView{
     {
     	Drawing drawing = view.getDrawing();
     	DrawingChecker checker = new DrawingChecker();
-    	if(checker.validateCurrentDrawing(drawing))
+    	if(checker.validateCurrentDrawing(drawing, false))
     	{
     		OutputFormat outputFormat = drawing.getOutputFormats().get(0);
         	outputFormat.write(f, drawing);
@@ -201,21 +195,6 @@ public class DrawerView extends AbstractView{
 					"The drawing is invalid and was not serialized for the following reason:\n" + checker.getErrorString(),
 					"Drawing Invalid", JOptionPane.ERROR_MESSAGE);
     	}
-    	
-    	/*LinkedList<Figure> stateList = new LinkedList<Figure>();
-    	LinkedList<Figure> transList = new LinkedList<Figure>();
-    	String writeData = "";
-    	
-    	for(Figure s : view.getDrawing().getFiguresFrontToBack()){
-    		if (s instanceof StateFigure) stateList.add(s);
-    		if (s instanceof TransitionFigure) transList.add(s);
-    	}
-    	
-    	for(Figure s : stateList) writeData += ((StateFigure) s).getModel().exportXML();*/
-    	
-    	// DrawerFactory writer = new DrawerFactory();
-    	// writer.write(f,  writeData);
-    	System.out.println("Testing");
     }
 
     /**
@@ -270,17 +249,19 @@ public class DrawerView extends AbstractView{
     public Drawing importDrawing(URI f) throws IOException
     {
     	final Drawing drawing = createDrawing();
+    	DrawerFactory.importFile = true;
     	InputFormat inputFormat = drawing.getInputFormats().get(0);
     	inputFormat.read(f, drawing);
     	
     	DrawingChecker checker = new DrawingChecker();
-    	if(!checker.validateCurrentDrawing(drawing))
+    	if(!checker.validateCurrentDrawing(drawing, true))
     	{
     		JOptionPane.showMessageDialog(editor.getActiveView().getComponent(),
 					"The drawing is invalid and cannot be loaded for the following reason:\n" + checker.getErrorString(),
 					"Drawing Invalid", JOptionPane.ERROR_MESSAGE);
     		return null;
     	}
+    	DrawerFactory.importFile = false;
     	
     	return drawing;
     }

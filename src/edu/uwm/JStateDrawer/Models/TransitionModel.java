@@ -99,6 +99,7 @@ public class TransitionModel {
 		myStartState = ss;
 		myStartState.addOutgoingTransition(this);
 		myStartState.addTransition(myEventTrigger, this);
+		
 	}
 	
 	/**
