@@ -11,6 +11,7 @@ import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.Figure;
 
 import edu.uwm.JStateDrawer.Models.StateFigureModel;
+import edu.uwm.JStateDrawer.Models.EndStateModel;
 import edu.uwm.JStateDrawer.Models.TransitionModel;
 import edu.uwm.JStateDrawer.figures.StateFigure;
 import edu.uwm.JStateDrawer.figures.StartStateFigure;
@@ -89,46 +90,51 @@ public class DrawingSimulator {
 				for(String action : currentModel.getActionsByTrigger(readString))
 				{
 					printString = "Action Performed: " + action + "\n";
+					p.println(printString);
+					p.flush();
 				}
-				p.println(printString);
-				p.flush();
-				
-			}
-			else if(currentModel.getTransitionByEvent(readString) != null)
-			{
-				ArrayList<String> exitActions = (ArrayList<String>) currentModel.getActionsByTrigger("EXIT");
-				if(exitActions != null)
+				if(currentModel.getTransitionByEvent(readString) != null)
 				{
-					for(String action : exitActions)
+					ArrayList<String> exitActions = (ArrayList<String>) currentModel.getActionsByTrigger("EXIT");
+					if(exitActions != null)
 					{
-						printString += "Exit action: " + action + "\n";
+						for(String action : exitActions)
+						{
+							printString = "Exit action: " + action + "\n";
+							p.println(printString);
+							p.flush();
+						}
 					}
+					
+					TransitionModel triggeredTransitionModel = currentModel.getTransitionByEvent(readString);
+					printString = "Transition from " + currentModel.getName() + " to " + triggeredTransitionModel.getEndState().getName();
+					p.println(printString);
+					p.flush();
+					
+					currentModel = triggeredTransitionModel.getEndState();
+					
+					ArrayList<String> entryActions = (ArrayList<String>) currentModel.getActionsByTrigger("ENTRY");
+					if(entryActions != null)
+					{
+						for(String action : entryActions)
+						{
+							printString = "Entry action: " + action + "\n\n";
+							p.println(printString);
+							p.flush();
+						}
+					}
+					
 				}
 				
-				TransitionModel triggeredTransitionModel = currentModel.getTransitionByEvent(readString);
-				printString += "Transition from " + currentModel.getName() + " to " + triggeredTransitionModel.getEndState().getName() + "\n\n";
-				
-				currentModel = triggeredTransitionModel.getEndState();
-				
-				ArrayList<String> entryActions = (ArrayList<String>) currentModel.getActionsByTrigger("ENTRY");
-				if(entryActions != null)
-				{
-					for(String action : entryActions)
-					{
-						printString += "Entry action: " + action + "\n\n";
-					}
-				}
-				
-				p.println(printString);
-				p.flush();
 			}
 			else{ 
-				printString = "Action NOT Performed: " + readString + "\n";
+				printString = "Nothing for trigger: " + readString + "\n";
 				//r += w;
 				p.println(printString);
 				p.flush();
 			}
 			if (currentModel.getName().equals("end")) break;
+			//if (currentModel instanceof EndStateModel) break;
 		}
 		
 		f.close();

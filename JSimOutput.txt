@@ -1,0 +1,11 @@
+start to default
+
+Nothing for trigger: HOLYSHIT
+
+Nothing for trigger: FUCK
+
+Nothing for trigger: HOLE
+
+Action Performed: Ride a bike
+
+Transition from default to end
