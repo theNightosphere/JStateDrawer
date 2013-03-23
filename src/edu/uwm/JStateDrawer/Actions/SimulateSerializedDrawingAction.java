@@ -89,10 +89,8 @@ public class SimulateSerializedDrawingAction extends AbstractViewAction {
 	        		        			
 	        		        			try
 	        		        			{
-	        		        				DrawingSimulator simulator = new DrawingSimulator();
-	        		        				String result = simulator.simulateD(drawing, uri);
-	        		        				// Not really sure what to do with result right now. 
-	        		        				//TODO Scott, decide if we really need to have simulateD return anything.
+	        		        				/*DrawingSimulator simulator = */new DrawingSimulator().simulateD(drawing, uri);//simulateF(drawing, uri);
+	        		        				//String result = simulator.simulateD(drawing, uri);
 	        		        			}
 	        		        			catch(FileNotFoundException e)
 	        		        			{

@@ -17,14 +17,14 @@ import edu.uwm.JStateDrawer.figures.TransitionFigure;
 public class DrawingSimulator {
 	public DrawingSimulator(){}
 	
-	public String simulateD(Drawing view, URI u) throws FileNotFoundException{
-		String r = "";
+	public /*String*/ void simulateD(Drawing view, URI u) throws FileNotFoundException{
+		//String r = "";
 		LinkedList<StateFigure> statelist = new LinkedList<StateFigure>();
 		for(Figure s : view.getFiguresFrontToBack()){
 			if (s instanceof StateFigure) statelist.add((StateFigure) s);
 		}
-		String e = "";
-		String w = "";
+		String readString = "";
+		String printString = "";
 		StateFigure currentState = null;
 		
 		Scanner f = new Scanner(new FileReader(u.getPath()));
@@ -36,22 +36,22 @@ public class DrawingSimulator {
 				break;
 			}
 		}
-		r += currentState.getOutgoingTransitions().iterator().next().getModel().getTrigger();
-		r += " to " + currentState.getOutgoingTransitions().iterator().next().getEndStateFigure().getName() + "\n";
+		printString += currentState.getOutgoingTransitions().iterator().next().getModel().getTrigger();
+		printString += " to " + currentState.getOutgoingTransitions().iterator().next().getEndStateFigure().getName() + "\n";
 		currentState = currentState.getOutgoingTransitions().iterator().next().getEndStateFigure();
 		
-		w = r;
+		//r = w;
 		
-		p.println(w);
+		p.println(printString);
 		
-		List<String> i;
+		List<String> actionList;
 		
-		i = currentState.getModel().getActionsByTrigger("ENTRY");
-		if (i != null){
+		actionList = currentState.getModel().getActionsByTrigger("ENTRY");
+		if (actionList != null){
 			for (String s : currentState.getModel().getActionsByTrigger("ENTRY")) {
-				w = "Entering action: " + s + "\n";
-				r += w;
-				p.println(w);
+				printString = "Entering action: " + s + "\n";
+				//r += w;
+				p.println(printString);
 			}
 		}
 		//Iterator<String> i;
@@ -60,42 +60,42 @@ public class DrawingSimulator {
 		
 		while(true){
 			if (f.hasNext()){ 
-				e = f.nextLine();
-				e = e.substring(0, e.length());
+				readString = f.nextLine();
+				readString = readString.substring(0, readString.length());
 			}
 			else{
-				w = "Incomplete action list.\n";
-				r += w;
-				p.println(w);
+				printString = "Incomplete action list.\n";
+				//r += w;
+				p.println(printString);
 				break;
 			}
-			System.out.println("Read Action: " + e);
-			if (currentState.getModel().getAllActions().containsValue(e)) {
-				w = "Action Performed: " + e + "\n";
-				r += w;
-				p.println(w);
+			System.out.println("Read Action: " + readString);
+			if (currentState.getModel().getAllActions().containsValue(readString)) {
+				printString = "Action Performed: " + readString + "\n";
+				//r += w;
+				p.println(printString);
 				for (TransitionFigure s : currentState.getOutgoingTransitions()){
-					if (currentState.getModel().getActionsByTrigger(s.getModel().getTrigger()).contains(e)){
-						i = currentState.getModel().getActionsByTrigger("EXIT");
-						if (i != null){
-							for (String d : i) {
-								w = "Exiting action: " + d + "\n";
-								r += w;
-								p.println(w);
+					if (currentState.getModel().getActionsByTrigger(s.getModel().getTrigger()).contains(readString)){
+						actionList = currentState.getModel().getActionsByTrigger("EXIT");
+						if (actionList != null){
+							for (String d : actionList) {
+								printString = "Exiting action: " + d + "\n";
+								//r += w;
+								p.println(printString);
 							}
 						}
 						
 						currentState = s.getEndStateFigure();
-						w = "Transition to: " + currentState.getName() + "\n";
-						r += w;
-						p.println(w);
+						printString = "Transition to: " + currentState.getName() + "\n";
+						//r += w;
+						p.println(printString);
 						
-						i = currentState.getModel().getActionsByTrigger("ENTRY");
-						if (i != null){
-							for (String d : i) {
-								w = "Entering action: " + d + "\n";
-								r += w;
-								p.println(w);
+						actionList = currentState.getModel().getActionsByTrigger("ENTRY");
+						if (actionList != null){
+							for (String d : actionList) {
+								printString = "Entering action: " + d + "\n";
+								//r += w;
+								p.println(printString);
 							}
 						}
 						
@@ -104,15 +104,15 @@ public class DrawingSimulator {
 				}
 			}
 			else{ 
-				w = "Action NOT Performed: " + e + "\n";
-				r += w;
-				p.println(w);
+				printString = "Action NOT Performed: " + readString + "\n";
+				//r += w;
+				p.println(printString);
 			}
 			if (currentState instanceof EndStateFigure) break;
 		}
 		
 		f.close();
 		p.close();
-		return r;
+		//return r;
 	}
 }
