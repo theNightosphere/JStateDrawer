@@ -24,7 +24,7 @@ import edu.uwm.JStateDrawer.figures.StartStateFigure;
  */
 public class DrawingSimulator {
 	public DrawingSimulator(){}
-	
+
 	public void simulateD(Drawing view, URI u) throws FileNotFoundException{
 		LinkedList<StateFigure> statelist = new LinkedList<StateFigure>();
 		for(Figure s : view.getFiguresFrontToBack()){
@@ -36,7 +36,7 @@ public class DrawingSimulator {
 		String readString = "";
 		String printString = "";
 		StateFigure currentState = null;
-		
+
 		Scanner f = new Scanner(new FileReader(u.getPath()));
 		PrintWriter p = new PrintWriter(new File("JSimOutput.txt"));
 
@@ -50,20 +50,20 @@ public class DrawingSimulator {
 		printString += currentState.getModel().getName();
 		TransitionModel nextStateTransition = currentState.getModel().getOutgoingTransitions().iterator().next();
 		printString += " to " + nextStateTransition.getEndState().getName() + "\n";
-		
+
 		StateFigureModel currentModel = nextStateTransition.getEndState();
-		
+
 		//r = w;
-		
+
 		p.println(printString);
 		p.flush();
-		
+
 		List<String> actionList;
-		
+
 		actionList = currentModel.getActionsByTrigger("ENTRY");
 		// Empty the print string
 		printString = "";
-		
+
 		if (actionList != null){
 			for (String s : actionList) {
 				printString = "Entry action: " + s + "\n";
@@ -71,7 +71,7 @@ public class DrawingSimulator {
 				p.flush();
 			}
 		}
-		
+
 		while(true){
 			// Empty the print string for each iteration through the loop.
 			printString = "";
@@ -105,14 +105,14 @@ public class DrawingSimulator {
 							p.flush();
 						}
 					}
-					
+
 					TransitionModel triggeredTransitionModel = currentModel.getTransitionByEvent(readString);
 					printString = "Transition from " + currentModel.getName() + " to " + triggeredTransitionModel.getEndState().getName();
 					p.println(printString);
 					p.flush();
-					
+
 					currentModel = triggeredTransitionModel.getEndState();
-					
+
 					ArrayList<String> entryActions = (ArrayList<String>) currentModel.getActionsByTrigger("ENTRY");
 					if(entryActions != null)
 					{
@@ -123,9 +123,41 @@ public class DrawingSimulator {
 							p.flush();
 						}
 					}
-					
+
 				}
-				
+
+			}
+			else if(currentModel.getTransitionByEvent(readString) != null)
+			{
+				ArrayList<String> exitActions = (ArrayList<String>) currentModel.getActionsByTrigger("EXIT");
+				if(exitActions != null)
+				{
+					for(String action : exitActions)
+					{
+						printString = "Exit action: " + action + "\n";
+						p.println(printString);
+						p.flush();
+					}
+				}
+
+				TransitionModel triggeredTransitionModel = currentModel.getTransitionByEvent(readString);
+				printString = "Transition from " + currentModel.getName() + " to " + triggeredTransitionModel.getEndState().getName();
+				p.println(printString);
+				p.flush();
+
+				currentModel = triggeredTransitionModel.getEndState();
+
+				ArrayList<String> entryActions = (ArrayList<String>) currentModel.getActionsByTrigger("ENTRY");
+				if(entryActions != null)
+				{
+					for(String action : entryActions)
+					{
+						printString = "Entry action: " + action + "\n\n";
+						p.println(printString);
+						p.flush();
+					}
+				}
+
 			}
 			else{ 
 				printString = "Nothing for trigger: " + readString + "\n";
@@ -133,11 +165,16 @@ public class DrawingSimulator {
 				p.println(printString);
 				p.flush();
 			}
-			if (currentModel.getName().equals("end")) break;
+			if (currentModel.getName().equals("end")) 
+			{
+				break;
+			}
 			//if (currentModel instanceof EndStateModel) break;
+
 		}
-		
 		f.close();
 		p.close();
 	}
+	
 }
+
