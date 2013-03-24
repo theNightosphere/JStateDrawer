@@ -21,7 +21,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import edu.uwm.JStateDrawer.DrawerView;
 import edu.uwm.JStateDrawer.figures.StateFigure;
 import edu.uwm.JStateDrawer.figures.StateFigure.ActionTextFigure;
-import edu.uwm.JStateDrawer.figures.StateFigure.TriggerTextFigure;
+import edu.uwm.JStateDrawer.figures.StateFigure.EventTextFigure;
 
 /**
  * The action for removing a Trigger/Action pair in a {@link StateFigure}.
@@ -52,7 +52,7 @@ public class RemoveActionAction extends AbstractViewAction {
 			ListFigure actionChildren = currentFig.getActionTextFigures();
 	    	for(int i = 0; i < actionChildren.getChildCount(); i++)
 	    	{
-	    		TriggerTextFigure trigger = currentFig.getIthChildEventFigure(actionChildren, i);
+	    		EventTextFigure trigger = currentFig.getIthChildEventFigure(actionChildren, i);
 	    		ActionTextFigure action = currentFig.getIthChildActionTextFigure(actionChildren, i);
 	    		
 	    		// Create a menu item to remove the corresponding trigger/action pair

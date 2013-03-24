@@ -14,7 +14,7 @@ import org.jhotdraw.xml.DOMOutput;
 
 public class StateFigureModel {
 	
-	public final String DEFAULT_ACTION_TRIGGER = "TRIGGER";
+	public final String DEFAULT_ACTION_TRIGGER = "EVENT";
 	public final String DEFAULT_ACTION_NAME = "action";
 	protected String myName;
 	protected HashSet<TransitionModel> myIncomingTransitions, myOutgoingTransitions;

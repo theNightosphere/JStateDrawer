@@ -59,12 +59,12 @@ public class StateFigure extends GraphicalCompositeFigure {
         }
     }
 
-    public class TriggerTextFigure extends TextFigure
+    public class EventTextFigure extends TextFigure
     {
     	
     	private ActionTextFigure myAction;
     	
-    	public TriggerTextFigure(String text)
+    	public EventTextFigure(String text)
     	{
     		super(text);
     		myAction = null;
@@ -124,7 +124,7 @@ public class StateFigure extends GraphicalCompositeFigure {
      */
     public class ActionTextFigure extends TextFigure
     {
-    	private TriggerTextFigure myTrigger;
+    	private EventTextFigure myTrigger;
     	
     	/**
     	 * Constructs a text figure meant for Actions. Takes in the text for the figure 
@@ -132,7 +132,7 @@ public class StateFigure extends GraphicalCompositeFigure {
     	 * @param text
     	 * @param triggerText
     	 */
-    	public ActionTextFigure(String text, TriggerTextFigure triggerText)
+    	public ActionTextFigure(String text, EventTextFigure triggerText)
     	{
     		
     		super(text);
@@ -245,7 +245,7 @@ public class StateFigure extends GraphicalCompositeFigure {
     }
 
     /**
-     * Helper method that creates a pairing of {@link ActionTextFigure} and {@link TriggerTextFigure}
+     * Helper method that creates a pairing of {@link ActionTextFigure} and {@link EventTextFigure}
      * to visually represent an action trigger pairing. 
      * @param newTrigger The display string of the new trigger.
      * @param newAction The display string of the new action.
@@ -254,7 +254,7 @@ public class StateFigure extends GraphicalCompositeFigure {
 		willChange();
     	ListFigure actionToAdd = new ListFigure();
     	actionToAdd.setLayouter(new HorizontalLayouter());
-    	TriggerTextFigure trigger = new TriggerTextFigure(newTrigger);
+    	EventTextFigure trigger = new EventTextFigure(newTrigger);
     	
     	trigger.set(AttributeKeys.FONT_ITALIC, true);
     	trigger.setAttributeEnabled(AttributeKeys.FONT_ITALIC, false);
@@ -297,15 +297,15 @@ public class StateFigure extends GraphicalCompositeFigure {
     }
     
     /**
-     * Returns the {@link TriggerTextFigure} corresponding to the index of the {@code indexOfChild} TextFigure.
+     * Returns the {@link EventTextFigure} corresponding to the index of the {@code indexOfChild} TextFigure.
      * This child is taken from the list of {@link ListFigure}s that store the trigger/action pairs.
      * @param listOfActionFigures
      * @param indexOfChild
-     * @return The ({@code indexOfChild})th {@link TriggerTextFigure}.
+     * @return The ({@code indexOfChild})th {@link EventTextFigure}.
      */
-    public TriggerTextFigure getIthChildEventFigure(ListFigure listOfActionFigures, int indexOfChild)
+    public EventTextFigure getIthChildEventFigure(ListFigure listOfActionFigures, int indexOfChild)
     {
-    	 return (TriggerTextFigure)(((ListFigure)listOfActionFigures.getChild(indexOfChild)).getChild(0));
+    	 return (EventTextFigure)(((ListFigure)listOfActionFigures.getChild(indexOfChild)).getChild(0));
     }
     
     /**
@@ -345,9 +345,9 @@ public class StateFigure extends GraphicalCompositeFigure {
     	{
     		willChange();
     		
-    		String trigger = getIthChildEventFigure(actions, indexOfAction).getText();
+    		String event = getIthChildEventFigure(actions, indexOfAction).getText();
     		String action = getIthChildActionTextFigure(actions, indexOfAction).getText();
-    		myModel.removeAction(trigger, action);
+    		myModel.removeAction(event, action);
     		
     		actions.removeChild(indexOfAction);
     		changed();
@@ -445,12 +445,12 @@ public class StateFigure extends GraphicalCompositeFigure {
         setName(myModel.getName());
         changed();
 
-        for(String trigger : myModel.getAllActions().keySet())
+        for(String event : myModel.getAllActions().keySet())
         {
-        	for(String action : myModel.getActionsByEvent(trigger))
+        	for(String action : myModel.getActionsByEvent(event))
         	{
 
-        		addActionTextFigureNoUpdate(trigger, action);
+        		addActionTextFigureNoUpdate(event, action);
         	}
         }
 

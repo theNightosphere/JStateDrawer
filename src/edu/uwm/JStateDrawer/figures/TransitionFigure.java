@@ -41,7 +41,7 @@ import edu.uwm.JStateDrawer.Models.TransitionModel;
  */
 @SuppressWarnings("serial")
 public class TransitionFigure extends LabeledLineConnectionFigure {
-	private final String DEFAULT_NAME = "DEFAULT";
+	private final String DEFAULT_NAME = "EVENT";
 	private TransitionModel myModel;
 	private StateFigure myStartFigure, myEndFigure;
     
