@@ -160,7 +160,7 @@ public class DrawingSimulator {
 
 			}
 			else{ 
-				printString = "Nothing for trigger: " + readString + "\n";
+				printString = "Nothing triggered by event: " + readString + "\n";
 				//r += w;
 				p.println(printString);
 				p.flush();
