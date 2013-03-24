@@ -52,7 +52,7 @@ public class RemoveActionAction extends AbstractViewAction {
 			ListFigure actionChildren = currentFig.getActionTextFigures();
 	    	for(int i = 0; i < actionChildren.getChildCount(); i++)
 	    	{
-	    		TriggerTextFigure trigger = currentFig.getIthChildTriggerFigure(actionChildren, i);
+	    		TriggerTextFigure trigger = currentFig.getIthChildEventFigure(actionChildren, i);
 	    		ActionTextFigure action = currentFig.getIthChildActionTextFigure(actionChildren, i);
 	    		
 	    		// Create a menu item to remove the corresponding trigger/action pair

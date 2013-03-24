@@ -303,7 +303,7 @@ public class StateFigure extends GraphicalCompositeFigure {
      * @param indexOfChild
      * @return The ({@code indexOfChild})th {@link TriggerTextFigure}.
      */
-    public TriggerTextFigure getIthChildTriggerFigure(ListFigure listOfActionFigures, int indexOfChild)
+    public TriggerTextFigure getIthChildEventFigure(ListFigure listOfActionFigures, int indexOfChild)
     {
     	 return (TriggerTextFigure)(((ListFigure)listOfActionFigures.getChild(indexOfChild)).getChild(0));
     }
@@ -345,7 +345,7 @@ public class StateFigure extends GraphicalCompositeFigure {
     	{
     		willChange();
     		
-    		String trigger = getIthChildTriggerFigure(actions, indexOfAction).getText();
+    		String trigger = getIthChildEventFigure(actions, indexOfAction).getText();
     		String action = getIthChildActionTextFigure(actions, indexOfAction).getText();
     		myModel.removeAction(trigger, action);
     		
