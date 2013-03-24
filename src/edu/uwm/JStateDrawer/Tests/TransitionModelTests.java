@@ -39,7 +39,7 @@ public class TransitionModelTests {
 	 */
 	@Test
 	public void testDefaultConstructor() {
-		assertEquals(tm.getTrigger(), "DEFAULT");
+		assertEquals(tm.getEvent(), "DEFAULT");
 	}
 	
 	/**
@@ -52,7 +52,7 @@ public class TransitionModelTests {
 		StateFigureModel ef = new StateFigureModel();
 		StateFigureModel sf = new StateFigureModel();
 		tm = new TransitionModel(trigger, sf, ef);
-		assertEquals(tm.getTrigger(), "TEST");
+		assertEquals(tm.getEvent(), "TEST");
 	}
 	
 	/**
@@ -61,7 +61,7 @@ public class TransitionModelTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void testSetTooShortTriggerThrowsException()
 	{
-		tm.setTrigger("");
+		tm.setEvent("");
 	}
 	
 	/**
@@ -73,7 +73,7 @@ public class TransitionModelTests {
 	{
 		try
 		{
-			tm.setTrigger("0OTHERWISE_OKAY");
+			tm.setEvent("0OTHERWISE_OKAY");
 			fail("Didn't throw exception when starting with number");
 		}
 		catch(Exception e)
@@ -82,7 +82,7 @@ public class TransitionModelTests {
 		}
 		try
 		{
-			tm.setTrigger("aOTHERWISE_OKAY");
+			tm.setEvent("aOTHERWISE_OKAY");
 			fail("Didn't throw exception when starting with lowercase letter.");
 		}
 		catch(Exception e)
@@ -91,7 +91,7 @@ public class TransitionModelTests {
 		}
 		try
 		{
-			tm.setTrigger(" OTHERWISE_OKAY");
+			tm.setEvent(" OTHERWISE_OKAY");
 			fail("Didn't throw exception when starting with whitespace");
 		}
 		catch(Exception e)
@@ -109,7 +109,7 @@ public class TransitionModelTests {
 	{
 		try
 		{
-			tm.setTrigger("Anot_GOOD");
+			tm.setEvent("Anot_GOOD");
 			fail("Didn't throw exception when trigger had lowercase letters.");
 		}
 		catch(Exception e)
@@ -118,7 +118,7 @@ public class TransitionModelTests {
 		}
 		try
 		{
-			tm.setTrigger("OTHERWISE OKAY");
+			tm.setEvent("OTHERWISE OKAY");
 			fail("Didn't throw exception when trigger had whitespace");
 		}
 		catch(Exception e)
@@ -127,7 +127,7 @@ public class TransitionModelTests {
 		}
 		try
 		{
-			tm.setTrigger("HEY\\/BAD*;CHARACTERS");
+			tm.setEvent("HEY\\/BAD*;CHARACTERS");
 			fail("Didn't throw exception when trigger had invalid characters.");
 		}
 		catch(Exception e)
@@ -153,13 +153,13 @@ public class TransitionModelTests {
 	@Test
 	public void testSetNameProperlyChangesName()
 	{
-		assertEquals(tm.getTrigger(), "DEFAULT");
+		assertEquals(tm.getEvent(), "DEFAULT");
 		// Ensures that start figure has a transition stored under "DEFAULT"
 		assert(!(sf.getTransitionByEvent("DEFAULT") == null));
 		assert(sf.getTransitionByEvent("NOT_DEFAULT") == null);
 
-		tm.setTrigger("NOT_DEFAULT");
-		assertEquals(tm.getTrigger(), "NOT_DEFAULT");
+		tm.setEvent("NOT_DEFAULT");
+		assertEquals(tm.getEvent(), "NOT_DEFAULT");
 		// Ensures that setTrigger properly updated the start state's recorded trigger.
 		assert(sf.getTransitionByEvent("DEFAULT") == null);
 		assert(!(sf.getTransitionByEvent("NOT_DEFAULT") == null));
@@ -260,7 +260,7 @@ public class TransitionModelTests {
 			domIn.openElement("test");
 			TransitionModel fileTransition = (TransitionModel) domIn.readObject();
 			domIn.closeElement();
-			assertEquals(fileTransition.getTrigger(), "TEST");
+			assertEquals(fileTransition.getEvent(), "TEST");
 			assertEquals(fileTransition.getStartState().getName(), "start");
 			assertEquals(fileTransition.getEndState().getName(), "end");
 			assert(fileTransition.getStartState().getOutgoingTransitions().contains(fileTransition));

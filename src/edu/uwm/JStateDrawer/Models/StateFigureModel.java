@@ -19,7 +19,7 @@ public class StateFigureModel {
 	protected String myName;
 	protected HashSet<TransitionModel> myIncomingTransitions, myOutgoingTransitions;
 	protected HashMap<String, List<String>> myActions;
-	protected HashMap<String, TransitionModel> myTransitionTriggers;
+	protected HashMap<String, TransitionModel> myTransitionEvents;
 	private ArrayList<StateFigureModel> myInternalStates;
 	private Pattern p = Pattern.compile("[A-Z][A-Z0-9_]*+");
 	
@@ -83,7 +83,7 @@ public class StateFigureModel {
 		{
 			throw new IllegalArgumentException("transitionTriggers must be non null.");
 		}
-		myTransitionTriggers = transitionTriggers;
+		myTransitionEvents = transitionTriggers;
 		if(internalStates == null)
 		{
 			throw new IllegalArgumentException("internalStates must be non null.");
@@ -172,7 +172,7 @@ public class StateFigureModel {
 		}
 		
 		myOutgoingTransitions.add(outgoingTransition);
-		myTransitionTriggers.put(outgoingTransition.getTrigger(), outgoingTransition);
+		myTransitionEvents.put(outgoingTransition.getEvent(), outgoingTransition);
 	}
 	
 	/**
@@ -196,14 +196,14 @@ public class StateFigureModel {
 	
 	/**
 	 * Gets a list of actions prompted by a specific trigger.
-	 * @param trigger
+	 * @param event
 	 * @return A list of strings associated with the trigger passed as a parameter. Null is returned if no such trigger exists.
 	 */
-	public List<String> getActionsByTrigger(String trigger)
+	public List<String> getActionsByEvent(String event)
 	{
-		if(myActions.containsKey(trigger))
+		if(myActions.containsKey(event))
 		{
-			return myActions.get(trigger);
+			return myActions.get(event);
 		}
 		else
 		{
@@ -262,7 +262,7 @@ public class StateFigureModel {
 	 * @throws {@link IllegalArgumentException} if the actionTriggerEvent string is not at least length 1.
 	 * @throws {@link IllegalArgumentException} if the actionTriggerEvent contains any characters that are not uppercase letters, numbers, or underscores and does not start with an uppercase letter.
 	 */
-	public void addActionsForTrigger(String actionTriggerEvent, List<String> listOfActions)
+	public void addActionsForEvent(String actionTriggerEvent, List<String> listOfActions)
 	{
 		if(listOfActions != null)
 		{
@@ -277,21 +277,21 @@ public class StateFigureModel {
 	 * Removes an action. If the state does not have the action being removed, false is returned.
 	 * If removing an action leaves a trigger with no associated actions, the trigger is also removed
 	 * from the map of triggers to actions.
-	 * @param triggerOfAction A string representing the trigger of the action to be removed.
+	 * @param eventOfAction A string representing the trigger of the action to be removed.
 	 * @param actionToRemove A String representing the action to be removed.
 	 * @return Returns true if the action is successfully removed, false if it is not. 
 	 */
-	public boolean removeAction(String triggerOfAction, String actionToRemove )
+	public boolean removeAction(String eventOfAction, String actionToRemove )
 	{
-		if(myActions.containsKey(triggerOfAction))
+		if(myActions.containsKey(eventOfAction))
 		{
-			List<String> listOfActions = myActions.get(triggerOfAction);
+			List<String> listOfActions = myActions.get(eventOfAction);
 			if(listOfActions.contains(actionToRemove))
 			{
 				listOfActions.remove(actionToRemove);
 				if(listOfActions.isEmpty())
 				{
-					myActions.remove(triggerOfAction);
+					myActions.remove(eventOfAction);
 				}
 				return true;
 			}
@@ -302,14 +302,14 @@ public class StateFigureModel {
 	
 	/**
 	 * Removes all the actions associated with a particular trigger. A convenience method.
-	 * @param triggerOfActions A String trigger that has one or more actions associated with it.
+	 * @param eventOfActions A String trigger that has one or more actions associated with it.
 	 * @return true if trigger and its actions are removed successfully, false if there is no trigger to remove.
 	 */
-	public boolean removeAllActionsOfTrigger(String triggerOfActions)
+	public boolean removeAllActionsOfEvent(String eventOfActions)
 	{
-		if(myActions.containsKey(triggerOfActions))
+		if(myActions.containsKey(eventOfActions))
 		{
-			myActions.remove(triggerOfActions);
+			myActions.remove(eventOfActions);
 			return true;
 		}
 		return false;
@@ -319,9 +319,9 @@ public class StateFigureModel {
 	 * Accesses a Set of all the events that trigger transitions from the current state.
 	 * @return Returns a Set<String> of all the events that trigger a transition from this State.
 	 */
-	public Set<String> getTransitionTriggers()
+	public Set<String> getTransitionEvents()
 	{
-		return myTransitionTriggers.keySet();
+		return myTransitionEvents.keySet();
 	}
 	
 	/**
@@ -331,7 +331,7 @@ public class StateFigureModel {
 	 */
 	public TransitionModel getTransitionByEvent(String triggerEvent)
 	{
-		return myTransitionTriggers.get(triggerEvent);
+		return myTransitionEvents.get(triggerEvent);
 	}
 	
 	/**
@@ -343,9 +343,9 @@ public class StateFigureModel {
 	 */
 	public void addTransition(String triggerEvent, TransitionModel t)
 	{
-		if (!myTransitionTriggers.containsKey(triggerEvent))
+		if (!myTransitionEvents.containsKey(triggerEvent))
 		{
-			myTransitionTriggers.put(triggerEvent, t);
+			myTransitionEvents.put(triggerEvent, t);
 			myOutgoingTransitions.add(t);
 		}
 	}
@@ -355,36 +355,36 @@ public class StateFigureModel {
 	 * nothing happens.
 	 * @param triggerOfTransitionToRemove The String representing the trigger of the {@link TransitionModel} to be removed.
 	 */
-	public void removeTransitionAndTrigger(String triggerOfTransitionToRemove)
+	public void removeTransitionAndEvent(String triggerOfTransitionToRemove)
 	{
-		myTransitionTriggers.remove(triggerOfTransitionToRemove);
+		myTransitionEvents.remove(triggerOfTransitionToRemove);
 	}
 	
 	/**
 	 * Updates the {@link TransitionModel} pointed to by oldTrigger to have the 
 	 * trigger string specified by newTrigger
-	 * @param oldTrigger A string that triggers the associated {@link TransitionModel}
-	 * @param newTrigger The new desired trigger string for the {@link TransitionModel} associated with oldTrigger.
+	 * @param oldEvent A string that triggers the associated {@link TransitionModel}
+	 * @param newEvent The new desired trigger string for the {@link TransitionModel} associated with oldTrigger.
 	 * @param transitionToUpdate TODO
 	 * @return true if trigger is successfully updated, false if it is not.
 	 */
-	public boolean changeTransitionTrigger(String oldTrigger,
-			String newTrigger, TransitionModel transitionToUpdate)
+	public boolean changeTransitionEvent(String oldEvent,
+			String newEvent, TransitionModel transitionToUpdate)
 	{
-		if(validateTrigger(newTrigger))
+		if(validateEvent(newEvent))
 		{
-			if(myTransitionTriggers.containsKey(oldTrigger))
+			if(myTransitionEvents.containsKey(oldEvent))
 			{
-				TransitionModel transToUpdate = myTransitionTriggers.remove(oldTrigger);
+				TransitionModel transToUpdate = myTransitionEvents.remove(oldEvent);
 
-				myTransitionTriggers.put(newTrigger, transitionToUpdate);
+				myTransitionEvents.put(newEvent, transitionToUpdate);
 				return true;
 			}
 			// If the old value is not in the list of transition triggers, add it.
 			// Consider it like 'put'
-			else if(!myTransitionTriggers.containsValue(oldTrigger))
+			else if(!myTransitionEvents.containsValue(oldEvent))
 			{
-				myTransitionTriggers.put(newTrigger, transitionToUpdate);
+				myTransitionEvents.put(newEvent, transitionToUpdate);
 				return true;
 			}
 		}
@@ -395,13 +395,13 @@ public class StateFigureModel {
 	 * Ensures that the Trigger for the transition is of the proper format.
 	 * Namely, the trigger starts with an upper case letter and is followed
 	 * by only upper case letters, numbers, or underscores.
-	 * @param triggerToValidate String trigger to validate.
+	 * @param eventToValidate String trigger to validate.
 	 * @return true if trigger string is valid, false if it is not.
 	 */
-	private boolean validateTrigger(String triggerToValidate)
+	private boolean validateEvent(String eventToValidate)
 	{
 		Pattern p = Pattern.compile("[A-Z][A-Z0-9_]*+");
-		Matcher m = p.matcher(triggerToValidate);
+		Matcher m = p.matcher(eventToValidate);
 		if(m.matches())
 		{
 			return true;
@@ -420,9 +420,9 @@ public class StateFigureModel {
 	public int getNumberOfActions()
 	{
 		int totalNumberOfActions = 0;
-		for(String trigger : myActions.keySet())
+		for(String event : myActions.keySet())
 		{
-			totalNumberOfActions += myActions.get(trigger).size();
+			totalNumberOfActions += myActions.get(event).size();
 		}
 		
 		return totalNumberOfActions;
@@ -436,12 +436,12 @@ public class StateFigureModel {
 	public String exportXML()
 	{
 		String XMLString = String.format("<state name='%s'>", myName);
-		for(String trigger : myActions.keySet())
+		for(String event : myActions.keySet())
 		{
 			// XMLString += String.format("<action trigger='%s'>",  trigger);
-			for(String action : myActions.get(trigger))
+			for(String action : myActions.get(event))
 			{
-				XMLString += String.format("<action trigger='%s'>%s</action>", trigger, action);
+				XMLString += String.format("<action trigger='%s'>%s</action>", event, action);
 			}
 		}
 		
@@ -450,9 +450,9 @@ public class StateFigureModel {
 			XMLString += sfm.exportXML();
 		}
 		
-		for(String trigger : myTransitionTriggers.keySet())
+		for(String event : myTransitionEvents.keySet())
 		{
-			XMLString += myTransitionTriggers.get(trigger).exportXML();
+			XMLString += myTransitionEvents.get(event).exportXML();
 		}
 		
 		XMLString += "</state>";

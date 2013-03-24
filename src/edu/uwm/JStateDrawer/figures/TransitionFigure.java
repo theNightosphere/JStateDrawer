@@ -72,11 +72,11 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
     		{
     			if(myTransition != null)
     			{
-    				myTransition.myModel.setTrigger(newText);
+    				myTransition.myModel.setEvent(newText);
     			}
     			else
     			{
-    				myModel.setTrigger(newText);
+    				myModel.setEvent(newText);
     			}
     			super.setText(newText);
     		}
@@ -219,7 +219,7 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
         myModel.setStartState(sf.getModel());
         myModel.setEndState(ef.getModel());
 
-        sf.getModel().addTransition(myModel.getTrigger(), myModel);
+        sf.getModel().addTransition(myModel.getEvent(), myModel);
         sf.addOutgoingTransition(this);
         
         ef.addIncomingTransition(this);
@@ -284,7 +284,7 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
     @Override
     public String toString()
     {
-    	return super.toString() + " " + myModel.getTrigger();
+    	return super.toString() + " " + myModel.getEvent();
     }
 
 	public TransitionModel getModel() {
@@ -326,7 +326,7 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
 		myModel = (TransitionModel)in.readObject();
 		in.closeElement();
 
-		setName(myModel.getTrigger());
+		setName(myModel.getEvent());
 		
 
 	}
@@ -365,7 +365,7 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
 
 	public void serialize(DOMOutput out) throws IOException {
 		out.openElement("name");
-		out.writeObject(myModel.getTrigger());
+		out.writeObject(myModel.getEvent());
 		out.closeElement();
 		
 	}

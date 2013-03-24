@@ -60,7 +60,7 @@ public class DrawingSimulator {
 
 		List<String> actionList;
 
-		actionList = currentModel.getActionsByTrigger("ENTRY");
+		actionList = currentModel.getActionsByEvent("ENTRY");
 		// Empty the print string
 		printString = "";
 
@@ -86,8 +86,8 @@ public class DrawingSimulator {
 				break;
 			}
 			//System.out.println("Read Action: " + readString);
-			if (currentModel.getActionsByTrigger(readString) != null) {
-				for(String action : currentModel.getActionsByTrigger(readString))
+			if (currentModel.getActionsByEvent(readString) != null) {
+				for(String action : currentModel.getActionsByEvent(readString))
 				{
 					printString = "Action Performed: " + action + "\n";
 					p.println(printString);
@@ -95,7 +95,7 @@ public class DrawingSimulator {
 				}
 				if(currentModel.getTransitionByEvent(readString) != null)
 				{
-					ArrayList<String> exitActions = (ArrayList<String>) currentModel.getActionsByTrigger("EXIT");
+					ArrayList<String> exitActions = (ArrayList<String>) currentModel.getActionsByEvent("EXIT");
 					if(exitActions != null)
 					{
 						for(String action : exitActions)
@@ -113,7 +113,7 @@ public class DrawingSimulator {
 
 					currentModel = triggeredTransitionModel.getEndState();
 
-					ArrayList<String> entryActions = (ArrayList<String>) currentModel.getActionsByTrigger("ENTRY");
+					ArrayList<String> entryActions = (ArrayList<String>) currentModel.getActionsByEvent("ENTRY");
 					if(entryActions != null)
 					{
 						for(String action : entryActions)
@@ -129,7 +129,7 @@ public class DrawingSimulator {
 			}
 			else if(currentModel.getTransitionByEvent(readString) != null)
 			{
-				ArrayList<String> exitActions = (ArrayList<String>) currentModel.getActionsByTrigger("EXIT");
+				ArrayList<String> exitActions = (ArrayList<String>) currentModel.getActionsByEvent("EXIT");
 				if(exitActions != null)
 				{
 					for(String action : exitActions)
@@ -147,7 +147,7 @@ public class DrawingSimulator {
 
 				currentModel = triggeredTransitionModel.getEndState();
 
-				ArrayList<String> entryActions = (ArrayList<String>) currentModel.getActionsByTrigger("ENTRY");
+				ArrayList<String> entryActions = (ArrayList<String>) currentModel.getActionsByEvent("ENTRY");
 				if(entryActions != null)
 				{
 					for(String action : entryActions)

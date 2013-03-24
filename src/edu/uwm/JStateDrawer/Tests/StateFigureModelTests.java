@@ -44,7 +44,7 @@ public class StateFigureModelTests {
 		assert(sm.getIncomingTransitions().isEmpty());
 		assert(sm.getOutgoingTransitions().isEmpty());
 		assert(sm.getAllActions().isEmpty());
-		assert(sm.getTransitionTriggers().isEmpty());
+		assert(sm.getTransitionEvents().isEmpty());
 		assert(sm.getIncomingTransitions().isEmpty());
 	}
 	
@@ -74,7 +74,7 @@ public class StateFigureModelTests {
 		assert(!sm.getIncomingTransitions().isEmpty());
 		assert(!sm.getOutgoingTransitions().isEmpty());
 		assert(!sm.getAllActions().isEmpty());
-		assert(!sm.getTransitionTriggers().isEmpty());
+		assert(!sm.getTransitionEvents().isEmpty());
 		assert(!sm.getInternalStates().isEmpty());
 	}
 	
@@ -362,14 +362,14 @@ public class StateFigureModelTests {
 	{
 		assertEquals(sm.getAllActions().size(), 0);
 		sm.addAction("TEST","test1");
-		ArrayList<String> listOfActions = (ArrayList<String>)sm.getActionsByTrigger("TEST");
+		ArrayList<String> listOfActions = (ArrayList<String>)sm.getActionsByEvent("TEST");
 		assertEquals(sm.getAllActions().size(), 1);
 		assertEquals(listOfActions.size(), 1);
 		assert(listOfActions.get(0).equals("test1"));
 		sm.addAction("TEST","test2");
 		// Assert that the test action was not added twice, but that the test action was added again.
 		assertEquals(sm.getAllActions().size(), 1);
-		listOfActions = (ArrayList<String>)sm.getActionsByTrigger("TEST");
+		listOfActions = (ArrayList<String>)sm.getActionsByEvent("TEST");
 		assertEquals(listOfActions.size(), 2);
 		assert(listOfActions.get(0).equals("test1"));
 		assert(listOfActions.get(1).equals("test2"));
@@ -384,7 +384,7 @@ public class StateFigureModelTests {
 		assert(sm.getAllActions().isEmpty());
 		sm.addAction("TEST_CASE","test");
 		assertEquals(sm.getAllActions().size(), 1);
-		ArrayList<String> listOfActions = (ArrayList<String>)sm.getActionsByTrigger("TEST_CASE");
+		ArrayList<String> listOfActions = (ArrayList<String>)sm.getActionsByEvent("TEST_CASE");
 		assertEquals(listOfActions.size(), 1);
 		assert(listOfActions.get(0).equals("test"));
 		assert(sm.getAllActions().containsKey("TEST_CASE"));
@@ -424,11 +424,11 @@ public class StateFigureModelTests {
 		assertEquals(sm.getAllActions().size(), 1);
 		
 		sm.addAction(myTrigger, "test2");
-		assertEquals(sm.getActionsByTrigger(myTrigger).size(), 2);
+		assertEquals(sm.getActionsByEvent(myTrigger).size(), 2);
 		assertEquals(sm.getAllActions().size(), 1); 
 		
 		sm.removeAction(myTrigger, "test2");
-		assertEquals(sm.getActionsByTrigger(myTrigger).size(), 1);
+		assertEquals(sm.getActionsByEvent(myTrigger).size(), 1);
 		assertEquals(sm.getAllActions().size(), 1);
 		
 		sm.removeAction("TEST_CASE", "test");
@@ -442,12 +442,12 @@ public class StateFigureModelTests {
 	@Test
 	public void testCannotAddTwoTransitionsWithSameTrigger()
 	{
-		assert(sm.getTransitionTriggers().isEmpty());
+		assert(sm.getTransitionEvents().isEmpty());
 		sm.addTransition("TEST", new TransitionModel());
-		assertEquals(sm.getTransitionTriggers().size(), 1);
+		assertEquals(sm.getTransitionEvents().size(), 1);
 		sm.addTransition("TEST", new TransitionModel("NOT_DEFAULT", new StateFigureModel(),
 				new StateFigureModel()));
-		assertEquals(sm.getTransitionTriggers().size(), 1);
+		assertEquals(sm.getTransitionEvents().size(), 1);
 	}
 	
 	/**
@@ -457,12 +457,12 @@ public class StateFigureModelTests {
 	@Test
 	public void testCannotAddSameTransitionAndTriggerTwice()
 	{
-		assert(sm.getTransitionTriggers().isEmpty());
+		assert(sm.getTransitionEvents().isEmpty());
 		TransitionModel t = new TransitionModel();
 		sm.addTransition("test", t);
-		assertEquals(sm.getTransitionTriggers().size(), 1);
+		assertEquals(sm.getTransitionEvents().size(), 1);
 		sm.addTransition("test", t);
-		assertEquals(sm.getTransitionTriggers().size(), 1);
+		assertEquals(sm.getTransitionEvents().size(), 1);
 	}
 	
 	/**
@@ -473,9 +473,9 @@ public class StateFigureModelTests {
 	{
 		TransitionModel t = new TransitionModel("TEST", new StateFigureModel(), new StateFigureModel());
 		sm.addTransition("TEST", t);
-		assertEquals(sm.getTransitionTriggers().size(), 1);
-		sm.removeTransitionAndTrigger("NOT_TEST");
-		assertEquals(sm.getTransitionTriggers().size(), 1);
+		assertEquals(sm.getTransitionEvents().size(), 1);
+		sm.removeTransitionAndEvent("NOT_TEST");
+		assertEquals(sm.getTransitionEvents().size(), 1);
 	}
 	
 	/**
@@ -486,11 +486,11 @@ public class StateFigureModelTests {
 	public void testRemoveTriggerAndTransitionWorksProperly()
 	{
 		TransitionModel t = new TransitionModel("TEST", new StateFigureModel(), new StateFigureModel());
-		assert(sm.getTransitionTriggers().isEmpty());
+		assert(sm.getTransitionEvents().isEmpty());
 		sm.addTransition("TEST", t);
-		assertEquals(sm.getTransitionTriggers().size(), 1);
-		sm.removeTransitionAndTrigger("TEST");
-		assert(sm.getTransitionTriggers().isEmpty());
+		assertEquals(sm.getTransitionEvents().size(), 1);
+		sm.removeTransitionAndEvent("TEST");
+		assert(sm.getTransitionEvents().isEmpty());
 	}
 	
 	/**
@@ -590,9 +590,9 @@ public class StateFigureModelTests {
 			domIn.closeElement();
 			domIn.closeElement();
 			assertEquals(fileState.getName(), "default");
-			assertEquals(fileState.getActionsByTrigger("ACTION_TRIGGER1").get(0), "action1");
-			assertEquals(fileState.getActionsByTrigger("ACTION_TRIGGER2").get(0), "action2");
-			assertEquals(fileState.getActionsByTrigger("ACTION_TRIGGER3").get(0), "action3");
+			assertEquals(fileState.getActionsByEvent("ACTION_TRIGGER1").get(0), "action1");
+			assertEquals(fileState.getActionsByEvent("ACTION_TRIGGER2").get(0), "action2");
+			assertEquals(fileState.getActionsByEvent("ACTION_TRIGGER3").get(0), "action3");
 		}
 		catch(IOException e)
 		{

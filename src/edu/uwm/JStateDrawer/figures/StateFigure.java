@@ -77,7 +77,7 @@ public class StateFigure extends GraphicalCompositeFigure {
     		if(myAction != null)
     		{
     			String oldTrigger = getText();
-    			ArrayList<String> actions = (ArrayList<String>)myModel.getActionsByTrigger(oldTrigger);
+    			ArrayList<String> actions = (ArrayList<String>)myModel.getActionsByEvent(oldTrigger);
     			// If 
     			if(actions.contains(myAction.getText()))
     			{
@@ -447,7 +447,7 @@ public class StateFigure extends GraphicalCompositeFigure {
 
         for(String trigger : myModel.getAllActions().keySet())
         {
-        	for(String action : myModel.getActionsByTrigger(trigger))
+        	for(String action : myModel.getActionsByEvent(trigger))
         	{
 
         		addActionTextFigureNoUpdate(trigger, action);
