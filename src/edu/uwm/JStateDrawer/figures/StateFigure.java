@@ -176,10 +176,10 @@ public class StateFigure extends GraphicalCompositeFigure {
 
     
     /**
-     * Initializes a state figure with the shape given by the AbstractAttributedFigure. 
+     * Initializes a state figure with the {@link RoundRectangleFigure} as the presentation figure. 
      */
     public StateFigure() {
-        super(new RectangleFigure());
+        super(new RoundRectangleFigure());
 
         setLayouter(new VerticalLayouter());
 
@@ -549,6 +549,7 @@ public class StateFigure extends GraphicalCompositeFigure {
      */
     public void removeOutgoingTransition(TransitionFigure f)
     {
+    	myModel.removeOutgoingTransition(f.getModel());
     	myOutgoingTransitions.remove(f);
     }
     
