@@ -1,6 +1,8 @@
 package edu.uwm.JStateDrawer.Models;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,6 +17,7 @@ public class TransitionModel {
 	// The following pattern is one that ensures the first letter is an uppercase letter followed by
 	// 0 or more uppercase letters, numbers, or underscores.
 	private Pattern p = Pattern.compile("[A-Z][A-Z0-9_]*+");
+	private List<String> myActions;
 	
 	
 	public TransitionModel()
@@ -231,6 +234,46 @@ public class TransitionModel {
 		setEndState((StateFigureModel)in.readObject());
 		in.closeElement();
 
+	}
+	
+	/**
+	 * Accesses a list of the transition's actions.
+	 * @return A {@code List<String>} of all the actions.
+	 */
+	public List<String> getAllActions()
+	{
+		return myActions;
+	}
+	
+	/**
+	 * Deletes the specified action. If {@code actionToRemove} is not in the list of actions
+	 * false is returned. If the action is successfully removed, true is returned.
+	 * @param actionToRemove
+	 * @return
+	 */
+	public boolean removeAction(String actionToRemove)
+	{
+		if(!myActions.contains(actionToRemove))
+		{
+			return false;
+		}
+		else
+		{
+			myActions.remove(actionToRemove);
+			return true;
+		}
+	}
+	
+	//TODO Decide whether this needs to be a boolean return.
+	/**
+	 * Adds a new action to the list 
+	 * @param newAction
+	 * @return
+	 */
+	public boolean addAction(String newAction)
+	{
+			myActions.add(newAction);
+			return true;
 	}
 	
 	@Override

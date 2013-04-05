@@ -73,6 +73,7 @@ public class StateFigure extends GraphicalCompositeFigure {
     	@Override
     	public void setText(String newText)
     	{
+    		StateFigure.this.willChange();
     		// If trigger has an action, it must also update the action.
     		if(myAction != null)
     		{
@@ -107,6 +108,7 @@ public class StateFigure extends GraphicalCompositeFigure {
     		{
     			super.setText(newText);
     		}
+    		StateFigure.this.changed();
     	}
     	
     	public void setActionTextFigure(ActionTextFigure actionText)
@@ -144,6 +146,7 @@ public class StateFigure extends GraphicalCompositeFigure {
 		@Override
     	public void setText(String newText)
     	{
+			StateFigure.this.willChange();
     		willChange();
     		if(myTrigger != null)
     		{
@@ -171,6 +174,7 @@ public class StateFigure extends GraphicalCompositeFigure {
     			super.setText(myModel.DEFAULT_ACTION_NAME);
     		}
     		changed();
+    		StateFigure.this.changed();
     	}
     }
 
