@@ -204,7 +204,7 @@ public class TransitionModelTests {
 	}
 	
 	/**
-	 * Tests that exporting and importing XML properly saves and retrieves Transitionmodel data. 
+	 * Tests that exporting and importing XML properly saves and retrieves TransitionModel data. 
 	 * @throws IOException
 	 */
 	@Test

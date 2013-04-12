@@ -623,9 +623,15 @@ public class StateFigureModel {
 		
 		out.openElement("internalStates");
 		
-		for(StateFigureModel internalState : myInternalStates)
+		int numInternalStates = myInternalStates.size();
+		
+		out.addAttribute("numInternalStates", myInternalStates.size());
+		
+		for(int j = 0; j < numInternalStates; j++)
 		{
-			out.writeObject(internalState);
+			out.openElement("internalState" + Integer.toString(j));
+			out.writeObject(myInternalStates.get(j));
+			out.closeElement();
 		}
 		
 		out.closeElement();
@@ -658,6 +664,22 @@ public class StateFigureModel {
         		addAction(trigger, action);
         	}
         	
+        	in.closeElement();
+        }
+        
+        in.openElement("internalStates");
+        
+        int numberOfInternalStates = in.getAttribute("numInternalStates", 0);
+        for(int i = 0; i < numberOfInternalStates; i++)
+        {
+        	in.openElement("internalState" + Integer.toString(i));
+        	StateFigureModel internalState = (StateFigureModel)in.readObject();
+        	// Need to set as internal state and set its parent
+        	internalState.setIsInternalState(true);
+        	// This should register internal state with this parent, 
+        	System.out.println("Count internal states before: " + myInternalStates.size());
+        	internalState.setParentState(this);
+        	System.out.println("Count internal states after: " + myInternalStates.size());
         	in.closeElement();
         }
 
