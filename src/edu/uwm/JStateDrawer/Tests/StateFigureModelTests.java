@@ -68,7 +68,7 @@ public class StateFigureModelTests {
 		internalStates.add(new StateFigureModel());
 		
 		StateFigureModel sm = new StateFigureModel("Awesome",incoming, outgoing, actions,
-				triggers, internalStates);
+				triggers, internalStates, false);
 		
 		assertEquals(sm.getName(), "Awesome");
 		assert(!sm.getIncomingTransitions().isEmpty());
@@ -102,7 +102,7 @@ public class StateFigureModelTests {
 		try
 		{
 			StateFigureModel badName = new StateFigureModel("", incoming, outgoing, actions,
-					triggers, internalStates);
+					triggers, internalStates, false);
 			fail("Constructor did not throw exception when passed empty string for name value in constructor");
 		}
 		catch(Exception e)
@@ -112,7 +112,7 @@ public class StateFigureModelTests {
 		try
 		{
 			StateFigureModel nullIncomingTransitions = new StateFigureModel("Good", null,
-					outgoing, actions, triggers, internalStates);
+					outgoing, actions, triggers, internalStates, false);
 			fail("Constructor did not throw exception when passed a null HashSet for incoming transitions");
 		}
 		catch(Exception e)
@@ -122,7 +122,7 @@ public class StateFigureModelTests {
 		try
 		{
 			StateFigureModel nullOutgoingTransitions = new StateFigureModel("Good", incoming,
-					null, actions, triggers, internalStates);
+					null, actions, triggers, internalStates, false);
 			fail("Constructor did not throw exception when passed a null HashSet for outgoing transitions");
 		}
 		catch(Exception e)
@@ -132,7 +132,7 @@ public class StateFigureModelTests {
 		try
 		{
 			StateFigureModel nullActions = new StateFigureModel("Good", incoming, outgoing,
-					null, triggers, internalStates);
+					null, triggers, internalStates, false);
 			fail("Constructor did not throw exception when passed a null HashMap for actions");
 		}
 		catch(Exception e)
@@ -142,7 +142,7 @@ public class StateFigureModelTests {
 		try
 		{
 			StateFigureModel nullTriggers = new StateFigureModel("Good", incoming, outgoing,
-					actions, null, internalStates);
+					actions, null, internalStates, false);
 		}
 		catch(Exception e)
 		{
@@ -151,7 +151,7 @@ public class StateFigureModelTests {
 		try
 		{
 			StateFigureModel nullInternalStates = new StateFigureModel("Good", incoming, outgoing,
-					actions, triggers, null);
+					actions, triggers, null, false);
 		}
 		catch(Exception e)
 		{
@@ -683,7 +683,62 @@ public class StateFigureModelTests {
 		assertEquals(sm.getName(), "Start");
 		sm = new EndStateModel();
 		assertEquals(sm.getName(), "End");
+	}
+	
+	@Test
+	public void testInternalStateSettingConstructor()
+	{
+		sm = new StateFigureModel("test", true);
+		assert(sm.getIsInternalState());
+		sm = new StateFigureModel("test", false);
+		assert(!sm.getIsInternalState());
+	}
+	
+	@Test
+	public void testSetInternalStateWorks()
+	{
+		sm = new StateFigureModel("test", false);
+		assert(!sm.getIsInternalState());
+		sm.setIsInternalState(false);
+		// Setting false twice changes nothing. This is here to just to ensure nothing weird happens.
+		assert(!sm.getIsInternalState());
+		sm.setIsInternalState(true);
+		assert(sm.getIsInternalState());
+	}
+	
+	@Test
+	public void testSetParentStateOnNestedState()
+	{
+		sm = new StateFigureModel("test", false);
+		assert(sm.getInternalStates().isEmpty());
+		assert(!sm.getIsInternalState());
+		StateFigureModel nestedState = new StateFigureModel("internalState", true);
+		assertEquals(nestedState.getParentState(), null);
 		
+		assertEquals(nestedState.setParentState(sm), true);
+		assertEquals(nestedState.getParentState(), sm);
+		assertEquals(sm.getInternalStates().get(0), nestedState);
+		StateFigureModel secondParent = new StateFigureModel("secondParent", false);
 		
+		// Setting the parent state properly updates the old and new parent.
+		assert(secondParent.getInternalStates().isEmpty());
+		assertEquals(nestedState.setParentState(secondParent), true);
+		assertEquals(secondParent.getInternalStates().get(0), nestedState);
+		assert(sm.getInternalStates().isEmpty());
+	}
+	
+	@Test
+	public void testSetParentOnNonNestedState()
+	{
+		sm = new StateFigureModel("test", false);
+		assert(sm.getParentState() == null);
+		assert(!sm.getIsInternalState());
+		assert(sm.getInternalStates().isEmpty());
+		
+		StateFigureModel notNested = new StateFigureModel("notNested", false);
+		assert(!notNested.getIsInternalState());
+		
+		assert(!notNested.setParentState(sm));
+		assert(notNested.getParentState() == null);
 	}
 }

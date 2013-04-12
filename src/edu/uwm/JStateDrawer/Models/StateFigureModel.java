@@ -20,6 +20,8 @@ public class StateFigureModel {
 	protected HashSet<TransitionModel> myIncomingTransitions, myOutgoingTransitions;
 	protected HashMap<String, List<String>> myActions;
 	protected HashMap<String, TransitionModel> myTransitionEvents;
+	private boolean myIsInternalState;
+	private StateFigureModel myParentState;
 	private ArrayList<StateFigureModel> myInternalStates;
 	private Pattern p = Pattern.compile("[A-Z][A-Z0-9_]*+");
 	
@@ -27,7 +29,7 @@ public class StateFigureModel {
 	{
 		this("default", new HashSet<TransitionModel>(), new HashSet<TransitionModel>(),
 				new HashMap<String, List<String>>(), new HashMap<String, TransitionModel>(),
-				new ArrayList<StateFigureModel>());
+				new ArrayList<StateFigureModel>(), false);
 	}
 	
 	/**
@@ -40,7 +42,21 @@ public class StateFigureModel {
 	{
 		this(name, new HashSet<TransitionModel>(), new HashSet<TransitionModel>(),
 				new HashMap<String, List<String>>(), new HashMap<String, TransitionModel>(),
-				new ArrayList<StateFigureModel>());
+				new ArrayList<StateFigureModel>(), false);
+	}
+	
+	/**
+	 * Explicit constructor for StateFigureModel that is initialized with the given name and whether or not
+	 * it is a nested state, everything else is default.
+	 * @param name A String name for the StateFigureModel.
+	 * @param isInternalState A boolean determining whether the StateFigureModel is an internal state.
+	 * @throws {@link IllegalArgumentException} if name is the empty string. 
+	 */
+	public StateFigureModel(String name, boolean isInternalState)
+	{
+		this(name, new HashSet<TransitionModel>(), new HashSet<TransitionModel>(),
+				new HashMap<String, List<String>>(), new HashMap<String, TransitionModel>(),
+				new ArrayList<StateFigureModel>(), isInternalState);
 	}
 	
 	/**
@@ -51,13 +67,14 @@ public class StateFigureModel {
 	 * @param actions A HashMap<String, List<String>> of Action Triggers to Actions.
 	 * @param transitionTriggers A HashMap<String, {@link TransitionModel}> of transition triggers to {@link TransitionModel}s.
 	 * @param internalStates An ArrayList of StateFigureModels that represent the internal states of this StateFigureModel.
+	 * @param isInternalState The boolean the determines whether this state is an internal state. 
 	 * @throws {@link IllegalArgumentException} If incomingTransitions, outgoingTransitions, actions, transitionTriggers, or internalStates is null.
 	 * @throws {@link IllegalArgumentException} If name is the empty string.
 	 */
 	public StateFigureModel(String name, HashSet<TransitionModel> incomingTransitions,
 			HashSet<TransitionModel> outgoingTransitions, HashMap<String, List<String>> actions,
 			HashMap<String, TransitionModel> transitionTriggers,
-			ArrayList<StateFigureModel> internalStates)
+			ArrayList<StateFigureModel> internalStates, boolean isInternalState)
 	{
 		if(name.length() < 1)
 		{
@@ -88,7 +105,75 @@ public class StateFigureModel {
 		{
 			throw new IllegalArgumentException("internalStates must be non null.");
 		}
+		
 		myInternalStates = internalStates;
+		myIsInternalState = isInternalState;
+	}
+	
+	/**
+	 * Sets the boolean that defines whether or not a State is a nested internal state.
+	 * @param newInternalStateValue
+	 */
+	public void setIsInternalState(boolean newInternalStateValue)
+	{
+		myIsInternalState = newInternalStateValue;
+	}
+	
+	/**
+	 * Gets the boolean that determines whether the state is a nested internal state. 
+	 * @return
+	 */
+	public boolean getIsInternalState()
+	{
+		return myIsInternalState;
+	}
+	
+	/**
+	 * Sets the parent state of the {@link StateFigureModel} if its myIsInternalState 
+	 * boolean is true. If the parent state is also a nested state, nothing will be set.
+	 * Old and new parent states will have their list of children updated by this method.
+	 * 
+	 * @param newParentState
+	 * @return True is returned if the parent is successfully set. False if it is not.
+	 */
+	public boolean setParentState(StateFigureModel newParentState)
+	{
+		if(myIsInternalState)
+		{
+			if(newParentState == null ? false : !newParentState.getIsInternalState())
+			{
+				if (myParentState != null)
+				{
+					myParentState.removeInternalState(this);
+				}
+				myParentState = newParentState;
+				myParentState.addInternalState(this);
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Accesses this StateFigureModel's parent state. 
+	 * @return The parent {@link StateFigureModel}. Returns null if the StateFigureModel is 
+	 * not an internal state.
+	 */
+	public StateFigureModel getParentState()
+	{
+		if(myIsInternalState)
+		{
+			return myParentState;
+		}
+		else
+		{
+			return null;
+		}
 	}
 	
 	/**
@@ -365,7 +450,7 @@ public class StateFigureModel {
 	 * trigger string specified by newTrigger
 	 * @param oldEvent A string that triggers the associated {@link TransitionModel}
 	 * @param newEvent The new desired trigger string for the {@link TransitionModel} associated with oldTrigger.
-	 * @param transitionToUpdate TODO
+	 * @param transitionToUpdate The {@link TransitionModel} that is being updated.
 	 * @return true if trigger is successfully updated, false if it is not.
 	 */
 	public boolean changeTransitionEvent(String oldEvent,
@@ -534,6 +619,15 @@ public class StateFigureModel {
 			out.closeElement();
 			i++;
 		}
+		out.closeElement();
+		
+		out.openElement("internalStates");
+		
+		for(StateFigureModel internalState : myInternalStates)
+		{
+			out.writeObject(internalState);
+		}
+		
 		out.closeElement();
 		
 		out.closeElement();
