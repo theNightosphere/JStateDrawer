@@ -212,6 +212,8 @@ public class TransitionModelTests {
 	{
 		tm = new TransitionModel("TEST", new StateFigureModel("start"),
 				new StateFigureModel("end"));
+		tm.addAction("test1");
+		tm.addAction("test2");
 		DrawerFactory factory = new DrawerFactory();
 		NanoXMLDOMOutput out = new NanoXMLDOMOutput(factory);
 		String uri = "src/edu/uwm/JStateDrawer/Tests/testTransition.xml";
@@ -265,6 +267,9 @@ public class TransitionModelTests {
 			assertEquals(fileTransition.getEndState().getName(), "end");
 			assert(fileTransition.getStartState().getOutgoingTransitions().contains(fileTransition));
 			assertEquals(fileTransition.getStartState().getTransitionByEvent("TEST"),fileTransition);
+			assert(fileTransition.getAllActions().size() == 2);
+			assert(fileTransition.getAllActions().contains("test1"));
+			assert(fileTransition.getAllActions().contains("test2"));
 			
 		}
 		catch(IOException e)
@@ -278,4 +283,34 @@ public class TransitionModelTests {
 		}	
 	}
 	
+	
+	@Test
+	public void testAddTransitionActionWorksProperly()
+	{
+		assert(tm.getAllActions().isEmpty());
+		tm.addAction("test1");
+		assert(!tm.getAllActions().isEmpty());
+		assert(tm.getAllActions().contains("test1"));
+		tm.addAction("test2");
+		assertEquals(tm.getAllActions().size(), 2);
+		assert(tm.getAllActions().contains("test2"));
+	}
+	
+	@Test
+	public void testRemoveTransitionActionWorksProperly()
+	{
+		assert(tm.getAllActions().isEmpty());
+		tm.addAction("test1");
+		assert(!tm.getAllActions().isEmpty());
+		assert(tm.getAllActions().contains("test1"));
+		tm.addAction("test2");
+		assertEquals(tm.getAllActions().size(), 2);
+		assert(tm.getAllActions().contains("test2"));
+		tm.removeAction("test2");
+		assertEquals(tm.getAllActions().size(), 1);
+		assert(!tm.getAllActions().contains("test2"));
+		tm.removeAction("test1");
+		assert(tm.getAllActions().isEmpty());
+		assert(!tm.getAllActions().contains("test1"));
+	}
 }

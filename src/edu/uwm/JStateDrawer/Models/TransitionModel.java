@@ -1,6 +1,7 @@
 package edu.uwm.JStateDrawer.Models;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -26,6 +27,7 @@ public class TransitionModel {
 		myEndState = new StateFigureModel();
 		myEventTrigger = "DEFAULT";
 		myTarget = "DEFAULT";
+		myActions = new ArrayList<String>();
 	}
 	
 	/**
@@ -65,6 +67,7 @@ public class TransitionModel {
 		myStartState = startState;
 		myEndState = endState;
 		myTarget = myEndState.getName();
+		myActions = new ArrayList<String>();
 	}
 	
 	/**
@@ -212,6 +215,16 @@ public class TransitionModel {
 		out.openElement("end");
 		out.writeObject(myEndState);
 		out.closeElement();
+		
+		out.openElement("actions");
+		out.addAttribute("count", myActions.size());
+		for(int i = 0; i < myActions.size(); i++)
+		{
+			out.openElement("action" + Integer.toString(i));
+			out.writeObject(myActions.get(i));
+			out.closeElement();
+		}
+		out.closeElement();
 	}
 	
 	/**
@@ -232,6 +245,16 @@ public class TransitionModel {
 
 		in.openElement("end");
 		setEndState((StateFigureModel)in.readObject());
+		in.closeElement();
+		
+		in.openElement("actions");
+		int numActions = in.getAttribute("count", 0);
+		for(int i = 0; i < numActions; i++)
+		{
+			in.openElement("action" + Integer.toString(i));
+			addAction((String)in.readObject());
+			in.closeElement();
+		}
 		in.closeElement();
 
 	}

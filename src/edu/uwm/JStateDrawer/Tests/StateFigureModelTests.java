@@ -534,9 +534,10 @@ public class StateFigureModelTests {
 				new StateFigureModel(), new StateFigureModel()));
 		sm.addTransition("TRANSITION2", new TransitionModel("TRANSITION2",
 				new StateFigureModel(), new StateFigureModel()));
-		
-		sm.addInternalState(new StateFigureModel("innerState1"));
-		sm.addInternalState(new StateFigureModel("innerState2"));
+		StateFigureModel test1 = new StateFigureModel("innerState1", true);
+		StateFigureModel test2 = new StateFigureModel("innerState2", true);
+		sm.addInternalState(test1);
+		sm.addInternalState(test2);
 		assertEquals(sm.exportXML(),
 				"<state name='default'><action trigger='ACTION_TRIGGER3'>action3</action><action trigger='ACTION_TRIGGER2'>action2</action><action trigger='ACTION_TRIGGER1'>action1</action><state name='innerState1'></state><state name='innerState2'></state><transition trigger='TRANSITION1' target='default'/><transition trigger='TRANSITION2' target='default'/></state>");
 		DrawerFactory factory = new DrawerFactory();
@@ -548,7 +549,7 @@ public class StateFigureModelTests {
 			// Factory.write will call tm.write(out) which exports the XML.
 			// factory.write ensures that the XML tags are placed around the TransitionModel that will
 			// allow it to be read via the readObject method later.
-			out.openElement("stateModel");
+			out.openElement("testModel");
 			out.writeObject(sm);
 			out.closeElement();
 			out.closeElement();
@@ -585,7 +586,7 @@ public class StateFigureModelTests {
 		try
 		{
 			domIn.openElement("test");
-			domIn.openElement("stateModel");
+			domIn.openElement("testModel");
 			StateFigureModel fileState = (StateFigureModel) domIn.readObject();
 			domIn.closeElement();
 			domIn.closeElement();
@@ -593,6 +594,11 @@ public class StateFigureModelTests {
 			assertEquals(fileState.getActionsByEvent("ACTION_TRIGGER1").get(0), "action1");
 			assertEquals(fileState.getActionsByEvent("ACTION_TRIGGER2").get(0), "action2");
 			assertEquals(fileState.getActionsByEvent("ACTION_TRIGGER3").get(0), "action3");
+			assert(fileState.getInternalStates().size() == 2);
+			assert(fileState.getInternalStates().get(0).getName().equals("innerState1"));
+			assert(fileState.getInternalStates().get(1).getName().equals("innerState2"));
+			assertEquals(fileState.getInternalStates().get(0).getParentState(), fileState);
+			assertEquals(fileState.getInternalStates().get(1).getParentState(), fileState);
 		}
 		catch(IOException e)
 		{
@@ -607,19 +613,26 @@ public class StateFigureModelTests {
 	@Test
 	public void testAddInternalStatesWorksProperly()
 	{
-		StateFigureModel test1 = new StateFigureModel();
-		test1.setName("test1");
-		StateFigureModel test2 = new StateFigureModel();
-		test2.setName("test2");
+		StateFigureModel test1 = new StateFigureModel("test1", true);
+		StateFigureModel test2 = new StateFigureModel("test2", true);
 		assert(sm.getInternalStates().isEmpty());
 		
 		sm.addInternalState(test1);
 		assert(!sm.getInternalStates().isEmpty());
 		assert(sm.getInternalStates().contains(test1));
+		assertEquals(sm, test1.getParentState());
 		
 		sm.addInternalState(test2);
 		assert(!sm.getInternalStates().isEmpty());
 		assert(sm.getInternalStates().contains(test2));
+		assertEquals(sm, test2.getParentState());
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void testCannotAddParentState()
+	{
+		StateFigureModel test1 = new StateFigureModel("shouldNotWork", false);
+		sm.addInternalState(test1);
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
@@ -633,8 +646,10 @@ public class StateFigureModelTests {
 	{
 		StateFigureModel test1 = new StateFigureModel();
 		test1.setName("test1");
+		test1.setIsInternalState(true);
 		StateFigureModel test2 = new StateFigureModel();
 		test2.setName("test2");
+		test2.setIsInternalState(true);
 		assert(sm.getInternalStates().isEmpty());
 		
 		sm.addInternalState(test1);
@@ -659,8 +674,10 @@ public class StateFigureModelTests {
 	{
 		StateFigureModel test1 = new StateFigureModel();
 		test1.setName("test1");
+		test1.setIsInternalState(true);
 		StateFigureModel test2 = new StateFigureModel();
 		test2.setName("test2");
+		test2.setIsInternalState(true);
 		assert(sm.getInternalStates().isEmpty());
 		
 		sm.addInternalState(test1);

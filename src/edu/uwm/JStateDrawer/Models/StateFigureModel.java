@@ -566,9 +566,17 @@ public class StateFigureModel {
 		{
 			throw new IllegalArgumentException("Cannot add a null internal state.");
 		}
+		else if (!newInternalState.getIsInternalState())
+		{
+			throw new IllegalArgumentException("Cannot add a StateFigure that is not explicitly set as an internal state.");
+		}
 		else if (!myInternalStates.contains(newInternalState))
 		{
 			myInternalStates.add(newInternalState);
+			// I directly modify myParentState instead of calling setParentState because
+			// setParentState would attempt to add newInternalState to this StateFigureModel
+			// a second time. Essentially this is saving useless computation. 
+			newInternalState.myParentState = this;
 		}
 	}
 	
@@ -667,6 +675,7 @@ public class StateFigureModel {
         	in.closeElement();
         }
         
+        in.closeElement();
         in.openElement("internalStates");
         
         int numberOfInternalStates = in.getAttribute("numInternalStates", 0);
@@ -677,9 +686,7 @@ public class StateFigureModel {
         	// Need to set as internal state and set its parent
         	internalState.setIsInternalState(true);
         	// This should register internal state with this parent, 
-        	System.out.println("Count internal states before: " + myInternalStates.size());
         	internalState.setParentState(this);
-        	System.out.println("Count internal states after: " + myInternalStates.size());
         	in.closeElement();
         }
 
