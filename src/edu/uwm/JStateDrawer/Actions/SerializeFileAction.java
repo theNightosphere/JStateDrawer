@@ -14,8 +14,6 @@ import org.jhotdraw.app.action.AbstractViewAction;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.app.*;
 import org.jhotdraw.draw.Drawing;
-import org.jhotdraw.draw.io.InputFormat;
-import org.jhotdraw.draw.io.OutputFormat;
 import org.jhotdraw.gui.JFileURIChooser;
 import org.jhotdraw.gui.JSheet;
 import org.jhotdraw.gui.URIChooser;
@@ -25,7 +23,6 @@ import org.jhotdraw.gui.event.SheetListener;
 import org.jhotdraw.gui.filechooser.ExtensionFileFilter;
 import org.jhotdraw.net.URIUtil;
 import org.jhotdraw.util.ResourceBundleUtil;
-import org.jhotdraw.xml.DOMFactory;
 import edu.uwm.JStateDrawer.*;
 
 /**

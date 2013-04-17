@@ -19,8 +19,15 @@ import org.jhotdraw.draw.liner.CurvedLiner;
 import org.jhotdraw.draw.locator.RelativeLocator;
 
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+
+import javax.swing.Action;
 
 import static org.jhotdraw.draw.AttributeKeys.*;
 
@@ -41,11 +48,60 @@ import edu.uwm.JStateDrawer.Models.TransitionModel;
  */
 @SuppressWarnings("serial")
 public class TransitionFigure extends LabeledLineConnectionFigure {
+	public static HashMap<String, Action> myActions = new HashMap<String, Action>();
+	
 	private final String DEFAULT_NAME = "EVENT";
+	private final String DEFAULT_ACTION = "default";
 	private TransitionModel myModel;
 	private StateFigure myStartFigure, myEndFigure;
     
-    @SuppressWarnings("unused")
+    private class TransitionActionTextFigure extends TextFigure
+    {
+    	private TransitionFigure myTransition;
+    	
+		public TransitionActionTextFigure()
+    	{
+    		super();
+    	}
+    	
+    	public TransitionActionTextFigure(String text, TransitionFigure tFigure)
+    	{
+    		super(text);
+    		myTransition = tFigure;
+    	}
+    	
+    	/**
+    	 * Sets the text for the transition action and updates the transition model. 
+    	 */
+    	@Override
+    	public void setText(String newText)
+    	{
+    		String oldText = getText();
+    		try
+    		{
+    			if(myTransition != null)
+    			{	// If action removal succeeds, this evaluates true and the name is updated.
+    				if(myTransition.myModel.removeAction(oldText))
+    				{
+    					myTransition.myModel.addAction(newText);
+    				}
+    			}
+    			else
+    			{
+    				if(myModel.removeAction(oldText))
+    				{
+    					myModel.addAction(newText);
+    				}
+    			}
+    			super.setText(newText);
+    		}
+    		catch(Exception e)
+    		{
+    			// Nothing happens as of now.
+    		}
+    	}
+    }
+
     private class TransitionTextFigure extends TextFigure
     {
     	private TransitionFigure myTransition;
@@ -86,7 +142,8 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
     		}
     	}
     }
-	
+    
+    //TODO: CLEAN UP ADDITION OF LIST FIGURES.
     /** Creates a new instance. */
     public TransitionFigure() {
     	myModel = new TransitionModel(DEFAULT_NAME, new StateFigureModel(), new StateFigureModel());
@@ -95,12 +152,25 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
         set(END_DECORATION, new ArrowTip());
         
         setLayouter(new LocatorLayouter());
+        RectangleFigure transitionInfoDisplay = new RectangleFigure();
+        transitionInfoDisplay.set(STROKE_COLOR, null);
+        transitionInfoDisplay.setAttributeEnabled(STROKE_COLOR, false);
+        transitionInfoDisplay.set(FILL_COLOR, null);
+        transitionInfoDisplay.setAttributeEnabled(FILL_COLOR, false);
+        
+        ListFigure transitionInfoCompartment = new ListFigure(transitionInfoDisplay);
         TransitionTextFigure nameFigure = new TransitionTextFigure("DEFAULT", this);
         nameFigure.set(FONT_BOLD, true);
         nameFigure.setAttributeEnabled(FONT_BOLD, false);
-        add(nameFigure);
-
-        LocatorLayouter.LAYOUT_LOCATOR.set(nameFigure, new RelativeLocator(.5, .5, false));
+        
+        transitionInfoCompartment.add(nameFigure);
+        
+        ListFigure transitionActionList = new ListFigure();
+        
+        transitionInfoCompartment.add(transitionActionList);
+        LocatorLayouter.LAYOUT_LOCATOR.set(transitionInfoCompartment, new RelativeLocator(.5, .5, false));
+        
+        this.add(transitionInfoCompartment);
 
         setAttributeEnabled(END_DECORATION, false);
         setAttributeEnabled(START_DECORATION, false);
@@ -117,36 +187,30 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
      */
     @Override
     public boolean canConnect(Connector start, Connector end) {
+    	willChange();
         if ((start.getOwner() instanceof StateFigure)
                 && (end.getOwner() instanceof StateFigure)) {
 
         	if((start.getOwner() instanceof EndStateFigure) ||
         			(end.getOwner() instanceof StartStateFigure))
         	{
+        		changed();
         		return false;
+        		
         	}
         	else
         	{
+        		changed();
         		return true;
         	}
-            /*StateFigure sf = (StateFigure) start.getOwner();
-            StateFigure ef = (StateFigure) end.getOwner();
-
-            // Disallow multiple connections to same dependent
-            if (ef.getPredecessors().contains(sf)) {
-                return false;
-            }
-
-            // Disallow cyclic connections
-            return !sf.isDependentOf(ef);*/
         }
-
+        changed();
         return false;
     }
 
     public void setName(String newName)
     {
-    	((TransitionTextFigure)getChild(0)).setText(newName);
+    	((TransitionTextFigure)((ListFigure)getChild(0)).getChild(0)).setText(newName);
     }
     
     /**
@@ -239,12 +303,27 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
         myModel = tm;
         that.myModel = tm;
         that.basicRemoveAllChildren();
+        
+        RectangleFigure transitionInfoDisplay = new RectangleFigure();
+        transitionInfoDisplay.set(STROKE_COLOR, null);
+        transitionInfoDisplay.setAttributeEnabled(STROKE_COLOR, false);
+        transitionInfoDisplay.set(FILL_COLOR, null);
+        transitionInfoDisplay.setAttributeEnabled(FILL_COLOR, false);
+        
+        ListFigure transitionInfoCompartment = new ListFigure(transitionInfoDisplay);
         TransitionTextFigure nameFigure = new TransitionTextFigure("DEFAULT", that);
         nameFigure.set(FONT_BOLD, true);
         nameFigure.setAttributeEnabled(FONT_BOLD, false);
-        that.add(nameFigure);
-        LocatorLayouter.LAYOUT_LOCATOR.set(nameFigure, new RelativeLocator(.5, .5, false));
+        
+        transitionInfoCompartment.add(nameFigure);
+        
+        ListFigure transitionActionList = new ListFigure();
+        
+        transitionInfoCompartment.add(transitionActionList);
+        LocatorLayouter.LAYOUT_LOCATOR.set(transitionInfoCompartment, new RelativeLocator(.5, .5, false));
 
+        that.add(transitionInfoCompartment);
+        
         return that;
     }
 
@@ -327,6 +406,11 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
 		in.closeElement();
 
 		setName(myModel.getEvent());
+		ArrayList<String> actions = (ArrayList<String>) myModel.getAllActions();
+		for(int i = 0; i < actions.size(); i++)
+		{
+			addActionNoUpdate(actions.get(i));
+		}
 		
 
 	}
@@ -369,4 +453,116 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
 		out.closeElement();
 		
 	}
+	
+	/**
+	 * Creates an action figure with the text 'default' and updates the associated
+	 * {@link TransitionModel}.
+	 */
+	public void addDefaultAction()
+	{
+		createActionFigure(DEFAULT_ACTION);
+		myModel.addAction(DEFAULT_ACTION);
+	}
+	
+	/**
+	 * Creates an action with the text specified by the string {@code newAction}.
+	 * This method updates the associated {@link TransitionModel}.
+	 * @param newAction {@link String} with the desired text of the new action.
+	 */
+	public void addActionUpdateModel(String newAction)
+	{
+		createActionFigure(newAction);
+		myModel.addAction(newAction);
+	}
+	
+	/**
+	 * Creates an action with the text specified by the string {@code newAction}.
+	 * This method DOES NOT update the associated {@link TransitionModel}.
+	 * This should be called when the {@link TransitionModel} already contains the action,
+	 * and calling {@link addActionUpdateModel} would erroneously duplicate the action.
+	 * This only really occurs during file loading.
+	 * @param newAction {@link String} with the desired text of the new action.
+	 */
+	public void addActionNoUpdate(String newAction)
+	{
+		createActionFigure(newAction);
+	}
+	
+	/**
+	 * Creates an action figure with the text specified by {@code actionText} and adds it 
+	 * to the TransitionFigure's {@link ListFigure} of Actions. 
+	 * @param actionText A {@link String} that will be the text for the action figure.
+	 */
+	public void createActionFigure(String actionText)
+	{
+		willChange();
+		TransitionActionTextFigure newAction = new TransitionActionTextFigure(actionText, this);
+		getAllActions().add(newAction);
+		changed();
+	}
+	
+	/**
+	 * Removes the {@code index}th action from the {@link TransitionFigure} and updates
+	 * the associated {@link TransitionModel}. 
+	 * @param index {@code int} The index of the action to be removed
+	 * @return {@code true} if the action is successfully removed, {@code false} if it is not.
+	 */
+	public boolean removeActionByIndex(int index)
+	{
+		ListFigure actions = getAllActions();
+		if(index >= 0 && index < actions.getChildCount())
+		{
+			String actionToRemove = getIthAction(index).getText();
+			myModel.removeAction(actionToRemove);
+			
+			willChange();
+			actions.removeChild(index);
+			changed();
+			
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Returns the ith action {@link TextFigure}. No bounds checking is performed,
+	 * calling function should ensure that {@code index} is within the proper bounds.
+	 * @param index
+	 * @return The ith {@link TextFigure}
+	 */
+	public TextFigure getIthAction(int index)
+	{
+		return (TextFigure)(getAllActions().getChild(index));
+	}
+	
+	/**
+	 * Returns the ListFigure containing all of this action's TextFigures.
+	 * @return
+	 */
+	public ListFigure getAllActions()
+	{
+		return (ListFigure) ((ListFigure)this.getChildren().get(0)).getChild(1);
+	}
+	
+	/**
+	 * Returns the actions that will be presented in a popup menu. 
+	 */
+	@Override
+    public Collection<Action> getActions(Point2D.Double p) {
+        return myActions.values();
+    }
+	
+	/**
+     * Adds a new {@link Action} by its String actionID to this {@link TransitionFigure}'s map of actions.
+     * If the map of actions already contains the action being added, then nothing happens.
+     * @param newAction
+     */
+	public static void addAction(String actionID, Action newAction)
+    {
+		if(!myActions.containsKey(actionID))
+		{
+			myActions.put(actionID, newAction);
+		}
+    }
 }
