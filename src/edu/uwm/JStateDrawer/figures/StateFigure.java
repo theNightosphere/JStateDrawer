@@ -39,6 +39,7 @@ public class StateFigure extends GraphicalCompositeFigure {
     protected HashSet<TransitionFigure> myIncomingTransitions, myOutgoingTransitions;
     protected StateFigureModel myModel;
     protected static HashMap<String, Action> myActions = new HashMap<String, Action>();
+    private boolean actionsShouldBeSorted = true;
 
     /**
      * This adapter is used, to connect a TextFigure with the name of
@@ -89,6 +90,10 @@ public class StateFigure extends GraphicalCompositeFigure {
     					myModel.addAction(newText, myAction.getText());
     					willChange();
     					super.setText(newText);
+    					if(actionsShouldBeSorted)
+    					{
+    						sortActionEventTextFigures();
+    					}
     					changed();
     				}
     				catch(Exception e)
@@ -301,6 +306,59 @@ public class StateFigure extends GraphicalCompositeFigure {
     }
     
     /**
+     * A function that stable sorts the List of Event/Action pairs in the order
+     * ENTRY->(All others)->EXIT.
+     * The order of multiple actions belonging to a single event is preserved because
+     * Java's {@code Collections.sort()} function is a stable sort. 
+     */
+    public void sortActionEventTextFigures()
+    {
+    	Collections.sort((List<Figure>)getActionTextFigures().getChildren(),
+    			new Comparator<Figure>(){
+    		@Override
+			public int compare(Figure o1, Figure o2)
+    		{
+    			String actionO1 = ((ActionTextFigure)((ListFigure)o1).getChild(2)).getText();
+    			String eventO1 = ((EventTextFigure)((ListFigure)o1).getChild(0)).getText();
+    			String actionO2 = ((ActionTextFigure)((ListFigure)o2).getChild(2)).getText();
+    			String eventO2 = ((EventTextFigure)((ListFigure)o2).getChild(0)).getText();
+    			// IF the event is ENTRY, either it is being compared to another entry
+    			// action, and their ordering is preserved, or it is being compared
+    			// to a non-entry action and it is placed before event/action2
+    			if(eventO1.equals("ENTRY"))
+    			{
+    				if(eventO1.equals(eventO2))
+    				{
+    					return 0;
+    				}
+    				else
+    				{
+    					return -1;
+    				}
+    			}
+    			// Same logic as with ENTRY, except EXIT actions must be after all
+    			// other actions
+    			else if(eventO1.equals("EXIT"))
+    			{
+    				if(eventO1.equals(eventO2))
+    				{
+    					return 0;
+    				}
+    				else
+    				{
+    					return 1;
+    				}
+    			}
+    			// Else sort the strings by their natural ordering. 
+    			else
+    			{
+    				return eventO1.compareTo(eventO2);
+    			}
+    		}
+    	});
+    }
+    
+    /**
      * Returns the {@link EventTextFigure} corresponding to the index of the {@code indexOfChild} TextFigure.
      * This child is taken from the list of {@link ListFigure}s that store the trigger/action pairs.
      * @param listOfActionFigures
@@ -449,14 +507,19 @@ public class StateFigure extends GraphicalCompositeFigure {
         setName(myModel.getName());
         changed();
 
+        // Boolean is set here to assure that sort isn't called on each insertion, which would 
+        // make this roughly O(n^2) in the number of action/event pairs. 
+        // Sort is called once, however, after all pairs have been added.
+        actionsShouldBeSorted = false;
         for(String event : myModel.getAllActions().keySet())
         {
         	for(String action : myModel.getActionsByEvent(event))
         	{
-
         		addActionTextFigureNoUpdate(event, action);
         	}
         }
+        sortActionEventTextFigures();
+        actionsShouldBeSorted = true;
 
     }
 
