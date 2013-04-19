@@ -129,6 +129,7 @@ public class DrawingSimulator {
 					triggeredTransitionFigure.set(STROKE_COLOR, Color.BLUE);
 					if (triggeredTransitionFigure.getEndStateFigure().getModel().getParentState() != null){
 						currentState.getPresentationFigure().set(STROKE_COLOR, Color.YELLOW);
+						parent = currentState;
 					}
 
 					currentState = triggeredTransitionFigure.getEndStateFigure();
@@ -231,6 +232,7 @@ public class DrawingSimulator {
 				triggeredTransitionFigure.set(STROKE_COLOR, Color.BLUE);
 				if (triggeredTransitionFigure.getEndStateFigure().getModel().getParentState() != null){
 					currentState.getPresentationFigure().set(STROKE_COLOR, Color.YELLOW);
+					parent = currentState;
 				}
 				currentState = triggeredTransitionFigure.getEndStateFigure();
 				
