@@ -83,6 +83,10 @@ public class SimulateCurrentDrawingAction extends AbstractViewAction {
             			}
             			try {
             				new DrawingSimulator().simulateD(((DrawerView) view).getDrawing(), uri);
+                			view.setEnabled(true);
+                			if (oldFocusOwner != null) {
+                				oldFocusOwner.requestFocus();
+                			}
             			} catch (FileNotFoundException e) {
             				// TODO Auto-generated catch block
             				e.printStackTrace();
