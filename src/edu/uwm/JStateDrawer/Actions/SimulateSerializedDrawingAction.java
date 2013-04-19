@@ -95,6 +95,10 @@ public class SimulateSerializedDrawingAction extends AbstractViewAction {
 	        		        			{
 	        		        				System.err.println("The specified input file could not be opened or does not exist.");
 	        		        			}
+	        		        			catch(InterruptedException e)
+	        		        			{
+	        		        				e.printStackTrace();
+	        		        			}
 	        		        			finally
 	        		        			{
 	        		        				cleanUp(view);

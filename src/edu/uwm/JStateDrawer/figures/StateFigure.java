@@ -96,7 +96,7 @@ public class StateFigure extends GraphicalCompositeFigure {
     					}
     					changed();
     				}
-    				catch(Exception e)
+    				catch(IllegalArgumentException e)
     				{
     					// The trigger was bad. Because all actions are added via the addAction function,
     					// Exception thrown should never be from ill-formed action name.'
@@ -313,7 +313,8 @@ public class StateFigure extends GraphicalCompositeFigure {
      */
     public void sortActionEventTextFigures()
     {
-    	Collections.sort((List<Figure>)getActionTextFigures().getChildren(),
+    	ArrayList<Figure> actions = new ArrayList<Figure>(getActionTextFigures().getChildren());
+    	Collections.sort(actions,
     			new Comparator<Figure>(){
     		@Override
 			public int compare(Figure o1, Figure o2)
@@ -356,6 +357,16 @@ public class StateFigure extends GraphicalCompositeFigure {
     			}
     		}
     	});
+    	ListFigure newFigure = new ListFigure();
+    	for(Figure pair : actions)
+    	{
+    		newFigure.add((ListFigure) pair);
+    	}
+    	// Create a new ListFigure, fill it with the sorted stuff, delete the old list figure
+    	// replace it with the new list figure because I hate JHotDraw and getChildren()
+    	// returns an unmodifiable collection so I can't just sort it.
+    	this.removeChild(2);
+    	this.add(2, newFigure);
     }
     
     /**

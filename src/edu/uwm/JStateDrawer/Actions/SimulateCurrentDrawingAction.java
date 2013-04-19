@@ -90,6 +90,9 @@ public class SimulateCurrentDrawingAction extends AbstractViewAction {
             			} catch (FileNotFoundException e) {
             				// TODO Auto-generated catch block
             				e.printStackTrace();
+            			} catch (InterruptedException e)
+            			{
+            				e.printStackTrace();
             			}
             		} else {
             			view.setEnabled(true);
