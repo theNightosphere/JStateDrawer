@@ -13,6 +13,7 @@ import org.jhotdraw.draw.Figure;
 import org.jhotdraw.draw.ListFigure;
 import org.jhotdraw.draw.TextFigure;
 import org.jhotdraw.draw.event.FigureAdapter;
+import org.jhotdraw.draw.event.FigureEvent;
 
 import static org.jhotdraw.draw.AttributeKeys.*;
 
@@ -34,9 +35,12 @@ public class DrawingSimulator {
 	
 	final int sysWait = 2000;
 	
-	private class colorAdapter extends FigureAdapter{
-		
+	private class animAdapter extends FigureAdapter{
+		@Override
+		public void figureChanged(FigureEvent e){
+		}
 	}
+	
 	public DrawingSimulator(){
 		//TODO Tell the view to repaint after changing the attribute or sleeping the Thread.
 	}
@@ -45,7 +49,7 @@ public class DrawingSimulator {
 		StateFigure parent = null;
 		LinkedList<StateFigure> statelist = new LinkedList<StateFigure>();
 		for(Figure s : view.getFiguresFrontToBack()){
-			s.addFigureListener(new FigureAdapter());
+			s.addFigureListener(new animAdapter());
 			if (s instanceof StateFigure) 
 			{
 				statelist.add((StateFigure) s);
