@@ -20,6 +20,7 @@ import edu.uwm.JStateDrawer.Models.EndStateModel;
 import edu.uwm.JStateDrawer.Models.TransitionModel;
 import edu.uwm.JStateDrawer.figures.StateFigure;
 import edu.uwm.JStateDrawer.figures.StartStateFigure;
+import edu.uwm.JStateDrawer.figures.StateFigure.ActionTextFigure;
 import edu.uwm.JStateDrawer.figures.TransitionFigure;
 
 /**
@@ -29,11 +30,15 @@ import edu.uwm.JStateDrawer.figures.TransitionFigure;
  * @author Chad Fisher
  */
 public class DrawingSimulator {
-	public DrawingSimulator(){}
+	
+	final int sysWait = 1000;
+	
+	public DrawingSimulator(){
+		//TODO Tell the view to repaint after changing the attribute or sleeping the Thread.
+	}
 
 	public void simulateD(Drawing view, URI u, boolean inDrawing) throws FileNotFoundException, InterruptedException{
 		//TODO decide on a sysWait value.
-		final int sysWait = 1000;
 		StateFigure parent = null;
 		LinkedList<StateFigure> statelist = new LinkedList<StateFigure>();
 		for(Figure s : view.getFiguresFrontToBack()){
@@ -74,20 +79,7 @@ public class DrawingSimulator {
 			//System.out.println("Read Action: " + readString);
 			if (currentState.getModel().getActionsByEvent(readString) != null) {
 				actionList = currentState.getModel().getActionsByEvent(readString);
-				if (inDrawing){
-					for (Figure act : currentState.getActionTextFigures().getChildrenFrontToBack()){
-						System.out.println(act.getClass().toString());
-						if (act instanceof TextFigure){
-							for(String action : actionList){
-								if (act.get(TEXT).equals(action)){
-									act.set(STROKE_COLOR, Color.BLUE);
-									Thread.sleep(sysWait/4);
-									act.set(STROKE_COLOR, Color.GREEN);
-									break;
-								}
-							}
-						}
-					}}
+				if (inDrawing) colorChanging(currentState.getActionTextFigures(), actionList);
 				for(String action : actionList)
 				{
 					printString = "Action Performed: " + action + "\n";
@@ -289,6 +281,26 @@ public class DrawingSimulator {
 		}
 		f.close();
 		p.close();
+	}
+	
+	private void colorChanging(ListFigure lf, List<String> actionList) throws InterruptedException{
+		//System.out.println(actionList.toString());
+		for (Figure s : lf.getChildrenFrontToBack()){
+			//System.out.println(s.getClass().toString());
+			if (s instanceof ListFigure) colorChanging((ListFigure) s, actionList);
+			if (s instanceof TextFigure){
+				for (String a : actionList){
+					//System.out.println(s.getAttributes().toString());
+					if (s.get(TEXT).equals(a)){
+						System.out.println("In");
+						s.set(STROKE_COLOR, Color.BLUE);
+						Thread.sleep(sysWait/4);
+						s.set(STROKE_COLOR, Color.GREEN);
+						break;
+					}
+				}
+			}
+		}
 	}
 
 }
