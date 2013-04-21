@@ -74,8 +74,8 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
         m.put(CheckCurrentDrawingAction.ID, new CheckCurrentDrawingAction(a, v));
         m.put(SimulateCurrentDrawingAction.ID, new SimulateCurrentDrawingAction(a,v));
         m.put(SimulateSerializedDrawingAction.ID, new SimulateSerializedDrawingAction(a,v));
-        m.put(AddTransitionActionAction.ID, new AddTransitionActionAction(a,v));
-        m.put(RemoveTransitionActionAction.ID, new RemoveTransitionActionAction(a,v));
+        //m.put(AddTransitionActionAction.ID, new AddTransitionActionAction(a,v));
+        //m.put(RemoveTransitionActionAction.ID, new RemoveTransitionActionAction(a,v));
         drawLabels.configureAction(aa, "view.toggleGrid");
         for (double sf : scaleFactors) {
             m.put((int) (sf * 100) + "%",
@@ -248,7 +248,7 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
                 }
                 
                 Action addTransitionAction;
-                addTransitionAction = am.get(AddTransitionActionAction.ID);
+                /*addTransitionAction = am.get(AddTransitionActionAction.ID);
                 if(null != addTransitionAction)
                 {
                 	TransitionFigure.addAction(AddTransitionActionAction.ID, addTransitionAction);
@@ -259,7 +259,7 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
                 if(null != removeTransitionAction)
                 {
                 	TransitionFigure.addAction(RemoveTransitionActionAction.ID, removeTransitionAction);
-                }
+                }*/
                
             }
         };

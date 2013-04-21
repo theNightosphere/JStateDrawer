@@ -1,11 +1,11 @@
-start to default
+Transition from start to Shit!
+Action Performed: Yay!
 
-Nothing for trigger: HOLYSHIT
+Transition from Shit! to Fuck!
+Action Performed: Hah!
 
-Nothing for trigger: FUCK
+Action Performed: Boo!
 
-Nothing for trigger: HOLE
+Nothing triggered by event: SHIT
 
-Action Performed: Ride a bike
-
-Transition from default to end
+Transition from Fuck! to end

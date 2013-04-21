@@ -10,6 +10,7 @@ import java.net.URI;
 
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.Figure;
+import org.jhotdraw.draw.ListFigure;
 import org.jhotdraw.draw.TextFigure;
 
 import static org.jhotdraw.draw.AttributeKeys.*;
@@ -56,9 +57,6 @@ public class DrawingSimulator {
 		}
 
 		List<String> actionList;
-		System.out.println(currentState.getAttributes().toString());
-		currentState.getPresentationFigure().set(STROKE_COLOR, Color.BLUE);
-		Thread.sleep(sysWait);
 
 		while(true){
 			// Empty the print string for each iteration through the loop.
@@ -76,16 +74,15 @@ public class DrawingSimulator {
 			//System.out.println("Read Action: " + readString);
 			if (currentState.getModel().getActionsByEvent(readString) != null) {
 				actionList = currentState.getModel().getActionsByEvent(readString);
-				for (Figure s : currentState.getChildrenFrontToBack()){
-					if (s instanceof TextFigure){
-						if (!(s.get(TEXT).equals(currentState.getName()))){
-							for (String l : actionList){
-								if (s.get(TEXT).equals(l)){
-									s.set(STROKE_COLOR, Color.BLUE);
-									Thread.sleep(sysWait/4);
-									s.set(STROKE_COLOR, Color.GREEN);
-									break;
-								}
+				for (Figure act : currentState.getActionTextFigures().getChildrenFrontToBack()){
+					System.out.println(act.getClass().toString());
+					if (act instanceof TextFigure){
+						for(String action : actionList){
+							if (act.get(TEXT).equals(action)){
+								act.set(STROKE_COLOR, Color.BLUE);
+								Thread.sleep(sysWait/4);
+								act.set(STROKE_COLOR, Color.GREEN);
+								break;
 							}
 						}
 					}
@@ -278,9 +275,9 @@ public class DrawingSimulator {
 			//if (currentModel instanceof EndStateModel) break;
 
 		}
-		for (Figure s : view.getFiguresFrontToBack()){
-			s.set(STROKE_COLOR, Color.BLACK);
-		}
+//		for (Figure s : view.getFiguresFrontToBack()){
+//			s.set(STROKE_COLOR, Color.BLACK);
+//		}
 		f.close();
 		p.close();
 	}
