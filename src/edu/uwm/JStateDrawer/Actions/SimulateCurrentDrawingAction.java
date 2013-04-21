@@ -82,7 +82,7 @@ public class SimulateCurrentDrawingAction extends AbstractViewAction {
             				uri = evt.getChooser().getSelectedURI();
             			}
             			try {
-            				new DrawingSimulator().simulateD(((DrawerView) view).getDrawing(), uri);
+            				new DrawingSimulator().simulateD(((DrawerView) view).getDrawing(), uri, true);
                 			view.setEnabled(true);
                 			if (oldFocusOwner != null) {
                 				oldFocusOwner.requestFocus();

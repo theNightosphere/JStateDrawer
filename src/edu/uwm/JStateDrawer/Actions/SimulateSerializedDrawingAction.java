@@ -89,7 +89,7 @@ public class SimulateSerializedDrawingAction extends AbstractViewAction {
 	        		        			
 	        		        			try
 	        		        			{
-	        		        				new DrawingSimulator().simulateD(drawing, uri);
+	        		        				new DrawingSimulator().simulateD(drawing, uri, false);
 	        		        			}
 	        		        			catch(FileNotFoundException e)
 	        		        			{
