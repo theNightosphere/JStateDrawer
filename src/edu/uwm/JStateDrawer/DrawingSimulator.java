@@ -31,14 +31,13 @@ import edu.uwm.JStateDrawer.figures.TransitionFigure;
  */
 public class DrawingSimulator {
 	
-	final int sysWait = 1000;
+	final int sysWait = 2000;
 	
 	public DrawingSimulator(){
 		//TODO Tell the view to repaint after changing the attribute or sleeping the Thread.
 	}
 
 	public void simulateD(Drawing view, URI u, boolean inDrawing) throws FileNotFoundException, InterruptedException{
-		//TODO decide on a sysWait value.
 		StateFigure parent = null;
 		LinkedList<StateFigure> statelist = new LinkedList<StateFigure>();
 		for(Figure s : view.getFiguresFrontToBack()){
@@ -79,7 +78,7 @@ public class DrawingSimulator {
 			//System.out.println("Read Action: " + readString);
 			if (currentState.getModel().getActionsByEvent(readString) != null) {
 				actionList = currentState.getModel().getActionsByEvent(readString);
-				if (inDrawing) colorChanging(currentState.getActionTextFigures(), actionList);
+				//if (inDrawing) colorChanging(currentState.getActionTextFigures(), actionList);
 				for(String action : actionList)
 				{
 					printString = "Action Performed: " + action + "\n";
@@ -116,16 +115,18 @@ public class DrawingSimulator {
 					p.flush();
 
 					if(inDrawing){
+						view.willChange();
 						currentState.getPresentationFigure().set(STROKE_COLOR, Color.GREEN);
 						triggeredTransitionFigure.set(STROKE_COLOR, Color.BLUE);
 						if (triggeredTransitionFigure.getEndStateFigure().getModel().getParentState() != null){
 							currentState.getPresentationFigure().set(STROKE_COLOR, Color.YELLOW);
 							parent = currentState;
 						}
-
+						
 						currentState = triggeredTransitionFigure.getEndStateFigure();
 
 						currentState.set(STROKE_COLOR, Color.BLUE);
+						view.changed();
 						Thread.sleep(sysWait);
 						triggeredTransitionFigure.set(STROKE_COLOR, Color.GREEN);
 					}
@@ -171,14 +172,17 @@ public class DrawingSimulator {
 					p.flush();
 
 					if (inDrawing){
+						view.willChange();
 						currentState.getPresentationFigure().set(STROKE_COLOR, Color.GREEN);
 						triggeredTransitionFigure.set(STROKE_COLOR, Color.BLUE);
 						if (triggeredTransitionFigure.getEndStateFigure().getModel().getParentState() != null){
 							currentState.getPresentationFigure().set(STROKE_COLOR, Color.YELLOW);
 						}
+						
 						currentState = triggeredTransitionFigure.getEndStateFigure();
 
 						currentState.set(STROKE_COLOR, Color.BLUE);
+						view.changed();
 						Thread.sleep(sysWait);
 						triggeredTransitionFigure.set(STROKE_COLOR, Color.GREEN);
 					}
@@ -221,15 +225,18 @@ public class DrawingSimulator {
 				p.flush();
 
 				if (inDrawing){
+					view.willChange();
 					currentState.getPresentationFigure().set(STROKE_COLOR, Color.GREEN);
 					triggeredTransitionFigure.set(STROKE_COLOR, Color.BLUE);
 					if (triggeredTransitionFigure.getEndStateFigure().getModel().getParentState() != null){
 						currentState.getPresentationFigure().set(STROKE_COLOR, Color.YELLOW);
 						parent = currentState;
 					}
+					
 					currentState = triggeredTransitionFigure.getEndStateFigure();
 
 					currentState.set(STROKE_COLOR, Color.BLUE);
+					view.changed();
 					Thread.sleep(sysWait);
 					triggeredTransitionFigure.set(STROKE_COLOR, Color.GREEN);
 				}
@@ -249,18 +256,30 @@ public class DrawingSimulator {
 			else{ 
 				//Red flashing occurs over 0.30 seconds
 				if (inDrawing){
+					view.willChange();
 					currentState.getPresentationFigure().set(STROKE_COLOR, Color.RED);
-					Thread.sleep(50);
+					view.changed();
+					Thread.sleep(sysWait/20);
+					view.willChange();
 					currentState.getPresentationFigure().set(STROKE_COLOR, Color.BLUE);
-					Thread.sleep(50);
+					view.changed();
+					Thread.sleep(sysWait/20);
+					view.willChange();
 					currentState.getPresentationFigure().set(STROKE_COLOR, Color.RED);
-					Thread.sleep(50);
+					view.changed();
+					Thread.sleep(sysWait/20);
+					view.willChange();
 					currentState.getPresentationFigure().set(STROKE_COLOR, Color.BLUE);
-					Thread.sleep(50);
+					view.changed();
+					Thread.sleep(sysWait/20);
+					view.willChange();
 					currentState.getPresentationFigure().set(STROKE_COLOR, Color.RED);
-					Thread.sleep(50);
+					view.changed();
+					Thread.sleep(sysWait/20);
+					view.willChange();
 					currentState.getPresentationFigure().set(STROKE_COLOR, Color.BLUE);
-					Thread.sleep(50);
+					view.changed();
+					Thread.sleep(sysWait/20);
 				}
 
 				printString = "Nothing triggered by event: " + readString + "\n";
@@ -284,11 +303,12 @@ public class DrawingSimulator {
 	}
 	
 	private void colorChanging(ListFigure lf, List<String> actionList) throws InterruptedException{
+		//TODO Make the TextFigure reflect the change in color.
 		//System.out.println(actionList.toString());
 		for (Figure s : lf.getChildrenFrontToBack()){
 			//System.out.println(s.getClass().toString());
 			if (s instanceof ListFigure) colorChanging((ListFigure) s, actionList);
-			if (s instanceof TextFigure){
+			if (s instanceof ActionTextFigure){
 				for (String a : actionList){
 					//System.out.println(s.getAttributes().toString());
 					if (s.get(TEXT).equals(a)){
