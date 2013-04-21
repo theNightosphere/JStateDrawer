@@ -32,7 +32,7 @@ public class DrawingSimulator {
 
 	public void simulateD(Drawing view, URI u) throws FileNotFoundException, InterruptedException{
 		//TODO decide on a sysWait value.
-		final int sysWait = 100;
+		final int sysWait = 1000;
 		StateFigure parent = null;
 		LinkedList<StateFigure> statelist = new LinkedList<StateFigure>();
 		for(Figure s : view.getFiguresFrontToBack()){
@@ -58,7 +58,7 @@ public class DrawingSimulator {
 		List<String> actionList;
 		System.out.println(currentState.getAttributes().toString());
 		currentState.getPresentationFigure().set(STROKE_COLOR, Color.BLUE);
-		currentState.wait(sysWait);
+		Thread.sleep(sysWait);
 
 		while(true){
 			// Empty the print string for each iteration through the loop.
@@ -82,7 +82,7 @@ public class DrawingSimulator {
 							for (String l : actionList){
 								if (s.get(TEXT).equals(l)){
 									s.set(STROKE_COLOR, Color.BLUE);
-									s.wait(sysWait/4);
+									Thread.sleep(sysWait/4);
 									s.set(STROKE_COLOR, Color.GREEN);
 									break;
 								}
@@ -135,7 +135,7 @@ public class DrawingSimulator {
 					currentState = triggeredTransitionFigure.getEndStateFigure();
 					
 					currentState.set(STROKE_COLOR, Color.BLUE);
-					currentState.wait(sysWait);
+					Thread.sleep(sysWait);
 					triggeredTransitionFigure.set(STROKE_COLOR, Color.GREEN);
 
 					ArrayList<String> entryActions = (ArrayList<String>) currentState.getModel().getActionsByEvent("ENTRY");
@@ -187,7 +187,7 @@ public class DrawingSimulator {
 					currentState = triggeredTransitionFigure.getEndStateFigure();
 
 					currentState.set(STROKE_COLOR, Color.BLUE);
-					currentState.wait(sysWait);
+					Thread.sleep(sysWait);
 					triggeredTransitionFigure.set(STROKE_COLOR, Color.GREEN);
 
 					ArrayList<String> entryActions = (ArrayList<String>) currentState.getModel().getActionsByEvent("ENTRY");
@@ -237,7 +237,7 @@ public class DrawingSimulator {
 				currentState = triggeredTransitionFigure.getEndStateFigure();
 				
 				currentState.set(STROKE_COLOR, Color.BLUE);
-				currentState.wait(sysWait);
+				Thread.sleep(sysWait);
 				triggeredTransitionFigure.set(STROKE_COLOR, Color.GREEN);
 
 				ArrayList<String> entryActions = (ArrayList<String>) currentState.getModel().getActionsByEvent("ENTRY");
@@ -255,17 +255,17 @@ public class DrawingSimulator {
 			else{ 
 				//Red flashing occurs over 0.30 seconds
 				currentState.getPresentationFigure().set(STROKE_COLOR, Color.RED);
-				currentState.wait(5);
+			    Thread.sleep(50);
 				currentState.getPresentationFigure().set(STROKE_COLOR, Color.BLUE);
-				currentState.wait(5);
+			    Thread.sleep(50);
 				currentState.getPresentationFigure().set(STROKE_COLOR, Color.RED);
-				currentState.wait(5);
+			    Thread.sleep(50);
 				currentState.getPresentationFigure().set(STROKE_COLOR, Color.BLUE);
-				currentState.wait(5);
+			    Thread.sleep(50);
 				currentState.getPresentationFigure().set(STROKE_COLOR, Color.RED);
-				currentState.wait(5);
+			    Thread.sleep(50);
 				currentState.getPresentationFigure().set(STROKE_COLOR, Color.BLUE);
-				currentState.wait(5);
+			    Thread.sleep(50);
 				
 				printString = "Nothing triggered by event: " + readString + "\n";
 				p.println(printString);
@@ -277,6 +277,9 @@ public class DrawingSimulator {
 			}
 			//if (currentModel instanceof EndStateModel) break;
 
+		}
+		for (Figure s : view.getFiguresFrontToBack()){
+			s.set(STROKE_COLOR, Color.BLACK);
 		}
 		f.close();
 		p.close();
