@@ -522,16 +522,17 @@ public class StateFigure extends GraphicalCompositeFigure {
         // make this roughly O(n^2) in the number of action/event pairs. 
         // Sort is called once, however, after all pairs have been added.
         actionsShouldBeSorted = false;
-        for(String event : myModel.getAllActions().keySet())
+        ArrayList<String> events = new ArrayList<String>(myModel.getAllActions().keySet());
+        for(String event : events)
         {
-        	for(String action : myModel.getActionsByEvent(event))
+        	ArrayList<String> actions = (ArrayList<String>) myModel.getActionsByEvent(event);
+        	for(int i = 0; i < actions.size(); i++)
         	{
-        		addActionTextFigureNoUpdate(event, action);
+        		addActionTextFigureNoUpdate(event, actions.get(i));
         	}
         }
         sortActionEventTextFigures();
         actionsShouldBeSorted = true;
-
     }
 
     /**

@@ -3,11 +3,13 @@ package edu.uwm.JStateDrawer.Actions;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URI;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 import org.jhotdraw.app.Application;
 import org.jhotdraw.app.View;
@@ -16,13 +18,16 @@ import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.gui.JFileURIChooser;
 import org.jhotdraw.gui.JSheet;
 import org.jhotdraw.gui.URIChooser;
+import org.jhotdraw.gui.Worker;
 import org.jhotdraw.gui.event.SheetEvent;
 import org.jhotdraw.gui.event.SheetListener;
 import org.jhotdraw.gui.filechooser.ExtensionFileFilter;
+import org.jhotdraw.net.URIUtil;
 import org.jhotdraw.util.ResourceBundleUtil;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
 import edu.uwm.JStateDrawer.DrawerApplicationModel;
+import edu.uwm.JStateDrawer.DrawerFactory;
 import edu.uwm.JStateDrawer.DrawerView;
 import edu.uwm.JStateDrawer.DrawingChecker;
 import edu.uwm.JStateDrawer.DrawingSimulator;
@@ -31,7 +36,7 @@ import edu.uwm.JStateDrawer.DrawingSimulator;
 public class SimulateCurrentDrawingAction extends AbstractViewAction {
 	public final static String ID = "file.SimulateDrawing";
 	private Component oldFocusOwner;
-	
+
 	public SimulateCurrentDrawingAction(Application app, @Nullable View view){
 		super(app, view);
 		ResourceBundleUtil Labels = ResourceBundleUtil.getBundle("edu.uwm.JStateDrawer.Actions.Labels");
@@ -39,70 +44,93 @@ public class SimulateCurrentDrawingAction extends AbstractViewAction {
 	}
 
 	protected URIChooser getChooser(View view) {
-        URIChooser chsr = (URIChooser) (view.getComponent()).getClientProperty("saveChooser");
-        if (chsr == null) {
-        	DrawerApplicationModel model = (DrawerApplicationModel)(getApplication().getModel());
-            chsr = model.createInputFileChooser(getApplication(), view);
-            view.getComponent().putClientProperty("saveChooser", chsr);
-        }
-        return chsr;
-    }
+		URIChooser chsr = (URIChooser) (view.getComponent()).getClientProperty("saveChooser");
+		if (chsr == null) {
+			DrawerApplicationModel model = (DrawerApplicationModel)(getApplication().getModel());
+			chsr = model.createInputFileChooser(getApplication(), view);
+			view.getComponent().putClientProperty("saveChooser", chsr);
+		}
+		return chsr;
+	}
 
 	@Override
-    public void actionPerformed(ActionEvent evt) {
-        final View view = getActiveView();
-        if (view == null) {
-            return;
-        }
-        if (view.isEnabled()) {
-        	Drawing drawing = ((DrawerView) view).getDrawing();
-        	DrawingChecker checker = new DrawingChecker();
-        	// If the drawing isn't valid, end early. 
-        	if(!checker.validateCurrentDrawing(drawing, false))
-        	{
-        		JOptionPane.showMessageDialog(((DrawerView) view).getEditor().getActiveView().getComponent(),
-    					"The drawing is invalid and cannot be simulated for the following reason:\n" + checker.getErrorString(),
-    					"Drawing Invalid", JOptionPane.ERROR_MESSAGE);
-        		return;
-        	}
-            oldFocusOwner = SwingUtilities.getWindowAncestor(view.getComponent()).getFocusOwner();
-            view.setEnabled(false);
+	public void actionPerformed(ActionEvent evt) {
+		final View view = getActiveView();
+		simulateDrawing(view);
+	}
 
-            URIChooser fileChooser = getChooser(view);
+	private void simulateDrawing(View view)
+	{
+		final View activeView = view;
+		if (activeView == null) {
+			return;
+		}
+		if (activeView.isEnabled()) {
+			Drawing drawing = ((DrawerView) activeView).getDrawing();
+			DrawingChecker checker = new DrawingChecker();
+			// If the drawing isn't valid, end early. 
+			if(!checker.validateCurrentDrawing(drawing, false))
+			{
+				JOptionPane.showMessageDialog(((DrawerView) activeView).getEditor().getActiveView().getComponent(),
+						"The drawing is invalid and cannot be simulated for the following reason:\n" + checker.getErrorString(),
+						"Drawing Invalid", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			oldFocusOwner = SwingUtilities.getWindowAncestor(activeView.getComponent()).getFocusOwner();
+			activeView.setEnabled(false);
 
-            JSheet.showOpenSheet(fileChooser, view.getComponent(), new SheetListener() {
+			URIChooser fileChooser = getChooser(activeView);
 
-            	@Override
-            	public void optionSelected(final SheetEvent evt) {
-            		if (evt.getOption() == JFileChooser.APPROVE_OPTION) {
-            			final URI uri;
-            			if ((evt.getChooser() instanceof JFileURIChooser) && (evt.getFileChooser().getFileFilter() instanceof ExtensionFileFilter)) {
-            				uri = ((ExtensionFileFilter) evt.getFileChooser().getFileFilter()).makeAcceptable(evt.getFileChooser().getSelectedFile()).toURI();
-            			} else {
-            				uri = evt.getChooser().getSelectedURI();
-            			}
-            			try {
-            				new DrawingSimulator().simulateD(((DrawerView) view).getDrawing(), uri, true);
-                			view.setEnabled(true);
-                			if (oldFocusOwner != null) {
-                				oldFocusOwner.requestFocus();
-                			}
-            			} catch (FileNotFoundException e) {
-            				// TODO Auto-generated catch block
-            				e.printStackTrace();
-            			} catch (InterruptedException e)
-            			{
-            				e.printStackTrace();
-            			}
-            		} else {
-            			view.setEnabled(true);
-            			if (oldFocusOwner != null) {
-            				oldFocusOwner.requestFocus();
-            			}
-            		}
-            	}
-            });
-            
-        }
-    }
+			JSheet.showOpenSheet(fileChooser, activeView.getComponent(), new SheetListener() {
+
+				@Override
+				public void optionSelected(final SheetEvent evt) {
+					if (evt.getOption() == JFileChooser.APPROVE_OPTION) {
+						final URI uri;
+						if ((evt.getChooser() instanceof JFileURIChooser) && (evt.getFileChooser().getFileFilter() instanceof ExtensionFileFilter)) {
+							uri = ((ExtensionFileFilter) evt.getFileChooser().getFileFilter()).makeAcceptable(evt.getFileChooser().getSelectedFile()).toURI();
+						} else {
+							uri = evt.getChooser().getSelectedURI();
+						}
+						activeView.execute(new Worker(){
+							@Override
+							protected Object construct() throws IOException {
+								try {
+									new DrawingSimulator().simulateD(((DrawerView) activeView).getDrawing(), uri, true);
+								} catch (InterruptedException e) {
+									e.printStackTrace();
+								} 
+								return null;
+							}
+
+							@Override
+							protected void done(Object value) {
+								//Nothing 
+							}
+
+							@Override
+							protected void failed(Throwable value) {
+								//Nothing
+							}
+
+							@Override
+							protected void finished() {
+								activeView.setEnabled(true);
+								SwingUtilities.getWindowAncestor(activeView.getComponent()).toFront();
+								if (oldFocusOwner != null) {
+									oldFocusOwner.requestFocus();
+								}
+							}
+						});
+					} else {
+						activeView.setEnabled(true);
+						if (oldFocusOwner != null) {
+							oldFocusOwner.requestFocus();
+						}
+					}
+				}
+			});
+
+		}
+	}
 }

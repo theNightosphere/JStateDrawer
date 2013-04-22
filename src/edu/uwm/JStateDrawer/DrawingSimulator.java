@@ -120,18 +120,18 @@ public class DrawingSimulator {
 					p.flush();
 
 					if(inDrawing){
-						recolor(currentState.getPresentationFigure(), Color.GREEN);
+						recolor(currentState, Color.BLACK);
 						recolor(triggeredTransitionFigure, Color.BLUE);
 						if (triggeredTransitionFigure.getEndStateFigure().getModel().getParentState() != null){
-							recolor(currentState.getPresentationFigure(), Color.YELLOW);
+							recolor(currentState, Color.YELLOW);
 							parent = currentState;
 						}
 						
 						currentState = triggeredTransitionFigure.getEndStateFigure();
 
-						recolor(currentState.getPresentationFigure(), Color.BLUE);
+						recolor(currentState, Color.BLUE);
 						Thread.sleep(sysWait);
-						recolor(triggeredTransitionFigure, Color.GREEN);
+						recolor(triggeredTransitionFigure, Color.BLACK);
 					}
 
 					ArrayList<String> entryActions = (ArrayList<String>) currentState.getModel().getActionsByEvent("ENTRY");
@@ -175,7 +175,7 @@ public class DrawingSimulator {
 					p.flush();
 
 					if (inDrawing){
-						recolor(currentState.getPresentationFigure(), Color.GREEN);
+						recolor(currentState.getPresentationFigure(), Color.BLACK);
 						recolor(triggeredTransitionFigure, Color.BLUE);
 						if (triggeredTransitionFigure.getEndStateFigure().getModel().getParentState() != null){
 							recolor(currentState.getPresentationFigure(), Color.YELLOW);
@@ -185,7 +185,7 @@ public class DrawingSimulator {
 
 						recolor(currentState.getPresentationFigure(), Color.BLUE);
 						Thread.sleep(sysWait);
-						recolor(triggeredTransitionFigure, Color.GREEN);
+						recolor(triggeredTransitionFigure, Color.BLACK);
 					}
 
 					ArrayList<String> entryActions = (ArrayList<String>) currentState.getModel().getActionsByEvent("ENTRY");
@@ -226,7 +226,7 @@ public class DrawingSimulator {
 				p.flush();
 
 				if (inDrawing){
-					recolor(currentState.getPresentationFigure(), Color.GREEN);
+					recolor(currentState.getPresentationFigure(), Color.BLACK);
 					recolor(triggeredTransitionFigure, Color.BLUE);
 					if (triggeredTransitionFigure.getEndStateFigure().getModel().getParentState() != null){
 						recolor(currentState.getPresentationFigure(), Color.YELLOW);
@@ -237,7 +237,7 @@ public class DrawingSimulator {
 
 					recolor(currentState, Color.BLUE);
 					Thread.sleep(sysWait);
-					recolor(triggeredTransitionFigure, Color.GREEN);
+					recolor(triggeredTransitionFigure, Color.BLACK);
 				}
 
 				ArrayList<String> entryActions = (ArrayList<String>) currentState.getModel().getActionsByEvent("ENTRY");
@@ -255,18 +255,20 @@ public class DrawingSimulator {
 			else{ 
 				//Red flashing occurs over 0.30 seconds
 				if (inDrawing){
+
 					recolor(currentState.getPresentationFigure(), Color.RED);
-					Thread.sleep(sysWait/20);
+					Thread.sleep(sysWait/5);
 					recolor(currentState.getPresentationFigure(), Color.BLUE);
-					Thread.sleep(sysWait/20);
+					Thread.sleep(sysWait/5);
 					recolor(currentState.getPresentationFigure(), Color.RED);
-					Thread.sleep(sysWait/20);
+					Thread.sleep(sysWait/5);
 					recolor(currentState.getPresentationFigure(), Color.BLUE);
-					Thread.sleep(sysWait/20);
+					Thread.sleep(sysWait/5);
 					recolor(currentState.getPresentationFigure(), Color.RED);
-					Thread.sleep(sysWait/20);
+					Thread.sleep(sysWait/5);
 					recolor(currentState.getPresentationFigure(), Color.BLUE);
-					Thread.sleep(sysWait/20);
+					Thread.sleep(sysWait/5);
+
 				}
 
 				printString = "Nothing triggered by event: " + readString + "\n";
@@ -275,9 +277,11 @@ public class DrawingSimulator {
 			}
 			if (currentState.getModel().getName().equals("end")) 
 			{
+				view.willChange();
+				recolor(currentState, Color.BLACK);
+				view.changed();
 				break;
 			}
-			//if (currentModel instanceof EndStateModel) break;
 
 		}
 		if (inDrawing){
