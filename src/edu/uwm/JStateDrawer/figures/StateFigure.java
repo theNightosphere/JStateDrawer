@@ -183,6 +183,19 @@ public class StateFigure extends GraphicalCompositeFigure {
     	}
     }
 
+    /**
+     * Constructor calls implicit constructor to initialize StateFigure to default values
+     * and then sets the associated {@link StateFigureModel}'s boolean value indicating
+     * whether or not it is an internal state. The most common use of this constructor
+     * is for creating a nested state.
+     * @param isInternalState
+     */
+    public StateFigure(boolean isInternalState)
+    {
+    	this();
+    	this.myModel.setIsInternalState(isInternalState);
+    	this.myModel.setFigure(this);
+    }
     
     /**
      * Initializes a state figure with the {@link RoundRectangleFigure} as the presentation figure. 
@@ -217,6 +230,8 @@ public class StateFigure extends GraphicalCompositeFigure {
         setAttributeEnabled(STROKE_DASHES, false);
 
         myModel = new StateFigureModel();
+        
+        myModel.setFigure(this);
         
         //TODO Decide whether to throw this statement out.
         @SuppressWarnings("unused")
@@ -467,6 +482,7 @@ public class StateFigure extends GraphicalCompositeFigure {
         that.clearStateFigureModel();
         that.myIncomingTransitions = new HashSet<TransitionFigure>();
         that.myOutgoingTransitions = new HashSet<TransitionFigure>();
+        that.myModel.setIsInternalState(myModel.getIsInternalState());
         that.getNameFigure().addFigureListener(new NameAdapter(that));
         return that;
         
@@ -517,7 +533,7 @@ public class StateFigure extends GraphicalCompositeFigure {
         willChange();
         setName(myModel.getName());
         changed();
-
+        myModel.setFigure(this);
         // Boolean is set here to assure that sort isn't called on each insertion, which would 
         // make this roughly O(n^2) in the number of action/event pairs. 
         // Sort is called once, however, after all pairs have been added.
@@ -565,14 +581,22 @@ public class StateFigure extends GraphicalCompositeFigure {
     /**
      * Sets the name of StateFigure's associated {@link StateFigureModel} if the name is valid.
      * If the name is not valid, the {@link StateFigureModel} remains unchanged and the StateFigure's name is returned
-     * to the old value.
+     * to the old value. If the {@link StateFigure} has a nested start state, its name is ALSO
+     * updated in order to properly update its display.
      * @param evt A {@link FigureEvent} created when the State's name is changed.
      */
     public void setNameIfValid(FigureEvent evt)
     {
     	try
     	{
-    		myModel.setName((String)evt.getNewValue());
+    		String newName = (String)evt.getNewValue();
+    		myModel.setName(newName);
+    		if(!myModel.getIsInternalState() && !myModel.getInternalStates().isEmpty())
+    		{
+    			StateFigureModel nestedStart = myModel.getNestedStartState();
+    			nestedStart.getFigure().setName(newName);
+    		}
+    		
     	}
     	catch(Exception e)
     	{
@@ -644,6 +668,27 @@ public class StateFigure extends GraphicalCompositeFigure {
     @Override
     public String toString() {
         return "StateFigure#" + hashCode() + " " + getName();
+    }
+    
+    /**
+     * Adds a nested start state to this parent state and connects it with a 
+     * {@link TransitionFigure}.
+     */
+    public StartStateFigure addNestedStartState()
+    {
+    	StartStateFigure nestedStart = new StartStateFigure(true);
+    	addNestedState(nestedStart);
+    	return nestedStart;
+    }
+    
+    /**
+     * Adds the {@link StateFigure} nestedState to this figure's model's list of 
+     * nested states.
+     * @param nestedState
+     */
+    public void addNestedState(StateFigure nestedState)
+    {
+    	myModel.addInternalState(nestedState.getModel());
     }
 }
 

@@ -8,6 +8,8 @@ import java.util.HashSet;
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.CompositeFigure;
 import org.jhotdraw.draw.EllipseFigure;
+import org.jhotdraw.draw.ListFigure;
+import org.jhotdraw.draw.TextFigure;
 import org.jhotdraw.draw.layouter.*;
 import org.jhotdraw.geom.*;
 import org.jhotdraw.xml.DOMInput;
@@ -28,16 +30,23 @@ public class StartStateFigure extends StateFigure{
 	
 	public StartStateFigure()
 	{
+		this.children.clear();
 		myModel = new StartStateModel();
 		eventHandler = createEventHandler();
-		setPresentationFigure(new EllipseFigure(0,0,CIRCLE_DIAMETER, CIRCLE_DIAMETER));
+		EllipseFigure ellipse = new EllipseFigure(0,0,CIRCLE_DIAMETER, CIRCLE_DIAMETER);
+		setPresentationFigure(ellipse);
+		ellipse.set(AttributeKeys.FILL_COLOR, Color.black);
+		ListFigure testList = new ListFigure(ellipse);
+		add(testList);
+		
 		setLayouter(new AbstractLayouter()
 		{
 			@Override
 			public Rectangle2D.Double calculateLayout(CompositeFigure layoutable,
 					Point2D.Double anchor, Point2D.Double lead)
 			{
-				return null;
+				Dimension2DDouble preferredSize = getPreferredSize();
+				return new Rectangle2D.Double(anchor.x, anchor.y, preferredSize.width, preferredSize.height);
 			}
 
 			@Override
@@ -50,6 +59,22 @@ public class StartStateFigure extends StateFigure{
 		});
 	}
 	
+	
+	public StartStateFigure(boolean isNestedStartState)
+	{
+		this();
+		myModel.setIsInternalState(isNestedStartState);
+		if(isNestedStartState)
+		{
+			this.willChange();
+			TextFigure testText = new TextFigure("default");
+			((ListFigure)this.getChild(0)).add(testText);
+			testText.set(AttributeKeys.TEXT_COLOR, Color.red);
+			testText.set(AttributeKeys.FONT_BOLD, true);
+			this.changed();
+		}
+	}
+	
 	/**
 	 * Clones the StartStateFigure and clears all the children figures added to it by it's
 	 * call to super.clone();
@@ -60,6 +85,7 @@ public class StartStateFigure extends StateFigure{
 		myClone.children.clear();
 		myClone.getModel().setName("start");
 		myClone.myOutgoingTransitions = new HashSet<TransitionFigure>();
+		myClone.getModel().setFigure(myClone);
 		return myClone;
 	}
 	
@@ -81,6 +107,21 @@ public class StartStateFigure extends StateFigure{
 		return new Dimension2DDouble(CIRCLE_DIAMETER, CIRCLE_DIAMETER);
 	}
 	
+	/**
+	 * Sets the name of the state figure. This can only be called if 
+	 * the StartState is an nested state. 
+	 */
+	@Override
+	public void setName(String newValue)
+	{
+		if(myModel.getIsInternalState()){
+			this.willChange();
+			((TextFigure)((ListFigure)this.getChild(0)).getChild(0)).setText(newValue);
+			myModel.setName(newValue);
+			this.changed();
+		}
+	}
+	
 	@Override
 	public void read(DOMInput in) throws IOException
 	{
@@ -97,7 +138,7 @@ public class StartStateFigure extends StateFigure{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-        
+        myModel.setFigure(this);
         set(AttributeKeys.FILL_COLOR, Color.black);
         children.clear();
 	}

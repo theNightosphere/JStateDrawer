@@ -74,8 +74,9 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
         m.put(CheckCurrentDrawingAction.ID, new CheckCurrentDrawingAction(a, v));
         m.put(SimulateCurrentDrawingAction.ID, new SimulateCurrentDrawingAction(a,v));
         m.put(SimulateSerializedDrawingAction.ID, new SimulateSerializedDrawingAction(a,v));
-        //m.put(AddTransitionActionAction.ID, new AddTransitionActionAction(a,v));
-        //m.put(RemoveTransitionActionAction.ID, new RemoveTransitionActionAction(a,v));
+        m.put(AddTransitionActionAction.ID, new AddTransitionActionAction(a,v));
+        m.put(RemoveTransitionActionAction.ID, new RemoveTransitionActionAction(a,v));
+        m.put(AddNestedStartAction.ID, new AddNestedStartAction(a,v));
         drawLabels.configureAction(aa, "view.toggleGrid");
         for (double sf : scaleFactors) {
             m.put((int) (sf * 100) + "%",
@@ -130,7 +131,7 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
         attributes.put(AttributeKeys.FILL_COLOR, Color.white);
         attributes.put(AttributeKeys.STROKE_COLOR, Color.black);
         attributes.put(AttributeKeys.TEXT_COLOR, Color.black);
-        ButtonFactory.addToolTo(tb, editor, new CreationTool(new StateFigure(), attributes), "edit.createTask", labels);
+        ButtonFactory.addToolTo(tb, editor, new CreationTool(new StateFigure(false), attributes), "edit.createTask", labels);
 
         //StartStateFigure button
         attributes = new HashMap<AttributeKey, Object>();
@@ -145,11 +146,20 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
         attributes.put(AttributeKeys.STROKE_WIDTH, 3d);
         ButtonFactory.addToolTo(tb, editor, new CreationTool(new EndStateFigure(), attributes), "edit.EndState", StateLabels);
 
+     // Creates a nested state creation button.
+        attributes = new HashMap<AttributeKey, Object>();
+        attributes.put(AttributeKeys.FILL_COLOR, Color.white);
+        attributes.put(AttributeKeys.STROKE_COLOR, Color.black);
+        attributes.put(AttributeKeys.STROKE_WIDTH, 2d);
+        ButtonFactory.addToolTo(tb, editor, new CreationTool(new StateFigure(true), attributes), "edit.internalState", StateLabels);
+        
         attributes = new HashMap<AttributeKey, Object>();
         attributes.put(AttributeKeys.STROKE_COLOR, new Color(0x000099));
         ButtonFactory.addToolTo(tb, editor, new ConnectionTool(transitionTemplate, attributes), "edit.createDependency", labels);
         tb.addSeparator();
         ButtonFactory.addToolTo(tb, editor, new TextAreaCreationTool(new TextAreaFigure()), "edit.createTextArea", drawLabels);
+        
+        
 
     }
 
@@ -247,8 +257,15 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
                 	StateFigure.addAction(RemoveActionAction.ID, addRemoveAction);
                 }
                 
+                Action addNestedStart;
+                addNestedStart = am.get(AddNestedStartAction.ID);
+                if(null != addNestedStart && (!StateFigure.containsAction(AddNestedStartAction.ID)))
+                {
+                	StateFigure.addAction(AddNestedStartAction.ID, addNestedStart);
+                }
+                
                 Action addTransitionAction;
-                /*addTransitionAction = am.get(AddTransitionActionAction.ID);
+                addTransitionAction = am.get(AddTransitionActionAction.ID);
                 if(null != addTransitionAction)
                 {
                 	TransitionFigure.addAction(AddTransitionActionAction.ID, addTransitionAction);
@@ -259,7 +276,7 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
                 if(null != removeTransitionAction)
                 {
                 	TransitionFigure.addAction(RemoveTransitionActionAction.ID, removeTransitionAction);
-                }*/
+                }
                
             }
         };

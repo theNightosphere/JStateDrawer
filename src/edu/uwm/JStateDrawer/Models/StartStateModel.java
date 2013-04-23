@@ -11,7 +11,12 @@ public class StartStateModel extends StateFigureModel {
 		super("Start");
 	}
 	@Override
-	public void addIncomingTransition (TransitionModel incomingTransition){}
+	public void addIncomingTransition (TransitionModel incomingTransition){
+		if(incomingTransition != null)
+		{
+			myIncomingTransitions.add(incomingTransition);
+		}
+	}
 	
 	public void write(DOMOutput out) throws IOException
 	{

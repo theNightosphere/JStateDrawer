@@ -61,6 +61,7 @@ public class EndStateFigure extends StateFigure{
 		set(AttributeKeys.STROKE_WIDTH, 3d);
 		
 		myClone.myIncomingTransitions = new HashSet<TransitionFigure>();
+		myClone.getModel().setFigure(myClone);
 		return myClone;
 	}
 	
@@ -121,6 +122,8 @@ public class EndStateFigure extends StateFigure{
         	e.printStackTrace();
         }
         setBounds(new Point2D.Double(x, y), new Point2D.Double(x + w, y + h));
+        
+        myModel.setFigure(this);
         
         children.clear();
         EllipseFigure ellipse = new EllipseFigure(0,0, CIRCLE_DIAMETER-INNER_CIRCLE_OFFSET,

@@ -183,28 +183,63 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
      * Called by org.jhotdraw.draw.handle.ConnectorHandle
      * Checks if two figures can be connected. Implement this method
      * to constrain the allowed connections between figures.
-     * Updated 3/6 to ensure no connections can come from end state or go to start state.
+     * Updated 4/21 to allow {@link StartStateFigure}s to be the end point as
+     * long as they are a nested start state.
      */
     @Override
     public boolean canConnect(Connector start, Connector end) {
-    	willChange();
+    	// IF both figures are StateFigures
         if ((start.getOwner() instanceof StateFigure)
                 && (end.getOwner() instanceof StateFigure)) {
 
-        	if((start.getOwner() instanceof EndStateFigure) ||
-        			(end.getOwner() instanceof StartStateFigure))
+        	StateFigure sf = (StateFigure) start.getOwner();
+        	StateFigure ef = (StateFigure) end.getOwner();
+        	// If the end is an internal start state
+        	if(ef instanceof StartStateFigure)
         	{
-        		changed();
+        		if(ef.getModel().getIsInternalState())
+        		{
+        			return true;
+        		}
+        		else
+        		{
+        			return false;
+        		}
+        	}
+        	// If the start is an end state, it can connect.
+        	else if(sf instanceof EndStateFigure)
+        	{
         		return false;
-        		
+        	}
+        	// If both states are nested states, they can connect. 
+        	else if(sf.getModel().getIsInternalState())
+        	{
+        		if(ef.getModel().getIsInternalState())
+        		{
+        			return true;
+        		}
+        		else
+        		{
+        			return false;
+        		}
+        	}
+        	// If the start state is internal, but the end is not, do not connect
+        	else if(!sf.getModel().getIsInternalState())
+        	{
+        		if(ef.getModel().getIsInternalState())
+        		{
+        			return false;
+        		}
+        		else
+        		{
+        			return true;
+        		}
         	}
         	else
         	{
-        		changed();
         		return true;
         	}
         }
-        changed();
         return false;
     }
 
@@ -280,6 +315,15 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
         myStartFigure = sf;
         myEndFigure = ef;
 
+        if(myStartFigure.getModel().getIsInternalState())
+        {
+        	// Both STart and end are nested states. Update the end with the parent of the start.
+        	if(myEndFigure.getModel().getIsInternalState())
+        	{
+        		myEndFigure.getModel().setParentState(myStartFigure.getModel().getParentState());
+        	}
+        }
+        
         myModel.setStartState(sf.getModel());
         myModel.setEndState(ef.getModel());
 

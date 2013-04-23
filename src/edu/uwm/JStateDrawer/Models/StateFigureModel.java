@@ -12,6 +12,8 @@ import java.util.regex.Pattern;
 import org.jhotdraw.xml.DOMInput;
 import org.jhotdraw.xml.DOMOutput;
 
+import edu.uwm.JStateDrawer.figures.StateFigure;
+
 public class StateFigureModel {
 	
 	public final String DEFAULT_ACTION_TRIGGER = "EVENT";
@@ -21,10 +23,15 @@ public class StateFigureModel {
 	protected HashMap<String, List<String>> myActions;
 	protected HashMap<String, TransitionModel> myTransitionEvents;
 	private boolean myIsInternalState;
-	private StateFigureModel myParentState;
+	protected StateFigure myFigure;
+	protected StateFigureModel myParentState;
 	private ArrayList<StateFigureModel> myInternalStates;
 	private Pattern p = Pattern.compile("[A-Z][A-Z0-9_]*+");
 	
+	 /**
+	  * A call to {@link setFigure} should be made
+	  * using this model's associated figure.
+	  */
 	public StateFigureModel()
 	{
 		this("default", new HashSet<TransitionModel>(), new HashSet<TransitionModel>(),
@@ -34,7 +41,8 @@ public class StateFigureModel {
 	
 	/**
 	 * Explicit constructor for StateFigureModel that is initialized with the given name while all other
-	 * parameters are set to default.
+	 * parameters are set to default. A call to {@link setFigure} should be made
+	 * using this model's associated figure.
 	 * @param name A String name for the StateFigureModel.
 	 * @throws {@link IllegalArgumentException} if name is the empty string. 
 	 */
@@ -47,7 +55,8 @@ public class StateFigureModel {
 	
 	/**
 	 * Explicit constructor for StateFigureModel that is initialized with the given name and whether or not
-	 * it is a nested state, everything else is default.
+	 * it is a nested state, everything else is default.  A call to {@link setFigure} should be made
+	 * using this model's associated figure.
 	 * @param name A String name for the StateFigureModel.
 	 * @param isInternalState A boolean determining whether the StateFigureModel is an internal state.
 	 * @throws {@link IllegalArgumentException} if name is the empty string. 
@@ -60,7 +69,8 @@ public class StateFigureModel {
 	}
 	
 	/**
-	 * Explicit Constructor for StateFigureModel.
+	 * Explicit Constructor for StateFigureModel. A call to {@link setFigure} should be made
+	 * using this model's associated figure.
 	 * @param name A String of length 1 or greater.
 	 * @param incomingTransitions A HashSet of {@link TransitionModel}s that are the incoming transitions to the StateFigureModel.
 	 * @param outgoingTransitions A HashSet of {@link TransitionModel}s that are the outgoing transitions from the StateFigureModel.
@@ -108,6 +118,20 @@ public class StateFigureModel {
 		
 		myInternalStates = internalStates;
 		myIsInternalState = isInternalState;
+		// This is not a useful variable until it has been initialized. 
+		myFigure = null;
+	}
+	
+	/**
+	 * Sets the {@code StateFigureModel}'s reference to its associated {@link StateFigure}.
+	 * @param newFigure A non-null {@link StateFigure}.
+	 */
+	public void setFigure(StateFigure newFigure)
+	{
+		if(newFigure != null)
+		{
+			myFigure = newFigure;
+		}
 	}
 	
 	/**
@@ -693,5 +717,38 @@ public class StateFigureModel {
         in.closeElement();
         
         in.closeElement();
+	}
+	
+	/**
+	 * Returns the nested start state. This is the Nested StateFigureModel with an incoming transition
+	 * from {@code this}, the parent state.
+	 * @return The nested start state, if one exists. If a nested start state cannot be found, 
+	 * {@code null} is returned.
+	 */
+	public StateFigureModel getNestedStartState()
+	{
+		// Doubly nested loop leaves room for improvement of runtime efficiency
+		// If an easier method of detecting the nested start state comes to mind.
+		for(StateFigureModel nestedState : myInternalStates)
+		{
+			for(TransitionModel incomingTransition : nestedState.myIncomingTransitions)
+			{
+				if(incomingTransition.getStartState().equals(this))
+				{
+					return nestedState;
+				}
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Accesses this {@link StateFigureModel}'s associated {@link StateFigure}
+	 * @return
+	 */
+	public StateFigure getFigure()
+	{
+		return myFigure;
 	}
 }
