@@ -34,7 +34,7 @@ import edu.uwm.JStateDrawer.figures.TransitionFigure;
  */
 public class DrawingSimulator {
 	
-	final int sysWait = 2000;
+	final int sysWait = 1000;
 	
 	public DrawingSimulator(){
 		//TODO Tell the view to repaint after changing the attribute or sleeping the Thread.
@@ -120,7 +120,7 @@ public class DrawingSimulator {
 					p.flush();
 
 					if(inDrawing){
-						recolor(currentState, Color.BLACK);
+						recolor(currentState, Color.GREEN);
 						recolor(triggeredTransitionFigure, Color.BLUE);
 						if (triggeredTransitionFigure.getEndStateFigure().getModel().getParentState() != null){
 							recolor(currentState, Color.YELLOW);
@@ -131,7 +131,7 @@ public class DrawingSimulator {
 
 						recolor(currentState, Color.BLUE);
 						Thread.sleep(sysWait);
-						recolor(triggeredTransitionFigure, Color.BLACK);
+						recolor(triggeredTransitionFigure, Color.GREEN);
 					}
 
 					ArrayList<String> entryActions = (ArrayList<String>) currentState.getModel().getActionsByEvent("ENTRY");
@@ -175,7 +175,7 @@ public class DrawingSimulator {
 					p.flush();
 
 					if (inDrawing){
-						recolor(currentState.getPresentationFigure(), Color.BLACK);
+						recolor(currentState.getPresentationFigure(), Color.GREEN);
 						recolor(triggeredTransitionFigure, Color.BLUE);
 						if (triggeredTransitionFigure.getEndStateFigure().getModel().getParentState() != null){
 							recolor(currentState.getPresentationFigure(), Color.YELLOW);
@@ -185,7 +185,7 @@ public class DrawingSimulator {
 
 						recolor(currentState.getPresentationFigure(), Color.BLUE);
 						Thread.sleep(sysWait);
-						recolor(triggeredTransitionFigure, Color.BLACK);
+						recolor(triggeredTransitionFigure, Color.GREEN);
 					}
 
 					ArrayList<String> entryActions = (ArrayList<String>) currentState.getModel().getActionsByEvent("ENTRY");
@@ -226,7 +226,7 @@ public class DrawingSimulator {
 				p.flush();
 
 				if (inDrawing){
-					recolor(currentState.getPresentationFigure(), Color.BLACK);
+					recolor(currentState.getPresentationFigure(), Color.GREEN);
 					recolor(triggeredTransitionFigure, Color.BLUE);
 					if (triggeredTransitionFigure.getEndStateFigure().getModel().getParentState() != null){
 						recolor(currentState.getPresentationFigure(), Color.YELLOW);
@@ -237,7 +237,7 @@ public class DrawingSimulator {
 
 					recolor(currentState, Color.BLUE);
 					Thread.sleep(sysWait);
-					recolor(triggeredTransitionFigure, Color.BLACK);
+					recolor(triggeredTransitionFigure, Color.GREEN);
 				}
 
 				ArrayList<String> entryActions = (ArrayList<String>) currentState.getModel().getActionsByEvent("ENTRY");
@@ -255,20 +255,12 @@ public class DrawingSimulator {
 			else{ 
 				//Red flashing occurs over 0.30 seconds
 				if (inDrawing){
-
-					recolor(currentState.getPresentationFigure(), Color.RED);
-					Thread.sleep(sysWait/5);
-					recolor(currentState.getPresentationFigure(), Color.BLUE);
-					Thread.sleep(sysWait/5);
-					recolor(currentState.getPresentationFigure(), Color.RED);
-					Thread.sleep(sysWait/5);
-					recolor(currentState.getPresentationFigure(), Color.BLUE);
-					Thread.sleep(sysWait/5);
-					recolor(currentState.getPresentationFigure(), Color.RED);
-					Thread.sleep(sysWait/5);
-					recolor(currentState.getPresentationFigure(), Color.BLUE);
-					Thread.sleep(sysWait/5);
-
+					for(int i = 0; i < 9; ++i){
+						recolor(currentState.getPresentationFigure(), Color.RED);
+						Thread.sleep(sysWait/20);
+						recolor(currentState.getPresentationFigure(), Color.BLUE);
+						Thread.sleep(sysWait/20);
+					}
 				}
 
 				printString = "Nothing triggered by event: " + readString + "\n";
@@ -285,9 +277,9 @@ public class DrawingSimulator {
 
 		}
 		if (inDrawing){
-			//		for (Figure s : view.getFiguresFrontToBack()){
-			//			recolor(s, Color.BLACK);
-			//		}
+			for (Figure s : view.getFiguresFrontToBack()){
+				recolor(s, Color.BLACK);
+			}
 		}
 		f.close();
 		p.close();

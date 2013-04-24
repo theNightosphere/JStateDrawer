@@ -1,1 +1,11 @@
 Transition from start to Shit!
+Action Performed: Yay!
+
+Transition from Shit! to Fuck!
+Action Performed: Hah!
+
+Action Performed: Boo!
+
+Nothing triggered by event: SHIT
+
+Transition from Fuck! to end
