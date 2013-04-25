@@ -34,7 +34,7 @@ import edu.uwm.JStateDrawer.figures.TransitionFigure;
  */
 public class DrawingSimulator {
 	
-	final int sysWait = 1000;
+	final int sysWait = 1500;
 	
 	public DrawingSimulator(){
 		//TODO Tell the view to repaint after changing the attribute or sleeping the Thread.
@@ -83,7 +83,12 @@ public class DrawingSimulator {
 			//System.out.println("Read Action: " + readString);
 			if (currentState.getModel().getActionsByEvent(readString) != null) {
 				actionList = currentState.getModel().getActionsByEvent(readString);
-				//if (inDrawing) colorChanging(currentState.getActionTextFigures(), actionList);
+				if (inDrawing) {
+					recolor(currentState, Color.ORANGE);
+					Thread.sleep(sysWait/4);
+					recolor(currentState, Color.BLUE);
+					Thread.sleep(sysWait/4);
+				}
 				for(String action : actionList)
 				{
 					printString = "Action Performed: " + action + "\n";
@@ -255,11 +260,11 @@ public class DrawingSimulator {
 			else{ 
 				//Red flashing occurs over 0.30 seconds
 				if (inDrawing){
-					for(int i = 0; i < 9; ++i){
+					for(int i = 0; i < 4; ++i){
 						recolor(currentState.getPresentationFigure(), Color.RED);
-						Thread.sleep(sysWait/20);
+						Thread.sleep(sysWait/16);
 						recolor(currentState.getPresentationFigure(), Color.BLUE);
-						Thread.sleep(sysWait/20);
+						Thread.sleep(sysWait/16);
 					}
 				}
 
@@ -290,27 +295,5 @@ public class DrawingSimulator {
 		x.set(STROKE_COLOR, y);
 		x.changed();
 	}
-	
-	private void colorChanging(ListFigure lf, List<String> actionList) throws InterruptedException{
-		//TODO Make the TextFigure reflect the change in color.
-		//System.out.println(actionList.toString());
-		for (Figure s : lf.getChildrenFrontToBack()){
-			//System.out.println(s.getClass().toString());
-			if (s instanceof ListFigure) colorChanging((ListFigure) s, actionList);
-			if (s instanceof ActionTextFigure){
-				for (String a : actionList){
-					//System.out.println(s.getAttributes().toString());
-					if (s.get(TEXT).equals(a)){
-						System.out.println("In");
-						s.set(STROKE_COLOR, Color.BLUE);
-						Thread.sleep(sysWait/4);
-						s.set(STROKE_COLOR, Color.GREEN);
-						break;
-					}
-				}
-			}
-		}
-	}
-
 }
 
