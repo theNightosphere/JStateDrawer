@@ -105,12 +105,15 @@ public class DrawingChecker {
 				// Get a count of t
 				if(f instanceof StartStateFigure) 
 				{ 
-					startStateCount++;
-					startState = fig;
+					if(!((StartStateFigure)f).getModel().getIsInternalState())
+					{
+						startStateCount++;
+						startState = fig;
+					}
 				}
 
 			}
-			
+			//TODO: Distinguish between internal and external start states. 
 			// Can only have one start state.
 			if(startStateCount > 1 || startStateCount <= 0)
 			{
