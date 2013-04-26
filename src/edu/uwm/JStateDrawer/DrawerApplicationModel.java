@@ -74,9 +74,9 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
         m.put(CheckCurrentDrawingAction.ID, new CheckCurrentDrawingAction(a, v));
         m.put(SimulateCurrentDrawingAction.ID, new SimulateCurrentDrawingAction(a,v));
         m.put(SimulateSerializedDrawingAction.ID, new SimulateSerializedDrawingAction(a,v));
-//        m.put(AddTransitionActionAction.ID, new AddTransitionActionAction(a,v));
-//        m.put(RemoveTransitionActionAction.ID, new RemoveTransitionActionAction(a,v));
-//        m.put(AddNestedStartAction.ID, new AddNestedStartAction(a,v));
+        m.put(AddTransitionActionAction.ID, new AddTransitionActionAction(a,v));
+        m.put(RemoveTransitionActionAction.ID, new RemoveTransitionActionAction(a,v));
+        m.put(AddNestedStartAction.ID, new AddNestedStartAction(a,v));
         drawLabels.configureAction(aa, "view.toggleGrid");
         for (double sf : scaleFactors) {
             m.put((int) (sf * 100) + "%",
@@ -258,25 +258,25 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
                 }
                 
                 Action addNestedStart;
-//                addNestedStart = am.get(AddNestedStartAction.ID);
-//                if(null != addNestedStart && (!StateFigure.containsAction(AddNestedStartAction.ID)))
-//                {
-//                	StateFigure.addAction(AddNestedStartAction.ID, addNestedStart);
-//                }
-//                
-//                Action addTransitionAction;
-//                addTransitionAction = am.get(AddTransitionActionAction.ID);
-//                if(null != addTransitionAction)
-//                {
-//                	TransitionFigure.addAction(AddTransitionActionAction.ID, addTransitionAction);
-//                }
-//                
-//                Action removeTransitionAction;
-//                removeTransitionAction = am.get(RemoveTransitionActionAction.ID);
-//                if(null != removeTransitionAction)
-//                {
-//                	TransitionFigure.addAction(RemoveTransitionActionAction.ID, removeTransitionAction);
-//                }
+                addNestedStart = am.get(AddNestedStartAction.ID);
+                if(null != addNestedStart && (!StateFigure.containsAction(AddNestedStartAction.ID)))
+                {
+                	StateFigure.addAction(AddNestedStartAction.ID, addNestedStart);
+                }
+                
+                Action addTransitionAction;
+                addTransitionAction = am.get(AddTransitionActionAction.ID);
+                if(null != addTransitionAction)
+                {
+                	TransitionFigure.addAction(AddTransitionActionAction.ID, addTransitionAction);
+                }
+                
+                Action removeTransitionAction;
+                removeTransitionAction = am.get(RemoveTransitionActionAction.ID);
+                if(null != removeTransitionAction)
+                {
+                	TransitionFigure.addAction(RemoveTransitionActionAction.ID, removeTransitionAction);
+                }
                
             }
         };

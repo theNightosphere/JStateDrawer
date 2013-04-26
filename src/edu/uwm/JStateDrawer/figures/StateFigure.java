@@ -483,7 +483,10 @@ public class StateFigure extends GraphicalCompositeFigure {
         that.myIncomingTransitions = new HashSet<TransitionFigure>();
         that.myOutgoingTransitions = new HashSet<TransitionFigure>();
         that.myModel.setIsInternalState(myModel.getIsInternalState());
-        that.getNameFigure().addFigureListener(new NameAdapter(that));
+        if(!((ListFigure)getChild(0)).getChildren().isEmpty())
+        {
+        	that.getNameFigure().addFigureListener(new NameAdapter(that));
+        }
         return that;
         
     }
