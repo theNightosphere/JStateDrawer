@@ -662,7 +662,7 @@ public class StateFigureModel {
 		for(int j = 0; j < numInternalStates; j++)
 		{
 			out.openElement("internalState" + Integer.toString(j));
-			out.writeObject(myInternalStates.get(j));
+			out.writeObject(myInternalStates.get(j).getFigure());
 			out.closeElement();
 		}
 		
@@ -706,11 +706,12 @@ public class StateFigureModel {
         for(int i = 0; i < numberOfInternalStates; i++)
         {
         	in.openElement("internalState" + Integer.toString(i));
-        	StateFigureModel internalState = (StateFigureModel)in.readObject();
+        	StateFigure internalStateFigure = (StateFigure)in.readObject();
         	// Need to set as internal state and set its parent
-        	internalState.setIsInternalState(true);
+        	internalStateFigure.getModel().setFigure(internalStateFigure);
+        	internalStateFigure.getModel().setIsInternalState(true);
         	// This should register internal state with this parent, 
-        	internalState.setParentState(this);
+        	internalStateFigure.getModel().setParentState(this);
         	in.closeElement();
         }
 

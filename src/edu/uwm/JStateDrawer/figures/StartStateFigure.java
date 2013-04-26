@@ -11,6 +11,7 @@ import org.jhotdraw.draw.EllipseFigure;
 import org.jhotdraw.draw.ListFigure;
 import org.jhotdraw.draw.TextFigure;
 import org.jhotdraw.draw.layouter.*;
+import org.jhotdraw.draw.locator.RelativeLocator;
 import org.jhotdraw.geom.*;
 import org.jhotdraw.xml.DOMInput;
 
@@ -116,10 +117,18 @@ public class StartStateFigure extends StateFigure{
 	{
 		if(myModel.getIsInternalState()){
 			this.willChange();
-			((TextFigure)((ListFigure)this.getChild(0)).getChild(0)).setText(newValue);
+			TextFigure myName = getNameFigure();
+			myName.willChange();
+			myName.setText(newValue);
+			myName.changed();
 			myModel.setName(newValue);
 			this.changed();
 		}
+	}
+	
+	private TextFigure getNameFigure()
+	{
+		return (TextFigure)((ListFigure)this.getChild(0)).getChild(0);
 	}
 	
 	@Override
@@ -140,6 +149,10 @@ public class StartStateFigure extends StateFigure{
 		}
         myModel.setFigure(this);
         set(AttributeKeys.FILL_COLOR, Color.black);
-        children.clear();
+        
+        TextFigure testText = new TextFigure(myModel.getName());
+        ((ListFigure)this.getChild(0)).add(testText);
+		testText.set(AttributeKeys.TEXT_COLOR, Color.red);
+		testText.set(AttributeKeys.FONT_BOLD, true);
 	}
 }

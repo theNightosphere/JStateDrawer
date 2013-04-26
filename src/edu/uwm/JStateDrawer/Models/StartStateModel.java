@@ -2,6 +2,7 @@ package edu.uwm.JStateDrawer.Models;
 
 import java.io.IOException;
 
+import org.jhotdraw.xml.DOMInput;
 import org.jhotdraw.xml.DOMOutput;
 
 public class StartStateModel extends StateFigureModel {
@@ -18,11 +19,11 @@ public class StartStateModel extends StateFigureModel {
 		}
 	}
 	
-	public void write(DOMOutput out) throws IOException
+	/*public void write(DOMOutput out) throws IOException
 	{
 		out.openElement("state");
 		out.openElement("name");
-		out.writeObject("start");
+		out.writeObject(myName);
 		out.closeElement();
 
 		out.openElement("actions");
@@ -46,5 +47,6 @@ public class StartStateModel extends StateFigureModel {
 		out.closeElement();
 		
 		out.closeElement();
-	}
+		
+	}*/
 }

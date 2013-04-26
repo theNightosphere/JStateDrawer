@@ -41,10 +41,12 @@ import edu.uwm.JStateDrawer.Models.StateFigureModel;
 import edu.uwm.JStateDrawer.Models.TransitionModel;
 
 /**
- * DependencyFigure.
+ * TransitionFigure.
  *
- * @author Werner Randelshofer.
- * @version $Id: DependencyFigure.java 718 2010-11-21 17:49:53Z rawcoder $
+ * @author Reed Johnson
+ * @author Scott Gill
+ * @author Chad Fisher
+ * @version $Id: TransitionFigure.java 
  */
 @SuppressWarnings("serial")
 public class TransitionFigure extends LabeledLineConnectionFigure {
@@ -318,9 +320,11 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
         if(myStartFigure.getModel().getIsInternalState())
         {
         	// Both STart and end are nested states. Update the end with the parent of the start.
+        	// Also updates all ancestors of the end figure with 
         	if(myEndFigure.getModel().getIsInternalState())
         	{
         		myEndFigure.getModel().setParentState(myStartFigure.getModel().getParentState());
+        		myEndFigure.cascadeUpdateParentFigure(myStartFigure.getModel().getParentState());
         	}
         }
         

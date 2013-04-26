@@ -487,6 +487,7 @@ public class StateFigure extends GraphicalCompositeFigure {
         {
         	that.getNameFigure().addFigureListener(new NameAdapter(that));
         }
+        that.getModel().setFigure(that);
         return that;
         
     }
@@ -574,6 +575,8 @@ public class StateFigure extends GraphicalCompositeFigure {
     	out.openElement("stateContainer");
     	out.writeObject(myModel);
     	out.closeElement();
+    	System.out.println("My internal states");
+    	System.out.println(getModel().getInternalStates());
     }
 
     @Override
@@ -597,7 +600,10 @@ public class StateFigure extends GraphicalCompositeFigure {
     		if(!myModel.getIsInternalState() && !myModel.getInternalStates().isEmpty())
     		{
     			StateFigureModel nestedStart = myModel.getNestedStartState();
-    			nestedStart.getFigure().setName(newName);
+    			if(nestedStart != null)
+    			{
+    				nestedStart.getFigure().setName(newName);
+    			}
     		}
     		
     	}
@@ -692,6 +698,39 @@ public class StateFigure extends GraphicalCompositeFigure {
     public void addNestedState(StateFigure nestedState)
     {
     	myModel.addInternalState(nestedState.getModel());
+    }
+    
+    /**
+     * Starting at the calling {@link StateFigure}, all nested {@link StateFigure}s that
+     * share the starting {@link StateFigure} as an ancestor are updated to 
+     * {@code parentFigure} as the parent. This is performed via a depth
+     * first search.
+     * @param parentFigure
+     */
+    public void cascadeUpdateParentFigure(StateFigureModel parentFigure)
+    {
+    	HashSet<StateFigure> closedList = new HashSet<StateFigure>();
+    	Stack<StateFigure> openList = new Stack<StateFigure>();
+    	
+    	StateFigure currentFigure = this;
+    	openList.push(currentFigure);
+    	
+    	while(openList.size() > 0)
+    	{
+    		currentFigure = openList.pop();
+    		closedList.add(currentFigure);
+    		
+    		currentFigure.getModel().setParentState(parentFigure);
+    		
+    		HashSet<TransitionFigure> currentTransitions = new HashSet<TransitionFigure>(currentFigure.getOutgoingTransitions());
+    		for(TransitionFigure t : currentTransitions)
+			{
+				if (!(closedList.contains(t.getEndFigure())))
+				{
+					openList.push(t.getEndStateFigure());
+				}
+			}
+    	}
     }
 }
 

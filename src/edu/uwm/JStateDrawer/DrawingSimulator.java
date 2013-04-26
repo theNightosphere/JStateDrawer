@@ -60,8 +60,11 @@ public class DrawingSimulator {
 
 		for (StateFigure s : statelist){
 			if (s instanceof StartStateFigure){
-				currentState = s;
-				break;
+				if(!s.getModel().getIsInternalState())
+				{
+					currentState = s;
+					break;
+				}
 			}
 		}
 

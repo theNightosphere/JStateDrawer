@@ -113,7 +113,7 @@ public class DrawingChecker {
 				}
 
 			}
-			//TODO: Distinguish between internal and external start states. 
+
 			// Can only have one start state.
 			if(startStateCount > 1 || startStateCount <= 0)
 			{
