@@ -1,6 +1,9 @@
 Transition from start to Shit!
 Action Performed: Yay!
 
+Transition from Shit! to Shit!
+Transition from Shit! to default
+Transition from default to default
 Transition from Shit! to Fuck!
 Action Performed: Hah!
 
