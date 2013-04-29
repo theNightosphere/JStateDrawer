@@ -72,7 +72,7 @@ public class DrawingChecker {
 				}
 
 				// Get a count of t
-				if(f instanceof StartStateFigure) 
+				if(f instanceof StartStateFigure && !((StartStateFigure) f).getModel().getIsInternalState()) 
 				{ 
 					startStateCount++;
 					startState = fig.getModel();
@@ -158,8 +158,10 @@ public class DrawingChecker {
 			currentState = openList.pop();
 			closedList.add(currentState);
 			HashSet<TransitionFigure> currentTransitions = new HashSet<TransitionFigure>(currentState.getOutgoingTransitions());
-			// If the state is not an EndState and has no outgoing transitions, the graph is not well-formed.
-			if(!(currentState instanceof EndStateFigure) && currentTransitions.size() < 1)
+			// If the state is not an EndState, has no outgoing transitions, 
+			// and the state isnt' a nested state, then the graph is not well-formed.
+			if((!(currentState instanceof EndStateFigure) && currentTransitions.size() < 1)
+				&& (!currentState.getModel().getIsInternalState()))
 			{
 				errorString = String.format("The state %s has no outgoing transitions but it is not an end state.", currentState.getName());
 				return false;
@@ -212,8 +214,10 @@ public class DrawingChecker {
 			currentState = openList.pop();
 			closedList.add(currentState);
 			HashSet<TransitionModel> currentTransitions = new HashSet<TransitionModel>(currentState.getOutgoingTransitions());
-			// If the state is not an EndState and has no outgoing transitions, the graph is not well-formed.
-			if((!currentState.getName().equals("end")) && currentTransitions.size() < 1)
+			// If the state is not an EndState, has no outgoing transitions,
+			// and is not a nested state, then the graph is not well-formed.
+			if(((!currentState.getName().equals("end")) && currentTransitions.size() < 1)
+					&& !currentState.getIsInternalState())
 			{
 				errorString = String.format("The state %s has no outgoing transitions but it is not an end state.", currentState.getName());
 				return false;

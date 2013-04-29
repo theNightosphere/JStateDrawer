@@ -24,6 +24,7 @@ import edu.uwm.JStateDrawer.Models.EndStateModel;
 import edu.uwm.JStateDrawer.Models.StartStateModel;
 import edu.uwm.JStateDrawer.Models.StateFigureModel;
 import edu.uwm.JStateDrawer.Models.TransitionModel;
+import edu.uwm.JStateDrawer.figures.StateFigure;
 
 public class StateFigureModelTests {
 
@@ -536,6 +537,10 @@ public class StateFigureModelTests {
 				new StateFigureModel(), new StateFigureModel()));
 		StateFigureModel test1 = new StateFigureModel("innerState1", true);
 		StateFigureModel test2 = new StateFigureModel("innerState2", true);
+		StateFigure t1fig = new StateFigure();
+		StateFigure t2fig = new StateFigure();
+		test1.setFigure(t1fig);
+		test2.setFigure(t2fig);
 		sm.addInternalState(test1);
 		sm.addInternalState(test2);
 		assertEquals(sm.exportXML(),
