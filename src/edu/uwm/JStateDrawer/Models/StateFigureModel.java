@@ -486,12 +486,6 @@ public class StateFigureModel {
 		{
 			if(myTransitionEvents.containsKey(oldEvent))
 			{
-				// If this state already HAS a state with the new name,
-				// return false. We do not want to have to transitions with the same event!
-				if(myTransitionEvents.containsKey(newEvent))
-				{
-					return false;
-				}
 				TransitionModel transToUpdate = myTransitionEvents.remove(oldEvent);
 
 				myTransitionEvents.put(newEvent, transitionToUpdate);
@@ -501,12 +495,6 @@ public class StateFigureModel {
 			// Consider it like 'put'
 			else if(!myTransitionEvents.containsValue(oldEvent))
 			{
-				// However, if the new transition has the same event as an already-existing
-				// transition, we do not allow the transition to take its new name.
-				if(myTransitionEvents.containsKey(newEvent))
-				{
-					return false;
-				}
 				myTransitionEvents.put(newEvent, transitionToUpdate);
 				return true;
 			}

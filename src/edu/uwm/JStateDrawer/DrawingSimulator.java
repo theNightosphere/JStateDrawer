@@ -33,15 +33,15 @@ import edu.uwm.JStateDrawer.figures.TransitionFigure;
  * @author Chad Fisher
  */
 public class DrawingSimulator {
-	
+
 	final int sysWait = 1500;
-	
+
 	public DrawingSimulator(){
 		//TODO Tell the view to repaint after changing the attribute or sleeping the Thread.
 	}
 
 	public void simulateD(Drawing view, URI u, boolean inDrawing) throws FileNotFoundException, InterruptedException{
-		StateFigure parent = null;
+		StateFigureModel parent = null;
 		LinkedList<StateFigure> statelist = new LinkedList<StateFigure>();
 		view.addFigureListener(new FigureAdapter());
 		for(Figure s : view.getFiguresFrontToBack()){
@@ -53,7 +53,7 @@ public class DrawingSimulator {
 		}
 		String readString = "";
 		String printString = "";
-		StateFigure currentState = null;
+		StateFigureModel currentState = null;
 
 		Scanner f = new Scanner(new FileReader(u.getPath()));
 		PrintWriter p = new PrintWriter(new File("JSimOutput.txt"));
@@ -62,7 +62,7 @@ public class DrawingSimulator {
 			if (s instanceof StartStateFigure){
 				if(!s.getModel().getIsInternalState())
 				{
-					currentState = s;
+					currentState = s.getModel();
 					break;
 				}
 			}
@@ -83,13 +83,13 @@ public class DrawingSimulator {
 				p.flush();
 				break;
 			}
-			//System.out.println("Read Action: " + readString);
-			if (currentState.getModel().getActionsByEvent(readString) != null) {
-				actionList = currentState.getModel().getActionsByEvent(readString);
+			System.out.println("Read Action: " + readString);
+			if (currentState.getActionsByEvent(readString) != null) {
+				actionList = currentState.getActionsByEvent(readString);
 				if (inDrawing) {
-					recolor(currentState, Color.ORANGE);
+					recolor(currentState.getFigure(), Color.ORANGE);
 					Thread.sleep(sysWait/4);
-					recolor(currentState, Color.BLUE);
+					recolor(currentState.getFigure(), Color.BLUE);
 					Thread.sleep(sysWait/4);
 				}
 				for(String action : actionList)
@@ -98,8 +98,8 @@ public class DrawingSimulator {
 					p.println(printString);
 					p.flush();
 				}
-				if(currentState.getModel().getParentState() != null){
-					if (currentState.getModel().getParentState().getTransitionByEvent(readString) != null){
+				if(currentState.getParentState() != null){
+					if (currentState.getParentState().getTransitionByEvent(readString) != null){
 						currentState = parent;
 						parent = null;
 						printString = "Exiting Nest of " + currentState.getName();
@@ -107,32 +107,19 @@ public class DrawingSimulator {
 						p.flush();
 					}
 				}
-				if(currentState.getModel().getTransitionByEvent(readString) != null)
+				if(currentState.getTransitionByEvent(readString) != null)
 				{
-					ArrayList<String> exitActions = (ArrayList<String>) currentState.getModel().getActionsByEvent("EXIT");
-					if(exitActions != null)
-					{
-						for(String action : exitActions)
-						{
-							printString = "Exit action: " + action + "\n";
-							p.println(printString);
-							p.flush();
-						}
-					}
+					printExitActions(currentState, p);
 
-					TransitionFigure triggeredTransitionFigure = null;
-					for (TransitionFigure s : currentState.getOutgoingTransitions()){
-						if (s.getModel().getEvent().equals(readString)){
-							triggeredTransitionFigure = s;
-							break;
-						}
-					}
-					printString = "Transition from " + currentState.getModel().getName() + " to " + triggeredTransitionFigure.getModel().getEndState().getName();
+					TransitionModel triggeredTransitionFigure = null;
+					triggeredTransitionFigure = findTriggeredTransition(
+							readString, currentState, triggeredTransitionFigure);
+					printString = "Transition from " + currentState.getName() + " to " + triggeredTransitionFigure.getEndState().getName();
 					p.println(printString);
 					p.flush();
 
 					if (parent == null){
-						if (triggeredTransitionFigure.getEndStateFigure().getModel().getParentState() != null){
+						if (triggeredTransitionFigure.getEndState().getParentState() != null){
 							parent = currentState;
 							printString = "Entering Nest of " + currentState.getName();
 							p.println(printString);
@@ -141,35 +128,24 @@ public class DrawingSimulator {
 					}
 
 					if (inDrawing){
-						recolor(currentState.getPresentationFigure(), Color.GREEN);
-						recolor(triggeredTransitionFigure, Color.BLUE);
-
-						currentState = triggeredTransitionFigure.getEndStateFigure();
-
-						if (parent != null) recolor(parent, Color.YELLOW);
-						recolor(currentState, Color.BLUE);
-						Thread.sleep(sysWait);
-						recolor(triggeredTransitionFigure, Color.GREEN);
+						currentState = changeStateColorForTransition(parent,
+								currentState, triggeredTransitionFigure);
 					}
-					else currentState = triggeredTransitionFigure.getEndStateFigure();
-
-					ArrayList<String> entryActions = (ArrayList<String>) currentState.getModel().getActionsByEvent("ENTRY");
-					if(entryActions != null)
+					else
 					{
-						for(String action : entryActions)
-						{
-							printString = "Entry action: " + action + "\n\n";
-							p.println(printString);
-							p.flush();
-						}
+						currentState = triggeredTransitionFigure.getEndState();
 					}
+
+					ArrayList<String> entryActions = (ArrayList<String>) currentState.getActionsByEvent("ENTRY");
+					printEntryActions(p, entryActions);
 
 				}
 
-			}else if (parent != null)
+			}
+			else if (parent != null)
 			{
-				if (parent.getModel().getTransitionByEvent(readString) != null){
-					if (inDrawing) recolor(currentState.getPresentationFigure(), Color.GREEN);
+				if (parent.getTransitionByEvent(readString) != null){
+					if (inDrawing) recolor(currentState.getFigure(), Color.GREEN);
 					currentState = parent;
 					parent = null;
 
@@ -177,30 +153,17 @@ public class DrawingSimulator {
 					p.println(printString);
 					p.flush();
 				}
-				ArrayList<String> exitActions = (ArrayList<String>) currentState.getModel().getActionsByEvent("EXIT");
-				if(exitActions != null)
-				{
-					for(String action : exitActions)
-					{
-						printString = "Exit action: " + action + "\n";
-						p.println(printString);
-						p.flush();
-					}
-				}
+				printExitActions(currentState, p);
 
-				TransitionFigure triggeredTransitionFigure = null;
-				for(TransitionFigure s : currentState.getOutgoingTransitions()){
-					if (s.getModel().getEvent().equals(readString)){
-						triggeredTransitionFigure = s;
-						break;
-					}
-				}
-				printString = "Transition from " + currentState.getModel().getName() + " to " + triggeredTransitionFigure.getEndStateFigure().getName();
+				TransitionModel triggeredTransitionFigure = null;
+				triggeredTransitionFigure = findTriggeredTransition(readString,
+						currentState, triggeredTransitionFigure);
+				printString = "Transition from " + currentState.getName() + " to " + triggeredTransitionFigure.getEndState().getName();
 				p.println(printString);
 				p.flush();
-				
+
 				if (parent == null){
-					if (triggeredTransitionFigure.getEndStateFigure().getModel().getParentState() != null){
+					if (triggeredTransitionFigure.getEndState().getParentState() != null){
 						parent = currentState;
 						printString = "Entering Nest of " + currentState.getName();
 						p.println(printString);
@@ -209,56 +172,31 @@ public class DrawingSimulator {
 				}
 
 				if (inDrawing){
-					recolor(currentState.getPresentationFigure(), Color.GREEN);
-					recolor(triggeredTransitionFigure, Color.BLUE);
-
-					currentState = triggeredTransitionFigure.getEndStateFigure();
-
-					if (parent != null) recolor(parent, Color.YELLOW);
-					recolor(currentState, Color.BLUE);
-					Thread.sleep(sysWait);
-					recolor(triggeredTransitionFigure, Color.GREEN);
+					currentState = changeStateColorForTransition(parent,
+							currentState, triggeredTransitionFigure);
 				}
-				else currentState = triggeredTransitionFigure.getEndStateFigure();
+				else currentState = triggeredTransitionFigure.getEndState();
 
-				ArrayList<String> entryActions = (ArrayList<String>) currentState.getModel().getActionsByEvent("ENTRY");
-				if(entryActions != null)
-				{
-					for(String action : entryActions)
-					{
-						printString = "Entry action: " + action + "\n\n";
-						p.println(printString);
-						p.flush();
-					}
-				}
+				ArrayList<String> entryActions = (ArrayList<String>) currentState.getActionsByEvent("ENTRY");
+				printEntryActions(p, entryActions);
 
 			}
-			else if(currentState.getModel().getTransitionByEvent(readString) != null)
+			else if(currentState.getTransitionByEvent(readString) != null)
 			{
-				ArrayList<String> exitActions = (ArrayList<String>) currentState.getModel().getActionsByEvent("EXIT");
-				if(exitActions != null)
-				{
-					for(String action : exitActions)
-					{
-						printString = "Exit action: " + action + "\n";
-						p.println(printString);
-						p.flush();
-					}
-				}
-
-				TransitionFigure triggeredTransitionFigure = null;
-				for(TransitionFigure s : currentState.getOutgoingTransitions()){
-					if (s.getModel().getEvent().equals(readString)){
-						triggeredTransitionFigure = s;
-						break;
-					}
-				}
-				printString = "Transition from " + currentState.getModel().getName() + " to " + triggeredTransitionFigure.getEndStateFigure().getName();
+				printExitActions(currentState, p);
+				System.out.println("read string: " + readString);
+				TransitionModel triggeredTransitionFigure = null;
+				System.out.println("outgoing transitions" + currentState.getOutgoingTransitions());
+				triggeredTransitionFigure = findTriggeredTransition(readString,
+						currentState, triggeredTransitionFigure);
+				System.out.println("from: " + currentState);
+				System.out.println("to: " + triggeredTransitionFigure);
+				printString = "Transition from " + currentState.getName() + " to " + triggeredTransitionFigure.getEndState().getName();
 				p.println(printString);
 				p.flush();
 
 				if (parent == null){
-					if (triggeredTransitionFigure.getEndStateFigure().getModel().getParentState() != null){
+					if (triggeredTransitionFigure.getEndState().getParentState() != null){
 						parent = currentState;
 						printString = "Entering Nest of " + currentState.getName();
 						p.println(printString);
@@ -267,37 +205,22 @@ public class DrawingSimulator {
 				}
 
 				if (inDrawing){
-					recolor(currentState.getPresentationFigure(), Color.GREEN);
-					recolor(triggeredTransitionFigure, Color.BLUE);
-
-					currentState = triggeredTransitionFigure.getEndStateFigure();
-
-					if (parent != null) recolor(parent, Color.YELLOW);
-					recolor(currentState, Color.BLUE);
-					Thread.sleep(sysWait);
-					recolor(triggeredTransitionFigure, Color.GREEN);
+					currentState = changeStateColorForTransition(parent,
+							currentState, triggeredTransitionFigure);
 				}
-				else currentState = triggeredTransitionFigure.getEndStateFigure();
+				else currentState = triggeredTransitionFigure.getEndState();
 
-				ArrayList<String> entryActions = (ArrayList<String>) currentState.getModel().getActionsByEvent("ENTRY");
-				if(entryActions != null)
-				{
-					for(String action : entryActions)
-					{
-						printString = "Entry action: " + action + "\n\n";
-						p.println(printString);
-						p.flush();
-					}
-				}
+				ArrayList<String> entryActions = (ArrayList<String>) currentState.getActionsByEvent("ENTRY");
+				printEntryActions(p, entryActions);
 
 			}
 			else{ 
 				//Red flashing occurs over 0.30 seconds
 				if (inDrawing){
 					for(int i = 0; i < 4; ++i){
-						recolor(currentState.getPresentationFigure(), Color.RED);
+						recolor(currentState.getFigure(), Color.RED);
 						Thread.sleep(sysWait/16);
-						recolor(currentState.getPresentationFigure(), Color.BLUE);
+						recolor(currentState.getFigure(), Color.BLUE);
 						Thread.sleep(sysWait/16);
 					}
 				}
@@ -306,7 +229,7 @@ public class DrawingSimulator {
 				p.println(printString);
 				p.flush();
 			}
-			if (currentState.getModel().getName().equals("end")) 
+			if (currentState.getName().equals("end")) 
 			{
 				break;
 			}
@@ -320,7 +243,90 @@ public class DrawingSimulator {
 		f.close();
 		p.close();
 	}
-	
+
+	/**
+	 * Takes the current state, determines if it has any exit actions, 
+	 * and prints them to the given printwriter if it has exit actions.
+	 * @param currentState
+	 * @param p
+	 */
+	private void printExitActions(StateFigureModel currentState, PrintWriter p) {
+		String printString;
+		ArrayList<String> exitActions = (ArrayList<String>) currentState.getActionsByEvent("EXIT");
+		if(exitActions != null)
+		{
+			for(String action : exitActions)
+			{
+				printString = "Exit action: " + action + "\n";
+				p.println(printString);
+				p.flush();
+			}
+		}
+	}
+
+	/**
+	 * Finds the transition that was triggered by a given event.
+	 * @param readString
+	 * @param currentState
+	 * @param triggeredTransitionFigure
+	 * @return The {@link TransitionModel} that was triggered by the event in {@code readString}
+	 */
+	private TransitionModel findTriggeredTransition(String readString,
+			StateFigureModel currentState,
+			TransitionModel triggeredTransitionFigure) {
+		for(TransitionModel s : currentState.getOutgoingTransitions()){
+			if (s.getEvent().equals(readString)){
+				triggeredTransitionFigure = s;
+				break;
+			}
+		}
+		return triggeredTransitionFigure;
+	}
+
+	private void printEntryActions(PrintWriter p, ArrayList<String> entryActions) {
+		String printString;
+		if(entryActions != null)
+		{
+			for(String action : entryActions)
+			{
+				printString = "Entry action: " + action + "\n\n";
+				p.println(printString);
+				p.flush();
+			}
+		}
+	}
+
+	/**
+	 * Convenience method that changes the color of the old and new state during simulation
+	 * 
+	 * @param parent
+	 * @param currentState
+	 * @param triggeredTransitionFigure
+	 * @return
+	 * @throws InterruptedException
+	 */
+	private StateFigureModel changeStateColorForTransition(
+			StateFigureModel parent, StateFigureModel currentState,
+			TransitionModel triggeredTransitionFigure)
+			throws InterruptedException {
+		recolor(currentState.getFigure(), Color.GREEN);
+		recolor(triggeredTransitionFigure.getFigure(), Color.BLUE);
+
+		currentState = triggeredTransitionFigure.getEndState();
+
+		if (parent != null) recolor(parent.getFigure(), Color.YELLOW);
+		recolor(currentState.getFigure(), Color.BLUE);
+		Thread.sleep(sysWait);
+		recolor(triggeredTransitionFigure.getFigure(), Color.GREEN);
+		return currentState;
+	}
+
+	/**
+	 * Convenience method that calls {@code x.willChange()} and {@code x.changed()}, 
+	 * while changing the color of {@code x} to {@code y}.
+	 * @param x
+	 * @param y
+	 */
 	private void recolor(Figure x, Color y){
 		x.willChange();
 		x.set(STROKE_COLOR, y);

@@ -10,6 +10,8 @@ import java.util.regex.Pattern;
 import org.jhotdraw.xml.DOMInput;
 import org.jhotdraw.xml.DOMOutput;
 
+import edu.uwm.JStateDrawer.figures.TransitionFigure;
+
 public class TransitionModel {
 
 	private StateFigureModel myStartState, myEndState;
@@ -18,7 +20,7 @@ public class TransitionModel {
 	// 0 or more uppercase letters, numbers, or underscores.
 	private Pattern p = Pattern.compile("[A-Z][A-Z0-9_]*+");
 	private List<String> myActions;
-	
+	private TransitionFigure myFigure;
 	
 	public TransitionModel()
 	{
@@ -27,6 +29,7 @@ public class TransitionModel {
 		myEventTrigger = "DEFAULT";
 		myTarget = "DEFAULT";
 		myActions = new ArrayList<String>();
+		myFigure = new TransitionFigure();
 	}
 	
 	/**
@@ -308,5 +311,23 @@ public class TransitionModel {
 	public String toString()
 	{
 		return "TransitionModel#" + hashCode() + " " + myEventTrigger;
+	}
+	
+	/**
+	 * Sets the {@link TransitionFigure} associated with this {@link TransitionModel}
+	 * so long as {@code fig} is not null.
+	 * @param fig
+	 */
+	public void setFigure(TransitionFigure fig)
+	{
+		if (fig != null)
+		{
+			myFigure = fig;
+		}
+	}
+	
+	public TransitionFigure getFigure()
+	{
+		return myFigure;
 	}
 }

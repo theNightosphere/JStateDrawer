@@ -112,12 +112,10 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
     	
     	/**
     	 * Sets the text for the transition and updates the transition model.
-    	 * If the new text is the same as the text for another transition leaving the same figure,
-    	 * then the figure and model are not updated.
-    	 * The one exception to this case is the default event name "EVENT", which is allowed
-    	 * to be duplicated so that a transition does not have to be renamed before a new one can be
-    	 * added. However, any function that checks the validity of a diagram will ensure that
-    	 * there is only one transition with a given event leaving a given state. 
+    	 * If the new text is the same as the text on an existing transition model exiting
+    	 * the same figure, it will not throw an error even though this is an erroneous state.
+    	 * However, whenever a function is called that validates the drawing (e.g. Simulate Current
+    	 * Drawing), this will cause an error message to appear. 
     	 */
     	@Override
     	public void setText(String newText)
@@ -360,6 +358,7 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
         TransitionModel tm = new TransitionModel();
         myModel = tm;
         that.myModel = tm;
+        that.myModel.setFigure(that);
         that.basicRemoveAllChildren();
         
         RectangleFigure transitionInfoDisplay = new RectangleFigure();
@@ -462,7 +461,9 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
 		in.openElement("transitionContainer");
 		myModel = (TransitionModel)in.readObject();
 		in.closeElement();
-
+		setName(myModel.getEvent());
+		myModel.setFigure(this);
+		
 		setName(myModel.getEvent());
 		ArrayList<String> actions = (ArrayList<String>) myModel.getAllActions();
 		for(int i = 0; i < actions.size(); i++)
