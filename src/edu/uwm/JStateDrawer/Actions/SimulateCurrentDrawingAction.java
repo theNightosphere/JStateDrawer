@@ -1,5 +1,8 @@
 package edu.uwm.JStateDrawer.Actions;
 
+import static org.jhotdraw.draw.AttributeKeys.STROKE_COLOR;
+
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.io.FileNotFoundException;
@@ -15,6 +18,7 @@ import org.jhotdraw.app.Application;
 import org.jhotdraw.app.View;
 import org.jhotdraw.app.action.AbstractViewAction;
 import org.jhotdraw.draw.Drawing;
+import org.jhotdraw.draw.Figure;
 import org.jhotdraw.gui.JFileURIChooser;
 import org.jhotdraw.gui.JSheet;
 import org.jhotdraw.gui.URIChooser;
@@ -99,6 +103,11 @@ public class SimulateCurrentDrawingAction extends AbstractViewAction {
 									new DrawingSimulator().simulateD(((DrawerView) activeView).getDrawing(), uri, true);
 								} catch (InterruptedException e) {
 									e.printStackTrace();
+									for (Figure s : ((DrawerView) activeView).getDrawing().getFiguresFrontToBack()){
+										s.willChange();
+										s.set(STROKE_COLOR, Color.BLACK);
+										s.changed();
+									}
 								} 
 								return null;
 							}

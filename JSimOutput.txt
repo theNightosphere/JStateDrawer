@@ -1,14 +1,31 @@
-Transition from start to Shit!
-Action Performed: Yay!
+Transition from start to default
+Action Performed: action
 
-Transition from Shit! to Shit!
-Transition from Shit! to default
 Transition from default to default
-Transition from Shit! to Fuck!
-Action Performed: Hah!
+Action Performed: action
 
-Action Performed: Boo!
+Transition from default to red
+Transition from red to red
+Entering Nest of red
+Transition from red to default
+Action Performed: beans
 
-Nothing triggered by event: SHIT
+Transition from default to default
+Transition from default to default
+Transition from default to default
+Action Performed: beans
 
-Transition from Fuck! to end
+Exiting Nest of red
+Transition from red to default
+Transition from default to default
+Entering Nest of default
+Transition from default to default
+Action Performed: get
+
+Transition from default to default
+Action Performed: renew
+
+Transition from default to default
+Transition from default to default
+Incomplete action list.
+

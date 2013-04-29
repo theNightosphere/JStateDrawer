@@ -131,24 +131,27 @@ public class DrawingSimulator {
 					p.println(printString);
 					p.flush();
 
-					if (triggeredTransitionFigure.getEndStateFigure().getModel().getParentState() != null){
-						if (inDrawing) recolor(currentState, Color.YELLOW);
-						parent = currentState;
-						printString = "Entering Nest of " + currentState.getName();
-						p.println(printString);
-						p.flush();
+					if (parent == null){
+						if (triggeredTransitionFigure.getEndStateFigure().getModel().getParentState() != null){
+							parent = currentState;
+							printString = "Entering Nest of " + currentState.getName();
+							p.println(printString);
+							p.flush();
+						}
 					}
-					
-					if(inDrawing){
-						recolor(currentState, Color.GREEN);
+
+					if (inDrawing){
+						recolor(currentState.getPresentationFigure(), Color.GREEN);
 						recolor(triggeredTransitionFigure, Color.BLUE);
-						
+
 						currentState = triggeredTransitionFigure.getEndStateFigure();
 
+						if (parent != null) recolor(parent, Color.YELLOW);
 						recolor(currentState, Color.BLUE);
 						Thread.sleep(sysWait);
 						recolor(triggeredTransitionFigure, Color.GREEN);
 					}
+					else currentState = triggeredTransitionFigure.getEndStateFigure();
 
 					ArrayList<String> entryActions = (ArrayList<String>) currentState.getModel().getActionsByEvent("ENTRY");
 					if(entryActions != null)
@@ -195,20 +198,28 @@ public class DrawingSimulator {
 				printString = "Transition from " + currentState.getModel().getName() + " to " + triggeredTransitionFigure.getEndStateFigure().getName();
 				p.println(printString);
 				p.flush();
+				
+				if (parent == null){
+					if (triggeredTransitionFigure.getEndStateFigure().getModel().getParentState() != null){
+						parent = currentState;
+						printString = "Entering Nest of " + currentState.getName();
+						p.println(printString);
+						p.flush();
+					}
+				}
 
 				if (inDrawing){
 					recolor(currentState.getPresentationFigure(), Color.GREEN);
 					recolor(triggeredTransitionFigure, Color.BLUE);
-					if (triggeredTransitionFigure.getEndStateFigure().getModel().getParentState() != null){
-						recolor(currentState.getPresentationFigure(), Color.YELLOW);
-					}
 
 					currentState = triggeredTransitionFigure.getEndStateFigure();
 
-					recolor(currentState.getPresentationFigure(), Color.BLUE);
+					if (parent != null) recolor(parent, Color.YELLOW);
+					recolor(currentState, Color.BLUE);
 					Thread.sleep(sysWait);
 					recolor(triggeredTransitionFigure, Color.GREEN);
 				}
+				else currentState = triggeredTransitionFigure.getEndStateFigure();
 
 				ArrayList<String> entryActions = (ArrayList<String>) currentState.getModel().getActionsByEvent("ENTRY");
 				if(entryActions != null)
@@ -246,12 +257,13 @@ public class DrawingSimulator {
 				p.println(printString);
 				p.flush();
 
-
-				if (triggeredTransitionFigure.getEndStateFigure().getModel().getParentState() != null){
-					parent = currentState;
-					printString = "Entering Nest of " + currentState.getName();
-					p.println(printString);
-					p.flush();
+				if (parent == null){
+					if (triggeredTransitionFigure.getEndStateFigure().getModel().getParentState() != null){
+						parent = currentState;
+						printString = "Entering Nest of " + currentState.getName();
+						p.println(printString);
+						p.flush();
+					}
 				}
 
 				if (inDrawing){
