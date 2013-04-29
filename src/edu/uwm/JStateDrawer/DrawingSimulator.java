@@ -101,6 +101,10 @@ public class DrawingSimulator {
 				if(currentState.getModel().getParentState() != null){
 					if (currentState.getModel().getParentState().getTransitionByEvent(readString) != null){
 						currentState = parent;
+						parent = null;
+						printString = "Exiting Nest of " + currentState.getName();
+						p.println(printString);
+						p.flush();
 					}
 				}
 				if(currentState.getModel().getTransitionByEvent(readString) != null)
@@ -127,13 +131,17 @@ public class DrawingSimulator {
 					p.println(printString);
 					p.flush();
 
+					if (triggeredTransitionFigure.getEndStateFigure().getModel().getParentState() != null){
+						if (inDrawing) recolor(currentState, Color.YELLOW);
+						parent = currentState;
+						printString = "Entering Nest of " + currentState.getName();
+						p.println(printString);
+						p.flush();
+					}
+					
 					if(inDrawing){
 						recolor(currentState, Color.GREEN);
 						recolor(triggeredTransitionFigure, Color.BLUE);
-						if (triggeredTransitionFigure.getEndStateFigure().getModel().getParentState() != null){
-							recolor(currentState, Color.YELLOW);
-							parent = currentState;
-						}
 						
 						currentState = triggeredTransitionFigure.getEndStateFigure();
 
@@ -161,6 +169,10 @@ public class DrawingSimulator {
 					if (inDrawing) recolor(currentState.getPresentationFigure(), Color.GREEN);
 					currentState = parent;
 					parent = null;
+
+					printString = "Exiting Nest of " + currentState.getName();
+					p.println(printString);
+					p.flush();
 				}
 				ArrayList<String> exitActions = (ArrayList<String>) currentState.getModel().getActionsByEvent("EXIT");
 				if(exitActions != null)
@@ -237,6 +249,9 @@ public class DrawingSimulator {
 
 				if (triggeredTransitionFigure.getEndStateFigure().getModel().getParentState() != null){
 					parent = currentState;
+					printString = "Entering Nest of " + currentState.getName();
+					p.println(printString);
+					p.flush();
 				}
 
 				if (inDrawing){
