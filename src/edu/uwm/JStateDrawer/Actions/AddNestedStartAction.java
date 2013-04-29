@@ -18,6 +18,7 @@ import org.jhotdraw.util.ResourceBundleUtil;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
 import edu.uwm.JStateDrawer.DrawerView;
+import edu.uwm.JStateDrawer.figures.EndStateFigure;
 import edu.uwm.JStateDrawer.figures.StartStateFigure;
 import edu.uwm.JStateDrawer.figures.StateFigure;
 import edu.uwm.JStateDrawer.figures.TransitionFigure;
@@ -42,7 +43,7 @@ public class AddNestedStartAction extends AbstractViewAction {
         StartStateFigure nestedStart;
         for(Figure fig : figures)
         {
-        	if(fig instanceof StateFigure)
+        	if(isNonNestedStateFigure(fig) && isNotStartOrEndState(fig))
         	{
         		nestedStart = ((StateFigure)fig).addNestedStartState();
         		nestedStart.getModel().setFigure(nestedStart);
@@ -72,5 +73,26 @@ public class AddNestedStartAction extends AbstractViewAction {
         }
 
 	}
+	
+	/**
+	 * Checks whether the figure {@code f} is a StateFigure, and whether or not it is nested. 
+	 * @param f
+	 * @return {@code true} if {@code f} is a {@link StateFigure} and is not a nested figure. 
+	 */
+	private boolean isNonNestedStateFigure(Figure f)
+	{
+		return (f instanceof StateFigure) && !((StateFigure) f).getModel().getIsInternalState();
+	}
 
+	/**
+	 * Checks whether or not the figure {@code f} is a {@link StartStateFigure} or 
+	 * {@link EndStateFigure}.
+	 * @param f
+	 * @return {@code true} if the figure {@code f} is neither a {@link StartStateFigure} 
+	 * nor {@link EndStateFigure}
+	 */
+	private boolean isNotStartOrEndState(Figure f)
+	{
+		return !((f instanceof StartStateFigure) || (f instanceof EndStateFigure));
+	}
 }
