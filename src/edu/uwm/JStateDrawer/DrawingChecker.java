@@ -166,11 +166,24 @@ public class DrawingChecker {
 				errorString = String.format("The state %s has no outgoing transitions but it is not an end state.", currentState.getName());
 				return false;
 			}
+			HashSet<String> transitionEvents = new HashSet<String>(currentTransitions.size());
 			for(TransitionFigure t : currentTransitions)
 			{
+				String event = t.getModel().getEvent();
 				if (!(closedList.contains(t.getEndFigure())))
 				{
 					openList.push(t.getEndStateFigure());
+				}
+				// transitionEvents contains this transition's event ONLY if there are
+				// two or more transitions with the same triggering event. This is invalid.
+				if (transitionEvents.contains(event))
+				{
+					errorString = String.format("The state %s has 2 or more outgoing transitions with the same triggering event: %s.", currentState.getName(), event);
+					return false;
+				}
+				else
+				{
+					transitionEvents.add(event);
 				}
 			}
 		}
@@ -222,11 +235,24 @@ public class DrawingChecker {
 				errorString = String.format("The state %s has no outgoing transitions but it is not an end state.", currentState.getName());
 				return false;
 			}
+			HashSet<String> transitionEvents = new HashSet<String>(currentTransitions.size());
 			for(TransitionModel t : currentTransitions)
 			{
+				String event = t.getEvent();
 				if (!(closedList.contains(t.getEndState())))
 				{
 					openList.push(t.getEndState());
+				}
+				// transitionEvents contains this transition's event ONLY if there are
+				// two or more transitions with the same triggering event. This is invalid.
+				if (transitionEvents.contains(event))
+				{
+					errorString = String.format("The state %s has 2 or more outgoing transitions with the same triggering event: %s.", currentState.getName(), event);
+					return false;
+				}
+				else
+				{
+					transitionEvents.add(event);
 				}
 			}
 		}

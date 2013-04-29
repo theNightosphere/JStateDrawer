@@ -10,7 +10,6 @@ import java.util.regex.Pattern;
 import org.jhotdraw.xml.DOMInput;
 import org.jhotdraw.xml.DOMOutput;
 
-//TODO: Add regex checking of trigger name.
 public class TransitionModel {
 
 	private StateFigureModel myStartState, myEndState;
@@ -135,8 +134,10 @@ public class TransitionModel {
 	 * @param trigger A String that is used to trigger the transition.
 	 * @throws {@link IllegalArgumentException} if trigger is not at least length 1.
 	 * @throws {@link IllegalArgumentException} if the trigger is not well-formed according to the definition in the method summary.
+	 * @return true if the Transition's event is successfully updated (its name is valid and 
+	 * its start state does not already contain a transition with the same triggering event)
 	 */
-	public void setEvent(String newEvent){
+	public boolean setEvent(String newEvent){
 		Matcher m = p.matcher(newEvent);
 		if(newEvent.length() < 1)
 		{
@@ -148,8 +149,12 @@ public class TransitionModel {
 			error += " Triggers must start with an uppercase letter and be followed by zero or more uppercase letters, numbers, and underscores.";
 			throw new IllegalArgumentException(error);
 		}
-		myStartState.changeTransitionEvent(myEventTrigger, newEvent, this);
-		myEventTrigger = newEvent;
+		if(myStartState.changeTransitionEvent(myEventTrigger, newEvent, this))
+		{
+			myEventTrigger = newEvent;
+			return true;
+		}
+		return false;
 	}
 	
 	/**

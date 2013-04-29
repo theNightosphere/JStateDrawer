@@ -450,13 +450,15 @@ public class StateFigureModel {
 	 * @param triggerEvent A string that triggers a transition.
 	 * @param t The {@link TransitionModel} that is triggered by the triggerEvent String.
 	 */
-	public void addTransition(String triggerEvent, TransitionModel t)
+	public boolean addTransition(String triggerEvent, TransitionModel t)
 	{
 		if (!myTransitionEvents.containsKey(triggerEvent))
 		{
 			myTransitionEvents.put(triggerEvent, t);
 			myOutgoingTransitions.add(t);
+			return true;
 		}
+		return false;
 	}
 	
 	/**
@@ -484,6 +486,12 @@ public class StateFigureModel {
 		{
 			if(myTransitionEvents.containsKey(oldEvent))
 			{
+				// If this state already HAS a state with the new name,
+				// return false. We do not want to have to transitions with the same event!
+				if(myTransitionEvents.containsKey(newEvent))
+				{
+					return false;
+				}
 				TransitionModel transToUpdate = myTransitionEvents.remove(oldEvent);
 
 				myTransitionEvents.put(newEvent, transitionToUpdate);
@@ -493,6 +501,12 @@ public class StateFigureModel {
 			// Consider it like 'put'
 			else if(!myTransitionEvents.containsValue(oldEvent))
 			{
+				// However, if the new transition has the same event as an already-existing
+				// transition, we do not allow the transition to take its new name.
+				if(myTransitionEvents.containsKey(newEvent))
+				{
+					return false;
+				}
 				myTransitionEvents.put(newEvent, transitionToUpdate);
 				return true;
 			}

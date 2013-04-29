@@ -111,7 +111,13 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
     	}
     	
     	/**
-    	 * Sets the text for the transition and updates the transition model. 
+    	 * Sets the text for the transition and updates the transition model.
+    	 * If the new text is the same as the text for another transition leaving the same figure,
+    	 * then the figure and model are not updated.
+    	 * The one exception to this case is the default event name "EVENT", which is allowed
+    	 * to be duplicated so that a transition does not have to be renamed before a new one can be
+    	 * added. However, any function that checks the validity of a diagram will ensure that
+    	 * there is only one transition with a given event leaving a given state. 
     	 */
     	@Override
     	public void setText(String newText)
@@ -121,13 +127,26 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
     		{
     			if(myTransition != null)
     			{
-    				myTransition.myModel.setEvent(newText);
+    				if(myTransition.myModel.setEvent(newText) || newText.equals(DEFAULT_NAME))
+    				{
+    					super.setText(newText);
+    				}
+    				else
+    				{
+    					super.setText(oldText);
+    				}
     			}
     			else
     			{
-    				myModel.setEvent(newText);
+    				if(myModel.setEvent(newText) || newText.equals(DEFAULT_NAME))
+    				{
+    					super.setText(newText);
+    				}
+    				else
+    				{
+    					super.setText(oldText);
+    				}
     			}
-    			super.setText(newText);
     		}
     		catch(Exception e)
     		{
