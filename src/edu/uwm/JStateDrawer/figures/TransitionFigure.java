@@ -159,7 +159,7 @@ public class TransitionFigure extends LabeledLineConnectionFigure {
     /** Creates a new instance. */
     public TransitionFigure() {
     	myModel = new TransitionModel(DEFAULT_NAME, new StateFigureModel(), new StateFigureModel());
-        set(STROKE_COLOR, new Color(0x000099));
+        set(STROKE_COLOR, Color.black);
         set(STROKE_WIDTH, 1d);
         set(END_DECORATION, new ArrowTip());
         

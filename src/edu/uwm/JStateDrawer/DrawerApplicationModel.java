@@ -119,7 +119,6 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
         // AttributeKeys for the entity sets
         HashMap<AttributeKey, Object> attributes;
 
-        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.samples.pert.Labels");
         ResourceBundleUtil drawLabels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
         ResourceBundleUtil StateLabels = ResourceBundleUtil.getBundle("edu.uwm.JStateDrawer.Actions.Labels");
 
@@ -131,7 +130,7 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
         attributes.put(AttributeKeys.FILL_COLOR, Color.white);
         attributes.put(AttributeKeys.STROKE_COLOR, Color.black);
         attributes.put(AttributeKeys.TEXT_COLOR, Color.black);
-        ButtonFactory.addToolTo(tb, editor, new CreationTool(new StateFigure(false), attributes), "edit.createTask", labels);
+        ButtonFactory.addToolTo(tb, editor, new CreationTool(new StateFigure(false), attributes), "edit.createState", StateLabels);
 
         //StartStateFigure button
         attributes = new HashMap<AttributeKey, Object>();
@@ -146,7 +145,7 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
         attributes.put(AttributeKeys.STROKE_WIDTH, 3d);
         ButtonFactory.addToolTo(tb, editor, new CreationTool(new EndStateFigure(), attributes), "edit.EndState", StateLabels);
 
-     // Creates a nested state creation button.
+        // Creates a nested state creation button.
         attributes = new HashMap<AttributeKey, Object>();
         attributes.put(AttributeKeys.FILL_COLOR, Color.white);
         attributes.put(AttributeKeys.STROKE_COLOR, Color.black);
@@ -154,10 +153,10 @@ public class DrawerApplicationModel extends DefaultApplicationModel {
         ButtonFactory.addToolTo(tb, editor, new CreationTool(new StateFigure(true), attributes), "edit.internalState", StateLabels);
         
         attributes = new HashMap<AttributeKey, Object>();
-        attributes.put(AttributeKeys.STROKE_COLOR, new Color(0x000099));
-        ButtonFactory.addToolTo(tb, editor, new ConnectionTool(transitionTemplate, attributes), "edit.createDependency", labels);
+        attributes.put(AttributeKeys.STROKE_COLOR, Color.black);
+        ButtonFactory.addToolTo(tb, editor, new ConnectionTool(transitionTemplate, attributes), "edit.createTransition", StateLabels);
         tb.addSeparator();
-        ButtonFactory.addToolTo(tb, editor, new TextAreaCreationTool(new TextAreaFigure()), "edit.createTextArea", drawLabels);
+        //ButtonFactory.addToolTo(tb, editor, new TextAreaCreationTool(new TextAreaFigure()), "edit.createTextArea", drawLabels);
         
         
 
