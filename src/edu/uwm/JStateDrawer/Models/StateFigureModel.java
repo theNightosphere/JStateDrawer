@@ -712,6 +712,7 @@ public class StateFigureModel {
         	// Need to set as internal state and set its parent
         	internalStateFigure.getModel().setFigure(internalStateFigure);
         	internalStateFigure.getModel().setIsInternalState(true);
+        	internalStateFigure.showName();
         	// This should register internal state with this parent, 
         	internalStateFigure.getModel().setParentState(this);
         	in.closeElement();

@@ -1,31 +1,21 @@
-Transition from start to default
-Action Performed: action
+Transition from start to s1
+Entry action: test
 
-Transition from default to default
-Action Performed: action
 
-Transition from default to red
-Transition from red to red
-Entering Nest of red
-Transition from red to default
-Action Performed: beans
+Action Performed: great
 
-Transition from default to default
-Transition from default to default
-Transition from default to default
-Action Performed: beans
+Exit action: action
 
-Exiting Nest of red
-Transition from red to default
-Transition from default to default
-Entering Nest of default
-Transition from default to default
-Action Performed: get
+Transition from s1 to s1
+Entering Nest of s1
+Transition from s1 to internalPrint
+Entry action: great
 
-Transition from default to default
-Action Performed: renew
 
-Transition from default to default
-Transition from default to default
-Incomplete action list.
+Exiting Nest of s1
+Exit action: action
 
+Transition from s1 to s2
+Action Performed: testS2
+
+Transition from s2 to end

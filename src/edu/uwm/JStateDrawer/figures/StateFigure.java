@@ -341,28 +341,36 @@ public class StateFigure extends GraphicalCompositeFigure {
     			// IF the event is ENTRY, either it is being compared to another entry
     			// action, and their ordering is preserved, or it is being compared
     			// to a non-entry action and it is placed before event/action2
-    			if(eventO1.equals("ENTRY"))
+    			if(eventO1.equals("ENTRY") || eventO2.equals("ENTRY"))
     			{
     				if(eventO1.equals(eventO2))
     				{
     					return 0;
     				}
-    				else
+    				else if (eventO1.equals("ENTRY"))
     				{
     					return -1;
-    				}
-    			}
-    			// Same logic as with ENTRY, except EXIT actions must be after all
-    			// other actions
-    			else if(eventO1.equals("EXIT"))
-    			{
-    				if(eventO1.equals(eventO2))
-    				{
-    					return 0;
     				}
     				else
     				{
     					return 1;
+    				}
+    			}
+    			// Same logic as with ENTRY, except EXIT actions must be after all
+    			// other actions
+    			else if(eventO1.equals("EXIT") || eventO2.equals("EXIT"))
+    			{
+    				if(eventO1.equals(eventO2))
+    				{
+    					return 0;
+    				}
+    				else if (eventO1.equals("EXIT"))
+    				{
+    					return 1;
+    				}
+    				else
+    				{
+    					return -1;
     				}
     			}
     			// Else sort the strings by their natural ordering. 
@@ -575,8 +583,6 @@ public class StateFigure extends GraphicalCompositeFigure {
     	out.openElement("stateContainer");
     	out.writeObject(myModel);
     	out.closeElement();
-    	System.out.println("My internal states");
-    	System.out.println(getModel().getInternalStates());
     }
 
     @Override
@@ -663,6 +669,16 @@ public class StateFigure extends GraphicalCompositeFigure {
     {
     	myModel.removeOutgoingTransition(f.getModel());
     	myOutgoingTransitions.remove(f);
+    }
+    
+    /**
+     * Signals to the StateFigure that says it should display its name. Only implemented
+     * for {@link StartStateFigure}. Calling this on an {@link EndStateFigure} or
+     * {@link StateFigure} does nothing.
+     */
+    public void showName()
+    {
+    	//Nothing right now.
     }
     
     /**

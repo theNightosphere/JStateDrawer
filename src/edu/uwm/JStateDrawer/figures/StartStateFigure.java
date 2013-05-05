@@ -126,6 +126,19 @@ public class StartStateFigure extends StateFigure{
 		}
 	}
 	
+	/**
+	 * Signals to the {@link StartStateFigure} that it should display its name.
+	 */
+	@Override
+	public void showName()
+	{
+		TextFigure testText = new TextFigure(myModel.getName());
+    	((ListFigure)this.getChild(0)).add(testText);
+		testText.set(AttributeKeys.TEXT_COLOR, Color.red);
+		testText.set(AttributeKeys.FONT_BOLD, true);
+	}
+
+	
 	private TextFigure getNameFigure()
 	{
 		return (TextFigure)((ListFigure)this.getChild(0)).getChild(0);
@@ -149,10 +162,5 @@ public class StartStateFigure extends StateFigure{
 		}
         myModel.setFigure(this);
         set(AttributeKeys.FILL_COLOR, Color.black);
-        
-        TextFigure testText = new TextFigure(myModel.getName());
-        ((ListFigure)this.getChild(0)).add(testText);
-		testText.set(AttributeKeys.TEXT_COLOR, Color.red);
-		testText.set(AttributeKeys.FONT_BOLD, true);
 	}
 }
