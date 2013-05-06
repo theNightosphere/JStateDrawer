@@ -1,48 +1,21 @@
-Transition from start to Hold it!
-Entry action: Crouch
+Transition from start to s1
+Entry action: test
 
 
-Nothing triggered by event: CHARGE
+Action Performed: great
 
-Action Performed: Eagle
+Exit action: action
 
-Exit action: Run!
-
-Transition from Hold it! to Now!
-Entry action: See in dark
-
-
-Action Performed: Fight!
-
-Transition from Now! to Gandalf
-Transition from Gandalf to Gandalf
-During Transition:  Think Faster!
-Transition from Gandalf to Gandalf
-During Transition:  Think Faster!
-Transition from Gandalf to Gandalf
-During Transition:  Think Faster!
-Transition from Gandalf to Squirrel 2
-Transition from Squirrel 2 to Squirrel 2
-Entering Nest of Squirrel 2
-Transition from Squirrel 2 to That Guy!
-Action Performed: Yay!
-
-Transition from That Guy! to Woo!
-Nothing triggered by event: STILLKIDDING
-
-Action Performed: Brag
-
-Transition from Woo! to Intermediate
-Entry action: Complain
+Transition from s1 to s1
+Entering Nest of s1
+Transition from s1 to internalPrint
+Entry action: great
 
 
-Action Performed: Yell
+Exiting Nest of s1
+Exit action: action
 
-Exit action: Ignore
+Transition from s1 to s2
+Action Performed: testS2
 
-Transition from Intermediate to That Guy!
-Action Performed: Yay!
-
-Transition from That Guy! to Woo!
-Exiting Nest of Squirrel 2
-Transition from Squirrel 2 to end
+Transition from s2 to end
