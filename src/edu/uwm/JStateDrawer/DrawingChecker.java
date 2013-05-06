@@ -146,9 +146,9 @@ public class DrawingChecker {
 		openList.push(startState);
 		
 		// If the start state doesn't have at least 1 outgoing transition, the drawing is not valid.
-		if(startState.getOutgoingTransitions().size() < 0)
+		if(startState.getOutgoingTransitions().size() < 1)
 		{
-			errorString = String.format("There are %d transitions coming out of the start state. The start state may only have one outgoing transition.",
+			errorString = String.format("There are %d transitions coming out of the start state. The start state must have at least one outgoing transition.",
 					startState.getOutgoingTransitions().size());
 			return false;
 		}
@@ -215,9 +215,9 @@ public class DrawingChecker {
 		openList.push(startState);
 		
 		// If the start state has more than 1 outgoing transition, the drawing is not valid.
-		if(startState.getOutgoingTransitions().size() > 1)
+		if(startState.getOutgoingTransitions().size() < 1)
 		{
-			errorString = String.format("There are %d transitions coming out of the start state. The start state may only have one outgoing transition.",
+			errorString = String.format("There are %d transitions coming out of the start state. The start state must have at least one outgoing transition.",
 					startState.getOutgoingTransitions().size());
 			return false;
 		}
