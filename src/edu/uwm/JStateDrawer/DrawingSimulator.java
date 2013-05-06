@@ -87,7 +87,7 @@ public class DrawingSimulator {
 			if (currentState.getActionsByEvent(readString) != null) {
 				actionList = currentState.getActionsByEvent(readString);
 				if (inDrawing) {
-					recolor(currentState.getFigure(), Color.ORANGE);
+					recolor(currentState.getFigure(), Color.MAGENTA);
 					Thread.sleep(sysWait/4);
 					recolor(currentState.getFigure(), Color.BLUE);
 					Thread.sleep(sysWait/4);
@@ -126,6 +126,12 @@ public class DrawingSimulator {
 							p.flush();
 						}
 					}
+					
+					for (String s : triggeredTransitionFigure.getAllActions()){
+						printString = "During Transition:  " + s;
+						p.println(printString);
+						p.flush();
+					}
 
 					if (inDrawing){
 						currentState = changeStateColorForTransition(parent,
@@ -153,11 +159,15 @@ public class DrawingSimulator {
 					p.println(printString);
 					p.flush();
 				}
-				printExitActions(currentState, p);
+				
 
 				TransitionModel triggeredTransitionFigure = null;
 				triggeredTransitionFigure = findTriggeredTransition(readString,
 						currentState, triggeredTransitionFigure);
+				if (triggeredTransitionFigure != null){
+				
+				printExitActions(currentState, p);
+
 				printString = "Transition from " + currentState.getName() + " to " + triggeredTransitionFigure.getEndState().getName();
 				p.println(printString);
 				p.flush();
@@ -170,6 +180,12 @@ public class DrawingSimulator {
 						p.flush();
 					}
 				}
+				
+				for (String s : triggeredTransitionFigure.getAllActions()){
+					printString = "During Transition:  " + s;
+					p.println(printString);
+					p.flush();
+				}
 
 				if (inDrawing){
 					currentState = changeStateColorForTransition(parent,
@@ -179,7 +195,21 @@ public class DrawingSimulator {
 
 				ArrayList<String> entryActions = (ArrayList<String>) currentState.getActionsByEvent("ENTRY");
 				printEntryActions(p, entryActions);
+				}
+				else{
+					if (inDrawing){
+						for(int i = 0; i < 4; ++i){
+							recolor(currentState.getFigure(), Color.RED);
+							Thread.sleep(sysWait/16);
+							recolor(currentState.getFigure(), Color.BLUE);
+							Thread.sleep(sysWait/16);
+						}
+					}
 
+					printString = "Nothing triggered by event: " + readString + "\n";
+					p.println(printString);
+					p.flush();
+				}
 			}
 			else if(currentState.getTransitionByEvent(readString) != null)
 			{
@@ -202,6 +232,12 @@ public class DrawingSimulator {
 						p.println(printString);
 						p.flush();
 					}
+				}
+
+				for (String s : triggeredTransitionFigure.getAllActions()){
+					printString = "During Transition:  " + s;
+					p.println(printString);
+					p.flush();
 				}
 
 				if (inDrawing){
